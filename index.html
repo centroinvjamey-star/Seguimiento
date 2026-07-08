@@ -127,6 +127,24 @@
   .g-today{position:absolute;top:0;bottom:0;width:2px;background:var(--bloq);z-index:3}
   .g-cat-head{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);padding:12px 8px 5px;font-weight:700}
 
+  /* estado board */
+  .estboard{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+  .estcol{min-height:80px}
+  .estcol .ecolhead{display:flex;align-items:center;justify-content:space-between;padding:0 4px 8px}
+  .estcol .ecolhead .ename{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .estcol .ecolhead .ebadge{width:9px;height:9px;border-radius:3px}
+  .estcol.st-Pendiente .ebadge{background:var(--pend)} .estcol.st-Enproceso .ebadge{background:var(--proc)} .estcol.st-Realizada .ebadge{background:var(--real)} .estcol.st-Bloqueada .ebadge{background:var(--bloq)}
+  .estcol .ecolhead .enum{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1px 8px}
+  .estcol .ebody{display:flex;flex-direction:column;gap:8px;padding:4px;border-radius:10px;min-height:50px;transition:.12s}
+  .estcol .ebody.drag-over{background:var(--accent-soft);outline:2px dashed var(--accent);outline-offset:-3px}
+  .estcol .proc-row{margin:0}
+  .estcol .proc-main{cursor:grab}
+  .estcol .proc-row.dragging{opacity:.4}
+  .est-auto{font-family:ui-monospace,Menlo,monospace;font-size:10px;color:var(--accent);cursor:pointer;padding:4px 4px 0}
+  .est-auto:hover{text-decoration:underline}
+  @media(max-width:900px){.estboard{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.estboard{grid-template-columns:1fr}}
+
   /* modal (proceso detail) */
   .scrim{position:fixed;inset:0;background:rgba(20,20,15,.42);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}
   .scrim.open{display:flex}
@@ -205,7 +223,7 @@ const STORE=(function(){
           set:async(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}return{value:v};}};
 })();
 function setSync(s){const d=document.getElementById('syncDot'),t=document.getElementById('syncTxt');if(s){d.classList.add('saving');t.textContent='Guardando…';}else{d.classList.remove('saving');t.textContent='Guardado';}}
-function normalize(){data.forEach(p=>{if(!Array.isArray(p.actividades))p.actividades=[];if(!Array.isArray(p.comments))p.comments=[];p.actividades.forEach(a=>{if(!Array.isArray(a.tareas))a.tareas=[];if(!a.estado)a.estado='Pendiente';if(!('ini' in a))a.ini=null;if(!('obj' in a))a.obj=null;a.tareas.forEach(t=>{if(!('ini' in t))t.ini=null;if(!('obj' in t))t.obj=null;});});});}
+function normalize(){data.forEach(p=>{if(!Array.isArray(p.actividades))p.actividades=[];if(!Array.isArray(p.comments))p.comments=[];p.actividades.forEach(a=>{if(!Array.isArray(a.tareas))a.tareas=[];if(!a.estado)a.estado='Pendiente';if(!('ini' in a))a.ini=null;if(!('obj' in a))a.obj=null;if(!('resp' in a))a.resp='';a.tareas.forEach(t=>{if(!('ini' in t))t.ini=null;if(!('obj' in t))t.obj=null;if(!('resp' in t))t.resp='';});});});}
 async function loadData(){try{const r=await STORE.get(STORE_KEY,true);if(r&&r.value){data=JSON.parse(r.value);normalize();return;}}catch(e){}data=SEED.map(p=>({...p}));normalize();await saveData();}
 let saveTimer=null;
 async function saveData(){setSync(true);try{await STORE.set(STORE_KEY,JSON.stringify(data),true);}catch(e){console.error(e);}setSync(false);}
@@ -270,7 +288,7 @@ function catsInUse(){const s=new Set(data.map(p=>p.cat));return CAT_ORDER.filter
 function buildTabs(){
   const bar=document.getElementById('tabs');bar.innerHTML='';
   const cats=catsInUse();
-  const tabs=cats.map(c=>({key:'cat:'+c,label:c})).concat([{key:'person',label:'Por persona'},{key:'gantt',label:'Cronograma Gantt'}]);
+  const tabs=cats.map(c=>({key:'cat:'+c,label:c})).concat([{key:'estado',label:'Por estado'},{key:'person',label:'Por persona'},{key:'gantt',label:'Cronograma Gantt'}]);
   // if current view no longer exists, default to first
   if(!tabs.some(t=>t.key===view))view=tabs[0].key;
   tabs.forEach(t=>{const el=document.createElement('div');el.className='tab'+(t.key===view?' on':'');el.textContent=t.label;el.addEventListener('click',()=>{view=t.key;render();});bar.appendChild(el);});
@@ -280,9 +298,11 @@ function render(){
   buildTabs();
   const app=document.getElementById('app');app.innerHTML='';
   const isCat=view.startsWith('cat:');
-  document.getElementById('expandAll').style.display=isCat?'':'none';
-  document.getElementById('collapseAll').style.display=isCat?'':'none';
+  const showExp=isCat||view==='estado';
+  document.getElementById('expandAll').style.display=showExp?'':'none';
+  document.getElementById('collapseAll').style.display=showExp?'':'none';
   if(isCat){renderCategory(view.slice(4));}
+  else if(view==='estado'){renderEstado();}
   else if(view==='person'){renderPerson();}
   else if(view==='gantt'){renderGantt();}
 }
@@ -297,6 +317,38 @@ function renderCategory(cat){
   app.appendChild(bar);
   if(!procs.length){const e=document.createElement('div');e.className='empty';e.style.padding='40px';e.textContent=(totalInCat>0&&!showDone)?'Todos los procesos de esta categoría están realizados. Pulsa "Mostrar lo realizado".':'No hay procesos en esta categoría.';app.appendChild(e);return;}
   procs.forEach(p=>app.appendChild(procRow(p)));
+}
+
+function renderEstado(){
+  const app=document.getElementById('app');
+  const vis=data.filter(p=>procVisible(p));
+  const board=document.createElement('div');board.className='estboard';
+  STATES.forEach(st=>{
+    const inSt=vis.filter(p=>procEstado(p)===st);
+    const col=document.createElement('div');col.className='estcol '+stCls(st);
+    col.innerHTML=`<div class="ecolhead"><span class="ename"><span class="ebadge"></span>${st}</span><span class="enum">${inSt.length}</span></div>`;
+    const body=document.createElement('div');body.className='ebody';body.dataset.st=st;
+    body.addEventListener('dragover',e=>{e.preventDefault();body.classList.add('drag-over');});
+    body.addEventListener('dragleave',()=>body.classList.remove('drag-over'));
+    body.addEventListener('drop',e=>{e.preventDefault();body.classList.remove('drag-over');const id=e.dataTransfer.getData('text/plain');const p=data.find(x=>x.id===id);if(p&&procEstado(p)!==st){p.estadoManual=st;touch(p);queueSave();render();}});
+    if(!inSt.length){const em=document.createElement('div');em.className='empty';em.textContent='—';body.appendChild(em);}
+    inSt.forEach(p=>{
+      const r=procRow(p);
+      r.draggable=true;
+      const main=r.querySelector('.proc-main');
+      r.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',p.id);r.classList.add('dragging');});
+      r.addEventListener('dragend',()=>r.classList.remove('dragging'));
+      // if estado is manual, show a link to return to automatic
+      if(p.estadoManual){
+        const auto=document.createElement('div');auto.className='est-auto';auto.textContent='↩ estado automático';
+        auto.addEventListener('click',ev=>{ev.stopPropagation();p.estadoManual=null;touch(p);queueSave();render();});
+        r.appendChild(auto);
+      }
+      body.appendChild(r);
+    });
+    col.appendChild(body);board.appendChild(col);
+  });
+  app.appendChild(board);
 }
 
 function renderPerson(){
@@ -392,7 +444,7 @@ function procRow(p){
   row.appendChild(kids);
   return row;
 }
-function a_push(p,nombre){p.actividades.push({id:'A-'+Date.now()+Math.floor(Math.random()*99),nombre:nombre,estado:'Pendiente',ini:null,obj:null,tareas:[]});touch(p);queueSave();render();}
+function a_push(p,nombre){p.actividades.push({id:'A-'+Date.now()+Math.floor(Math.random()*99),nombre:nombre,estado:'Pendiente',resp:'',ini:null,obj:null,tareas:[]});touch(p);queueSave();render();}
 
 function actRow(p,a,ai){
   const est=actEstado(a);
@@ -401,27 +453,31 @@ function actRow(p,a,ai){
   const done=a.tareas.filter(t=>t.done).length;
   const main=document.createElement('div');main.className='act-main'+(isOpen?' open':'');
   const adue=dueMini(a,est);
+  const aresp=a.resp?`<span class="tag-person ${personClass(a.resp)}">${esc(a.resp)}</span>`:'';
   main.innerHTML=`<span class="caret">▸</span><span class="act-title">${esc(a.nombre)}</span>
-    <span class="proc-meta">${adue}${a.tareas.length?`<span class="ccount" style="font-family:ui-monospace;font-size:10px;color:var(--muted)">☑ ${done}/${a.tareas.length}</span>`:''}<span class="badge ${stCls(est)}">${est}</span></span>`;
+    <span class="proc-meta">${aresp}${adue}${a.tareas.length?`<span class="ccount" style="font-family:ui-monospace;font-size:10px;color:var(--muted)">☑ ${done}/${a.tareas.length}</span>`:''}<span class="badge ${stCls(est)}">${est}</span></span>`;
   main.addEventListener('click',e=>{openAct[a.id]=!isOpen;render();});
   wrap.appendChild(main);
   const kids=document.createElement('div');kids.className='act-kids'+(isOpen?' show':'');
-  // fechas de la actividad
+  // responsable + fechas de la actividad
   const drow=document.createElement('div');drow.style.cssText='display:flex;gap:10px;align-items:center;margin:4px 0 8px;flex-wrap:wrap';
-  drow.innerHTML=`<span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Inicio</span><input type="date" value="${a.ini||''}" data-af="ini" style="font-family:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper)"><span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Objetivo</span><input type="date" value="${a.obj||''}" data-af="obj" style="font-family:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper)">`;
-  drow.querySelectorAll('input').forEach(inp=>{inp.addEventListener('click',e=>e.stopPropagation());inp.addEventListener('change',e=>{a[inp.dataset.af]=e.target.value||null;touch(p);queueSave();render();});});
+  drow.innerHTML=`<span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Responsable</span>${respInput(a.resp)}<span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Inicio</span><input type="date" value="${a.ini||''}" data-af="ini" style="font-family:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper)"><span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Objetivo</span><input type="date" value="${a.obj||''}" data-af="obj" style="font-family:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper)">`;
+  drow.querySelectorAll('input[type=date]').forEach(inp=>{inp.addEventListener('click',e=>e.stopPropagation());inp.addEventListener('change',e=>{a[inp.dataset.af]=e.target.value||null;touch(p);queueSave();render();});});
+  const arf=drow.querySelector('.respfield');arf.addEventListener('click',e=>e.stopPropagation());arf.addEventListener('change',e=>{a.resp=e.target.value.trim()||'';touch(p);queueSave();render();});
   kids.appendChild(drow);
   // tareas
   a.tareas.forEach((t,ti)=>{
     const it=document.createElement('div');it.className='task-item'+(t.done?' done':'');
     const tdue=t.obj?`<span class="due ${dueCls(t.obj,t.done)}" style="margin-left:6px">${t.done?'hecho':fmtD(t.obj)}</span>`:'';
-    it.innerHTML=`<input type="checkbox" ${t.done?'checked':''}><span class="tt">${esc(t.txt)}</span>${tdue}<button class="tdate xdel" title="fechas">📅</button><button class="xdel">✕</button>`;
+    const tresp=t.resp?`<span class="tag-person ${personClass(t.resp)}" style="margin-left:6px">${esc(t.resp)}</span>`:'';
+    it.innerHTML=`<input type="checkbox" ${t.done?'checked':''}><span class="tt">${esc(t.txt)}</span>${tresp}${tdue}<button class="tdate xdel" title="responsable y fechas">📅</button><button class="xdel">✕</button>`;
     it.querySelector('input[type=checkbox]').addEventListener('click',ev=>{ev.stopPropagation();t.done=ev.target.checked;touch(p);queueSave();render();});
     it.querySelector('.xdel:last-child').addEventListener('click',ev=>{ev.stopPropagation();a.tareas.splice(ti,1);touch(p);queueSave();render();});
-    // toggle date editor for task
+    // toggle editor for task (responsable + fechas)
     const dedit=document.createElement('div');dedit.style.cssText='display:none;gap:8px;align-items:center;padding:2px 0 6px 23px;flex-wrap:wrap';
-    dedit.innerHTML=`<span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Inicio</span><input type="date" value="${t.ini||''}" data-tf="ini" style="font-family:inherit;font-size:11px;padding:2px 5px;border:1px solid var(--line);border-radius:6px;background:var(--paper)"><span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Objetivo</span><input type="date" value="${t.obj||''}" data-tf="obj" style="font-family:inherit;font-size:11px;padding:2px 5px;border:1px solid var(--line);border-radius:6px;background:var(--paper)">`;
-    dedit.querySelectorAll('input').forEach(inp=>{inp.addEventListener('click',e=>e.stopPropagation());inp.addEventListener('change',e=>{t[inp.dataset.tf]=e.target.value||null;touch(p);queueSave();render();});});
+    dedit.innerHTML=`<span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Resp.</span>${respInput(t.resp,true)}<span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Inicio</span><input type="date" value="${t.ini||''}" data-tf="ini" style="font-family:inherit;font-size:11px;padding:2px 5px;border:1px solid var(--line);border-radius:6px;background:var(--paper)"><span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Objetivo</span><input type="date" value="${t.obj||''}" data-tf="obj" style="font-family:inherit;font-size:11px;padding:2px 5px;border:1px solid var(--line);border-radius:6px;background:var(--paper)">`;
+    dedit.querySelectorAll('input[type=date]').forEach(inp=>{inp.addEventListener('click',e=>e.stopPropagation());inp.addEventListener('change',e=>{t[inp.dataset.tf]=e.target.value||null;touch(p);queueSave();render();});});
+    const trf=dedit.querySelector('.respfield');trf.addEventListener('click',e=>e.stopPropagation());trf.addEventListener('change',e=>{t.resp=e.target.value.trim()||'';touch(p);queueSave();render();});
     it.querySelector('.tdate').addEventListener('click',ev=>{ev.stopPropagation();dedit.style.display=dedit.style.display==='none'?'flex':'none';});
     kids.appendChild(it);kids.appendChild(dedit);
   });
@@ -436,7 +492,7 @@ function actRow(p,a,ai){
   // add tarea
   const addT=document.createElement('div');addT.className='addrow';
   addT.innerHTML=`<input placeholder="Nueva tarea…"><button>+ Tarea</button>`;
-  const addTdo=()=>{const inp=addT.querySelector('input');const v=inp.value.trim();if(!v)return;a.tareas.push({txt:v,done:false,ini:null,obj:null});touch(p);queueSave();render();};
+  const addTdo=()=>{const inp=addT.querySelector('input');const v=inp.value.trim();if(!v)return;a.tareas.push({txt:v,done:false,resp:'',ini:null,obj:null});touch(p);queueSave();render();};
   addT.querySelector('button').addEventListener('click',ev=>{ev.stopPropagation();addTdo();});
   addT.querySelector('input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addTdo();}});
   addT.querySelector('input').addEventListener('click',e=>e.stopPropagation());
@@ -450,6 +506,13 @@ function actRow(p,a,ai){
 }
 function dueCls(obj,done){if(done)return 'ok';const n=daysTo(obj);if(n===null)return 'ok';if(n<0)return 'over';if(n<=14)return 'soon';return 'ok';}
 function dueMini(a,est){if(!a.obj)return '';const done=est==='Realizada';const n=daysTo(a.obj);let l=fmtD(a.obj);if(done)l='hecho';else if(n!==null){if(n<0)l='venció';else if(n===0)l='hoy';else if(n<=14)l='en '+n+'d';}return `<span class="due ${dueCls(a.obj,done)}">${l}</span>`;}
+let respDLid=0;
+// input de responsable: menú con sugerencias (Jenny/Juan Luis) pero permite escribir otro
+function respInput(current,small){
+  const id='rl'+(respDLid++);
+  const fs=small?'11px':'12px';const pd=small?'2px 5px':'3px 6px';
+  return `<input list="${id}" value="${esc(current||'')}" placeholder="Responsable" class="respfield" style="font-family:inherit;font-size:${fs};padding:${pd};border:1px solid var(--line);border-radius:6px;background:var(--paper);width:120px"><datalist id="${id}"><option value="Jenny"><option value="Juan Luis"><option value="Otros"></datalist>`;
+}
 
 /* ---- modal: edit proceso ---- */
 function openModal(id){
