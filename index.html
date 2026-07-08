@@ -470,7 +470,7 @@ function procRow(p){
   if(est==='Realizada'){dc='ok';dl='hecho';}else if(n!==null){if(n<0){dc='over';dl='venció '+fmtD(p.obj);}else if(n<=14){dc='soon';dl=n===0?'hoy':'en '+n+'d';}}
   const main=document.createElement('div');main.className='proc-main'+(isOpen?' open':'');
   main.innerHTML=`<span class="caret">▸</span>
-    <span class="proc-title">${esc(p.nombre)}</span>
+    <span class="proc-title">${esc(p.nombre||('(sin nombre) '+(p.desc?'— '+p.desc.slice(0,40):'')))}</span>
     <span class="proc-meta">
       ${p.actividades.length?`<span class="miniprog"><i style="width:${Math.round(prog*100)}%"></i></span>`:''}
       <span class="tag-person ${personClass(p.resp)}">${esc(p.resp||'—')}</span>
@@ -622,7 +622,8 @@ function openModal(id){
     <div class="field"><label>Notas</label><textarea id="f_notas">${esc(p.notas)}</textarea></div>
     ${isNew?'':`<div class="section-t">Comentarios</div><div id="cmtList">${cmtHTML||'<div class="empty" style="text-align:left">Sin comentarios.</div>'}</div>
     <div class="cmt-compose"><div class="who-pick"><span class="chip whopick on" data-who="Jenny">Jenny</span><span class="chip whopick" data-who="Juan Luis">Juan Luis</span></div><textarea id="newCmt" placeholder="Escribe un comentario…"></textarea><div style="margin-top:6px"><button class="btn primary" id="addCmtBtn" style="padding:7px 14px;font-size:13px">Comentar</button></div></div>`}
-    <div class="mactions"><div>${isNew?'':'<button class="btn danger" id="delBtn">Eliminar proceso</button>'}</div><div style="display:flex;gap:8px"><button class="btn" id="cancelBtn">Cerrar</button><button class="btn primary" id="saveBtn">${isNew?'Crear':'Guardar'}</button></div></div>`;
+    <div class="mactions"><div>${isNew?'':'<button class="btn danger" id="delBtn">Eliminar proceso</button>'}</div><div style="display:flex;gap:8px"><button class="btn" id="cancelBtn">Cerrar</button><button class="btn primary" id="saveBtn">${isNew?'Crear':'Guardar'}</button></div></div>
+    ${isNew?'':`<div class="section-t">Convertir en actividad de otro proceso</div><div style="font-size:12.5px;color:var(--muted);margin-bottom:8px;line-height:1.5">Si este "proceso" en realidad es una etapa de otro (por ejemplo, una diligencia de un libro), conviértelo en actividad. Sus actividades internas pasarán a ser tareas; sus tareas se conservan.</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><select id="convTarget" style="font-family:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:var(--paper);flex:1;min-width:180px"><option value="">— elegir proceso destino —</option>${data.filter(x=>x.id!==id).map(x=>`<option value="${x.id}">${esc(x.nombre||'(sin nombre)')} · ${esc(x.cat)}</option>`).join('')}</select><button class="btn" id="convBtn">Convertir</button></div>`}`;
   document.getElementById('scrim').classList.add('open');
   document.getElementById('cancelBtn').onclick=closeModal;
   document.getElementById('saveBtn').onclick=()=>{
@@ -635,6 +636,24 @@ function openModal(id){
   };
   const del=document.getElementById('delBtn');if(del)del.onclick=()=>{if(confirm('¿Eliminar todo el proceso?')){data=data.filter(x=>x.id!==id);saveData();closeModal();render();}};
   if(!isNew){
+    const convBtn=document.getElementById('convBtn');
+    if(convBtn)convBtn.onclick=()=>{
+      const tid=document.getElementById('convTarget').value;
+      if(!tid){alert('Elige el proceso destino.');return;}
+      const target=data.find(x=>x.id===tid);if(!target)return;
+      const nombreAct=(p.nombre&&p.nombre.trim())?p.nombre.trim():(p.desc?p.desc.slice(0,50):'Actividad');
+      // construir la nueva actividad a partir del proceso
+      const nuevaAct={id:'A-'+Date.now()+Math.floor(Math.random()*99),nombre:nombreAct,estado:'Pendiente',estadoManual:null,resp:p.resp||'',ini:p.ini||null,obj:p.obj||null,tareas:[]};
+      // sus actividades internas -> tareas; sus tareas -> tareas
+      (p.actividades||[]).forEach(a=>{
+        nuevaAct.tareas.push({txt:a.nombre,done:actEstado(a)==='Realizada',estado:actEstado(a),resp:a.resp||'',ini:a.ini||null,obj:a.obj||null});
+        (a.tareas||[]).forEach(t=>nuevaAct.tareas.push({txt:'  · '+t.txt,done:t.estado==='Realizada',estado:t.estado||'Pendiente',resp:t.resp||'',ini:t.ini||null,obj:t.obj||null}));
+      });
+      if(!confirm('Convertir "'+(p.nombre||'(sin nombre)')+'" en una actividad dentro de "'+target.nombre+'"?'))return;
+      target.actividades.push(nuevaAct);touch(target);
+      data=data.filter(x=>x.id!==id);
+      saveData();closeModal();view='cat:'+target.cat;render();
+    };
     let who='Jenny';m.querySelectorAll('.whopick').forEach(c=>c.addEventListener('click',()=>{m.querySelectorAll('.whopick').forEach(x=>x.classList.remove('on'));c.classList.add('on');who=c.dataset.who;}));
     m.querySelectorAll('[data-cmtdel]').forEach(b=>b.addEventListener('click',()=>{p.comments.splice(+b.dataset.cmtdel,1);touch(p);queueSave();openModal(id);}));
     document.getElementById('addCmtBtn').onclick=()=>{const v=document.getElementById('newCmt').value.trim();if(!v)return;const f=new Date().toLocaleDateString('es-DO',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});p.comments.push({autor:who,texto:v,fecha:f});touch(p);queueSave();openModal(id);};
