@@ -212,7 +212,7 @@ const STORE_KEY='seguimiento_jl_jt_v3';
 const URL_KEY='seguimiento_sync_url';
 const CAT_ORDER=['Libros','Artículos','Manuales','Investigaciones','Producción','Formación','Organización','Mantenimiento','Vida personal','Transversales'];
 const STATES=['Pendiente','En proceso','Realizada','Bloqueada'];
-let data=[], SYNC_URL='', showDone=false, searchТ='';
+let data=[], SYNC_URL='', showDone=false, searchТ='', showEmptyCats=false;
 let view='cat:Libros';
 let openCat={}, openProc={}, openAct={};
 
@@ -290,15 +290,19 @@ function procVisible(p){
 }
 
 /* ---- render ---- */
-function catsInUse(){const s=new Set(data.map(p=>p.cat));return CAT_ORDER.filter(c=>s.has(c)).concat([...s].filter(c=>!CAT_ORDER.includes(c)));}
+function allCatsPresent(){const s=new Set(data.map(p=>p.cat));return CAT_ORDER.filter(c=>s.has(c)).concat([...s].filter(c=>!CAT_ORDER.includes(c)));}
+function catHasProcs(c){return data.some(p=>p.cat===c);}
+function catsInUse(){return allCatsPresent().filter(c=>showEmptyCats||catHasProcs(c));}
+function emptyCatsCount(){return allCatsPresent().filter(c=>!catHasProcs(c)).length;}
 
 function buildTabs(){
   const bar=document.getElementById('tabs');bar.innerHTML='';
   const cats=catsInUse();
   const tabs=cats.map(c=>({key:'cat:'+c,label:c})).concat([{key:'estado',label:'Por estado'},{key:'person',label:'Por persona'},{key:'gantt',label:'Cronograma Gantt'}]);
-  // if current view no longer exists, default to first
   if(!tabs.some(t=>t.key===view))view=tabs[0].key;
   tabs.forEach(t=>{const el=document.createElement('div');el.className='tab'+(t.key===view?' on':'');el.textContent=t.label;el.addEventListener('click',()=>{view=t.key;render();});bar.appendChild(el);});
+  const ne=emptyCatsCount();
+  if(ne>0||showEmptyCats){const tog=document.createElement('div');tog.className='tab';tog.style.color='var(--muted)';tog.style.fontWeight='400';tog.textContent=showEmptyCats?'ocultar vacías':`+ ${ne} vacía${ne===1?'':'s'}`;tog.title='Mostrar u ocultar categorías sin procesos';tog.addEventListener('click',()=>{showEmptyCats=!showEmptyCats;render();});bar.appendChild(tog);}
 }
 
 function render(){
@@ -319,8 +323,11 @@ function renderCategory(cat){
   const procs=data.filter(p=>p.cat===cat&&procVisible(p));
   const totalInCat=data.filter(p=>p.cat===cat).length;
   const done=data.filter(p=>p.cat===cat&&procEstado(p)==='Realizada').length;
-  const bar=document.createElement('div');bar.style.cssText='display:flex;align-items:center;gap:12px;margin:16px 0 4px';
+  const bar=document.createElement('div');bar.style.cssText='display:flex;align-items:center;gap:12px;margin:16px 0 4px;flex-wrap:wrap';
   bar.innerHTML=`<span class="ccount" style="font-family:ui-monospace;font-size:12px;color:var(--muted)">${done}/${totalInCat} procesos realizados en ${esc(cat)}</span>`;
+  const delCat=document.createElement('button');delCat.className='miniedit';delCat.style.color='var(--bloq)';delCat.textContent='✕ borrar categoría';
+  delCat.addEventListener('click',()=>deleteCategory(cat));
+  bar.appendChild(delCat);
   app.appendChild(bar);
   if(!procs.length){const e=document.createElement('div');e.className='empty';e.style.padding='40px';e.textContent=(totalInCat>0&&!showDone)?'Todos los procesos de esta categoría están realizados. Pulsa "Mostrar lo realizado".':'No hay procesos en esta categoría.';app.appendChild(e);return;}
   procs.forEach(p=>app.appendChild(procRow(p)));
@@ -339,22 +346,27 @@ function renderEstado(){
   app.appendChild(bar);
 
   // recolectar items del nivel elegido
-  const vis=data.filter(p=>procVisible(p));
-  let items=[]; // {id, estado, render:()=>el, setEstado:(st)=>{}}
+  // en niveles actividad/tarea NO filtramos por proceso realizado: queremos ver TODAS
+  // (incluidas las realizadas en su columna). Solo aplicamos el filtro de búsqueda.
+  const inSearch=p=>procMatchesSearch(p);
+  let items=[]; // {id, estado, set:(st)=>{}, ...}
   if(estadoNivel==='proceso'){
+    const vis=data.filter(p=>procVisible(p));
     vis.forEach(p=>items.push({key:'P|'+p.id,estado:procEstado(p),p,manual:!!p.estadoManual,
       set:st=>{p.estadoManual=st;touch(p);},clearAuto:()=>{p.estadoManual=null;touch(p);},
       title:p.nombre,crumb:esc(p.cat),node:()=>procRow(p)}));
   } else if(estadoNivel==='actividad'){
-    vis.forEach(p=>p.actividades.forEach(a=>items.push({key:'A|'+a.id,estado:actEstado(a),p,a,manual:!!a.estadoManual,
+    data.filter(inSearch).forEach(p=>p.actividades.forEach(a=>items.push({key:'A|'+a.id,estado:actEstado(a),p,a,manual:!!a.estadoManual,
       set:st=>{if(a.tareas&&a.tareas.length){a.estadoManual=st;}else{a.estado=st;}touch(p);},
       clearAuto:()=>{a.estadoManual=null;touch(p);},
       title:a.nombre,crumb:esc(p.nombre),node:null})));
   } else {
-    vis.forEach(p=>p.actividades.forEach(a=>a.tareas.forEach((t,ti)=>items.push({key:'T|'+p.id+'|'+a.id+'|'+ti,estado:taskEstado(t),p,a,t,
+    data.filter(inSearch).forEach(p=>p.actividades.forEach(a=>a.tareas.forEach((t,ti)=>items.push({key:'T|'+p.id+'|'+a.id+'|'+ti,estado:taskEstado(t),p,a,t,
       set:st=>{t.estado=st;t.done=st==='Realizada';touch(p);},
       title:t.txt,crumb:esc(p.nombre)+' › '+esc(a.nombre),node:null}))));
   }
+  // filtro "mostrar lo realizado" aplicado al propio ítem (no al proceso) en actividad/tarea
+  if(estadoNivel!=='proceso'&&!showDone){items=items.filter(x=>x.estado!=='Realizada');}
 
   const board=document.createElement('div');board.className='estboard';
   STATES.forEach(st=>{
@@ -374,12 +386,19 @@ function renderEstado(){
         const meta=[];if(it.t&&it.t.resp)meta.push(`<span class="tag-person ${personClass(it.t.resp)}">${esc(it.t.resp)}</span>`);if(it.a&&!it.t&&it.a.resp)meta.push(`<span class="tag-person ${personClass(it.a.resp)}">${esc(it.a.resp)}</span>`);
         const obj=(it.t&&it.t.obj)||(it.a&&it.a.obj);
         if(obj){const dn=it.estado==='Realizada';meta.push(`<span class="due ${dueCls(obj,dn)}">${dn?'hecho':fmtD(obj)}</span>`);}
-        el.innerHTML=`<div class="proc-main" style="cursor:grab"><span style="flex:1"><span style="font-size:13px;font-weight:600;display:block;line-height:1.25">${esc(it.title)}</span><span style="font-size:10px;color:var(--muted);font-family:ui-monospace">${it.crumb}</span></span><span class="proc-meta">${meta.join('')}<span class="badge ${stCls(st)}">${st}</span></span></div>`;
-        el.querySelector('.proc-main').addEventListener('click',()=>openModal(it.p.id));
+        el.innerHTML=`<div class="proc-main" style="cursor:grab"><span style="flex:1"><span style="font-size:13px;font-weight:600;display:block;line-height:1.25">${esc(it.title)}</span><span style="font-size:10px;color:var(--muted);font-family:ui-monospace">${it.crumb}</span></span><span class="proc-meta">${meta.join('')}</span></div>`;
+        el.querySelector('.proc-main').addEventListener('click',ev=>{if(ev.target.closest('.estsel'))return;openModal(it.p.id);});
       }
       el.draggable=true;
       el.addEventListener('dragstart',ev=>{ev.dataTransfer.setData('text/plain',it.key);el.classList.add('dragging');});
       el.addEventListener('dragend',()=>el.classList.remove('dragging'));
+      // selector de estado (funciona en cualquier dispositivo, no depende de arrastrar)
+      const selWrap=document.createElement('div');selWrap.style.cssText='display:flex;align-items:center;gap:6px;padding:6px 12px 10px';
+      selWrap.innerHTML=`<span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Estado</span><select class="estsel" style="font-family:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper)">${STATES.map(s=>`<option ${s===it.estado?'selected':''}>${s}</option>`).join('')}</select>`;
+      const sel=selWrap.querySelector('select');
+      sel.addEventListener('click',ev=>ev.stopPropagation());
+      sel.addEventListener('change',ev=>{if(it.estado!==ev.target.value){it.set(ev.target.value);queueSave();render();}});
+      el.appendChild(selWrap);
       if(it.manual&&it.clearAuto){const auto=document.createElement('div');auto.className='est-auto';auto.textContent='↩ estado automático';auto.addEventListener('click',ev=>{ev.stopPropagation();it.clearAuto();queueSave();render();});el.appendChild(auto);}
       body.appendChild(el);
     });
@@ -520,13 +539,21 @@ function actRow(p,a,ai){
     it.querySelector('.tdate').addEventListener('click',ev=>{ev.stopPropagation();dedit.style.display=dedit.style.display==='none'?'flex':'none';});
     kids.appendChild(it);kids.appendChild(dedit);
   });
-  // estado manual de actividad si no tiene tareas
+  // estado manual + mover de proceso, si la actividad no tiene tareas (está vacía)
   if(!a.tareas.length){
     const sel=document.createElement('div');sel.style.cssText='margin:4px 0';
     sel.innerHTML=`<select style="font-family:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper)">${STATES.map(s=>`<option ${s===a.estado?'selected':''}>${s}</option>`).join('')}</select> <span style="font-size:11px;color:var(--muted)">estado de la actividad</span>`;
     sel.querySelector('select').addEventListener('change',ev=>{a.estado=ev.target.value;touch(p);queueSave();render();});
     sel.querySelector('select').addEventListener('click',e=>e.stopPropagation());
     kids.appendChild(sel);
+    // mover actividad vacía a otro proceso
+    const mv=document.createElement('div');mv.style.cssText='margin:6px 0';
+    const otros=data.filter(x=>x.id!==p.id);
+    mv.innerHTML=`<span style="font-size:11px;color:var(--muted)">Mover a proceso: </span><select style="font-family:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper);max-width:220px"><option value="">— elegir —</option>${otros.map(x=>`<option value="${x.id}">${esc(x.nombre)} (${esc(x.cat)})</option>`).join('')}</select>`;
+    const msel=mv.querySelector('select');
+    msel.addEventListener('click',e=>e.stopPropagation());
+    msel.addEventListener('change',ev=>{const tid=ev.target.value;if(!tid)return;const target=data.find(x=>x.id===tid);if(!target)return;p.actividades.splice(ai,1);target.actividades.push(a);touch(p);touch(target);queueSave();render();});
+    kids.appendChild(mv);
   }
   // add tarea
   const addT=document.createElement('div');addT.className='addrow';
@@ -554,6 +581,31 @@ function respInput(current,small){
 }
 
 /* ---- modal: edit proceso ---- */
+function deleteCategory(cat){
+  const procs=data.filter(p=>p.cat===cat);
+  const otras=allCatsPresent().filter(c=>c!==cat).concat(CAT_ORDER.filter(c=>!allCatsPresent().includes(c)));
+  const uniqOtras=[...new Set(otras)];
+  const m=document.getElementById('modal');
+  if(procs.length===0){
+    m.innerHTML=`<h2>Borrar categoría</h2><div class="mid">${esc(cat)} está vacía</div><p style="font-size:14px">Esta categoría no tiene procesos. Como las categorías vienen de una lista fija, "borrarla" solo la oculta de las pestañas. Ya se oculta sola cuando está vacía.</p><div class="mactions"><div></div><div><button class="btn" id="cCancel">Cerrar</button></div></div>`;
+    document.getElementById('scrim').classList.add('open');document.getElementById('cCancel').onclick=closeModal;return;
+  }
+  m.innerHTML=`<h2>Borrar categoría "${esc(cat)}"</h2><div class="mid">Contiene ${procs.length} proceso${procs.length===1?'':'s'}</div>
+    <p style="font-size:14px;line-height:1.5">¿Qué hago con los procesos de esta categoría?</p>
+    <div class="field"><label>Opción</label><select id="dcMode"><option value="move">Mover los procesos a otra categoría</option><option value="delete">Borrar los procesos junto con la categoría</option></select></div>
+    <div class="field" id="dcTargetWrap"><label>Mover a</label><select id="dcTarget">${uniqOtras.map(c=>`<option>${esc(c)}</option>`).join('')}</select></div>
+    <div class="mactions"><div></div><div style="display:flex;gap:8px"><button class="btn" id="dcCancel">Cancelar</button><button class="btn danger" id="dcOk">Aplicar</button></div></div>`;
+  document.getElementById('scrim').classList.add('open');
+  const modeSel=document.getElementById('dcMode');const tw=document.getElementById('dcTargetWrap');
+  modeSel.addEventListener('change',()=>{tw.style.display=modeSel.value==='move'?'':'none';});
+  document.getElementById('dcCancel').onclick=closeModal;
+  document.getElementById('dcOk').onclick=()=>{
+    if(modeSel.value==='move'){const tgt=document.getElementById('dcTarget').value;procs.forEach(p=>{p.cat=tgt;touch(p);});}
+    else{if(!confirm('Se borrarán '+procs.length+' proceso(s) con sus actividades y tareas. ¿Seguro?'))return;const ids=new Set(procs.map(p=>p.id));data=data.filter(p=>!ids.has(p.id));}
+    saveData();closeModal();view='cat:'+(catsInUse()[0]||'');render();
+  };
+}
+
 function openModal(id){
   const isNew=!id;
   const p=id?data.find(x=>x.id===id):{id:'',cat:'Libros',sub:'',nombre:'',desc:'',resp:'Jenny',coresp:'',ini:null,obj:null,prio:'Media',notas:'',estadoManual:null,estadoBase:'Pendiente',actividades:[],comments:[]};
