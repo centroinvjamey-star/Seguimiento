@@ -223,7 +223,7 @@ const STORE=(function(){
           set:async(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}return{value:v};}};
 })();
 function setSync(s){const d=document.getElementById('syncDot'),t=document.getElementById('syncTxt');if(s){d.classList.add('saving');t.textContent='Guardando…';}else{d.classList.remove('saving');t.textContent='Guardado';}}
-function normalize(){data.forEach(p=>{if(!Array.isArray(p.actividades))p.actividades=[];if(!Array.isArray(p.comments))p.comments=[];p.actividades.forEach(a=>{if(!Array.isArray(a.tareas))a.tareas=[];if(!a.estado)a.estado='Pendiente';if(!('ini' in a))a.ini=null;if(!('obj' in a))a.obj=null;if(!('resp' in a))a.resp='';a.tareas.forEach(t=>{if(!('ini' in t))t.ini=null;if(!('obj' in t))t.obj=null;if(!('resp' in t))t.resp='';});});});}
+function normalize(){data.forEach(p=>{if(!Array.isArray(p.actividades))p.actividades=[];if(!Array.isArray(p.comments))p.comments=[];p.actividades.forEach(a=>{if(!Array.isArray(a.tareas))a.tareas=[];if(!a.estado)a.estado='Pendiente';if(!('estadoManual' in a))a.estadoManual=null;if(!('ini' in a))a.ini=null;if(!('obj' in a))a.obj=null;if(!('resp' in a))a.resp='';a.tareas.forEach(t=>{if(!('ini' in t))t.ini=null;if(!('obj' in t))t.obj=null;if(!('resp' in t))t.resp='';if(!t.estado)t.estado=t.done?'Realizada':'Pendiente';t.done=t.estado==='Realizada';});});});}
 async function loadData(){try{const r=await STORE.get(STORE_KEY,true);if(r&&r.value){data=JSON.parse(r.value);normalize();return;}}catch(e){}data=SEED.map(p=>({...p}));normalize();await saveData();}
 let saveTimer=null;
 async function saveData(){setSync(true);try{await STORE.set(STORE_KEY,JSON.stringify(data),true);}catch(e){console.error(e);}setSync(false);}
@@ -243,12 +243,19 @@ function stCls(s){return 'st-'+(s||'').replace(/\s/g,'');}
 
 /* ---- estado que sube solo ---- */
 // actividad: Realizada si todas sus tareas hechas y tiene tareas; si no tiene tareas, usa su propio estado
+function taskEstado(t){
+  // estado es la fuente de verdad; la casilla equivale a Realizada
+  if(t.estado)return t.estado;
+  return t.done?'Realizada':'Pendiente';
+}
 function actEstado(a){
+  if(a.estadoManual)return a.estadoManual;
   if(a.tareas&&a.tareas.length){
-    const done=a.tareas.filter(t=>t.done).length;
-    if(done===0)return a.estado==='Bloqueada'?'Bloqueada':'Pendiente';
-    if(done===a.tareas.length)return 'Realizada';
-    return 'En proceso';
+    const ests=a.tareas.map(taskEstado);
+    if(ests.every(e=>e==='Realizada'))return 'Realizada';
+    if(ests.some(e=>e==='Bloqueada'))return 'Bloqueada';
+    if(ests.some(e=>e==='En proceso'||e==='Realizada'))return 'En proceso';
+    return 'Pendiente';
   }
   return a.estado||'Pendiente';
 }
@@ -319,32 +326,62 @@ function renderCategory(cat){
   procs.forEach(p=>app.appendChild(procRow(p)));
 }
 
+let estadoNivel='proceso'; // proceso | actividad | tarea
 function renderEstado(){
   const app=document.getElementById('app');
+  // selector de nivel
+  const bar=document.createElement('div');bar.style.cssText='display:flex;gap:8px;align-items:center;margin:16px 0 6px;flex-wrap:wrap';
+  bar.innerHTML=`<span style="font-size:12px;color:var(--muted);font-family:ui-monospace">Mover por estado:</span>`;
+  [['proceso','Procesos'],['actividad','Actividades'],['tarea','Tareas']].forEach(([k,l])=>{
+    const c=document.createElement('span');c.className='chip'+(estadoNivel===k?' on':'');c.textContent=l;c.style.cursor='pointer';
+    c.addEventListener('click',()=>{estadoNivel=k;render();});bar.appendChild(c);
+  });
+  app.appendChild(bar);
+
+  // recolectar items del nivel elegido
   const vis=data.filter(p=>procVisible(p));
+  let items=[]; // {id, estado, render:()=>el, setEstado:(st)=>{}}
+  if(estadoNivel==='proceso'){
+    vis.forEach(p=>items.push({key:'P|'+p.id,estado:procEstado(p),p,manual:!!p.estadoManual,
+      set:st=>{p.estadoManual=st;touch(p);},clearAuto:()=>{p.estadoManual=null;touch(p);},
+      title:p.nombre,crumb:esc(p.cat),node:()=>procRow(p)}));
+  } else if(estadoNivel==='actividad'){
+    vis.forEach(p=>p.actividades.forEach(a=>items.push({key:'A|'+a.id,estado:actEstado(a),p,a,manual:!!a.estadoManual,
+      set:st=>{if(a.tareas&&a.tareas.length){a.estadoManual=st;}else{a.estado=st;}touch(p);},
+      clearAuto:()=>{a.estadoManual=null;touch(p);},
+      title:a.nombre,crumb:esc(p.nombre),node:null})));
+  } else {
+    vis.forEach(p=>p.actividades.forEach(a=>a.tareas.forEach((t,ti)=>items.push({key:'T|'+p.id+'|'+a.id+'|'+ti,estado:taskEstado(t),p,a,t,
+      set:st=>{t.estado=st;t.done=st==='Realizada';touch(p);},
+      title:t.txt,crumb:esc(p.nombre)+' › '+esc(a.nombre),node:null}))));
+  }
+
   const board=document.createElement('div');board.className='estboard';
   STATES.forEach(st=>{
-    const inSt=vis.filter(p=>procEstado(p)===st);
+    const inSt=items.filter(x=>x.estado===st);
     const col=document.createElement('div');col.className='estcol '+stCls(st);
     col.innerHTML=`<div class="ecolhead"><span class="ename"><span class="ebadge"></span>${st}</span><span class="enum">${inSt.length}</span></div>`;
     const body=document.createElement('div');body.className='ebody';body.dataset.st=st;
     body.addEventListener('dragover',e=>{e.preventDefault();body.classList.add('drag-over');});
     body.addEventListener('dragleave',()=>body.classList.remove('drag-over'));
-    body.addEventListener('drop',e=>{e.preventDefault();body.classList.remove('drag-over');const id=e.dataTransfer.getData('text/plain');const p=data.find(x=>x.id===id);if(p&&procEstado(p)!==st){p.estadoManual=st;touch(p);queueSave();render();}});
+    body.addEventListener('drop',e=>{e.preventDefault();body.classList.remove('drag-over');const key=e.dataTransfer.getData('text/plain');const it=items.find(x=>x.key===key);if(it&&it.estado!==st){it.set(st);queueSave();render();}});
     if(!inSt.length){const em=document.createElement('div');em.className='empty';em.textContent='—';body.appendChild(em);}
-    inSt.forEach(p=>{
-      const r=procRow(p);
-      r.draggable=true;
-      const main=r.querySelector('.proc-main');
-      r.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',p.id);r.classList.add('dragging');});
-      r.addEventListener('dragend',()=>r.classList.remove('dragging'));
-      // if estado is manual, show a link to return to automatic
-      if(p.estadoManual){
-        const auto=document.createElement('div');auto.className='est-auto';auto.textContent='↩ estado automático';
-        auto.addEventListener('click',ev=>{ev.stopPropagation();p.estadoManual=null;touch(p);queueSave();render();});
-        r.appendChild(auto);
+    inSt.forEach(it=>{
+      let el;
+      if(it.node){ el=it.node(); }
+      else{
+        el=document.createElement('div');el.className='proc-row '+stCls(st);
+        const meta=[];if(it.t&&it.t.resp)meta.push(`<span class="tag-person ${personClass(it.t.resp)}">${esc(it.t.resp)}</span>`);if(it.a&&!it.t&&it.a.resp)meta.push(`<span class="tag-person ${personClass(it.a.resp)}">${esc(it.a.resp)}</span>`);
+        const obj=(it.t&&it.t.obj)||(it.a&&it.a.obj);
+        if(obj){const dn=it.estado==='Realizada';meta.push(`<span class="due ${dueCls(obj,dn)}">${dn?'hecho':fmtD(obj)}</span>`);}
+        el.innerHTML=`<div class="proc-main" style="cursor:grab"><span style="flex:1"><span style="font-size:13px;font-weight:600;display:block;line-height:1.25">${esc(it.title)}</span><span style="font-size:10px;color:var(--muted);font-family:ui-monospace">${it.crumb}</span></span><span class="proc-meta">${meta.join('')}<span class="badge ${stCls(st)}">${st}</span></span></div>`;
+        el.querySelector('.proc-main').addEventListener('click',()=>openModal(it.p.id));
       }
-      body.appendChild(r);
+      el.draggable=true;
+      el.addEventListener('dragstart',ev=>{ev.dataTransfer.setData('text/plain',it.key);el.classList.add('dragging');});
+      el.addEventListener('dragend',()=>el.classList.remove('dragging'));
+      if(it.manual&&it.clearAuto){const auto=document.createElement('div');auto.className='est-auto';auto.textContent='↩ estado automático';auto.addEventListener('click',ev=>{ev.stopPropagation();it.clearAuto();queueSave();render();});el.appendChild(auto);}
+      body.appendChild(el);
     });
     col.appendChild(body);board.appendChild(col);
   });
@@ -467,11 +504,13 @@ function actRow(p,a,ai){
   kids.appendChild(drow);
   // tareas
   a.tareas.forEach((t,ti)=>{
-    const it=document.createElement('div');it.className='task-item'+(t.done?' done':'');
-    const tdue=t.obj?`<span class="due ${dueCls(t.obj,t.done)}" style="margin-left:6px">${t.done?'hecho':fmtD(t.obj)}</span>`:'';
+    const test=taskEstado(t);
+    const it=document.createElement('div');it.className='task-item'+(test==='Realizada'?' done':'');
+    const tdue=t.obj?`<span class="due ${dueCls(t.obj,test==='Realizada')}" style="margin-left:6px">${test==='Realizada'?'hecho':fmtD(t.obj)}</span>`:'';
     const tresp=t.resp?`<span class="tag-person ${personClass(t.resp)}" style="margin-left:6px">${esc(t.resp)}</span>`:'';
-    it.innerHTML=`<input type="checkbox" ${t.done?'checked':''}><span class="tt">${esc(t.txt)}</span>${tresp}${tdue}<button class="tdate xdel" title="responsable y fechas">📅</button><button class="xdel">✕</button>`;
-    it.querySelector('input[type=checkbox]').addEventListener('click',ev=>{ev.stopPropagation();t.done=ev.target.checked;touch(p);queueSave();render();});
+    const tbadge=(test!=='Pendiente'&&test!=='Realizada')?`<span class="badge ${stCls(test)}" style="margin-left:6px">${test}</span>`:'';
+    it.innerHTML=`<input type="checkbox" ${test==='Realizada'?'checked':''}><span class="tt">${esc(t.txt)}</span>${tresp}${tbadge}${tdue}<button class="tdate xdel" title="responsable y fechas">📅</button><button class="xdel">✕</button>`;
+    it.querySelector('input[type=checkbox]').addEventListener('click',ev=>{ev.stopPropagation();t.estado=ev.target.checked?'Realizada':'Pendiente';t.done=ev.target.checked;touch(p);queueSave();render();});
     it.querySelector('.xdel:last-child').addEventListener('click',ev=>{ev.stopPropagation();a.tareas.splice(ti,1);touch(p);queueSave();render();});
     // toggle editor for task (responsable + fechas)
     const dedit=document.createElement('div');dedit.style.cssText='display:none;gap:8px;align-items:center;padding:2px 0 6px 23px;flex-wrap:wrap';
