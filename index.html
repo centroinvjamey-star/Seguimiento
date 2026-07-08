@@ -15,12 +15,10 @@
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
-  body{background:var(--paper);color:var(--ink);
-    font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
-    -webkit-font-smoothing:antialiased;line-height:1.4;}
-  .wrap{max-width:1400px;margin:0 auto;padding:22px 20px 80px}
+  body{background:var(--paper);color:var(--ink);font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;-webkit-font-smoothing:antialiased;line-height:1.4;}
+  .wrap{max-width:1100px;margin:0 auto;padding:22px 20px 90px}
   header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:14px}
-  .brand h1{font-size:26px;margin:0;letter-spacing:-.01em;font-weight:600}
+  .brand h1{font-size:25px;margin:0;letter-spacing:-.01em;font-weight:600}
   .brand .sub{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:5px}
   .toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .synced{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:7px}
@@ -30,21 +28,10 @@
   .iobtn{font-family:ui-monospace,Menlo,monospace;font-size:11px;padding:6px 11px;border:1px solid var(--line);border-radius:7px;background:var(--card);cursor:pointer;color:var(--muted)}
   .iobtn:hover{border-color:var(--ink);color:var(--ink)}
 
-  /* tabs */
-  .tabs{display:flex;gap:4px;margin:18px 0 4px;border-bottom:1px solid var(--line)}
-  .tab{font-size:14px;padding:9px 16px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:600}
+  .tabs{display:flex;gap:4px;margin:18px 0 4px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .tab{font-size:14px;padding:9px 15px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:600}
   .tab.on{color:var(--ink);border-bottom-color:var(--accent)}
 
-  /* progress */
-  .progress-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin:16px 0 8px}
-  .pcard{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 13px;box-shadow:var(--shadow)}
-  .pcard .plabel{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;font-weight:600;margin-bottom:7px}
-  .pcard .pcount{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--muted);font-weight:400}
-  .bar{height:7px;border-radius:20px;background:var(--accent-soft);overflow:hidden;display:flex}
-  .bar i{display:block;height:100%}
-  .bar i.real{background:var(--real)} .bar i.proc{background:var(--proc)} .bar i.pend{background:var(--pend)} .bar i.bloq{background:var(--bloq)}
-
-  /* controls */
   .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0 6px}
   .controls input[type=search]{flex:1;min-width:180px;font-family:inherit;font-size:14px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
   .chip{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.04em;padding:6px 11px;border:1px solid var(--line);border-radius:20px;background:var(--card);cursor:pointer;color:var(--muted);transition:.12s}
@@ -52,86 +39,67 @@
   .chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
   .chip.addbtn{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
 
-  /* board */
-  .board{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px}
-  .col-head{display:flex;align-items:center;justify-content:space-between;padding:0 4px 10px}
-  .col-head .cname{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
-  .col-head .cbadge{width:9px;height:9px;border-radius:3px}
-  .col-head .cnum{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1px 8px}
-  .col.pend .cbadge{background:var(--pend)} .col.proc .cbadge{background:var(--proc)} .col.real .cbadge{background:var(--real)} .col.bloq .cbadge{background:var(--bloq)}
-  .col-body{display:flex;flex-direction:column;gap:9px;padding:4px;border-radius:10px;min-height:60px;transition:.12s}
-  .col-body.drag-over{background:var(--accent-soft);outline:2px dashed var(--accent);outline-offset:-3px}
+  /* category sections */
+  .cat-section{margin-top:18px}
+  .cat-head{display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px 4px;border-bottom:1.5px solid var(--ink);user-select:none}
+  .cat-head .caret{transition:transform .12s;display:inline-block;font-size:13px;color:var(--muted)}
+  .cat-head.open .caret{transform:rotate(90deg)}
+  .cat-head h2{font-size:17px;margin:0;font-weight:600;flex:1}
+  .cat-head .cbar{height:6px;width:110px;border-radius:20px;background:var(--accent-soft);overflow:hidden;display:flex}
+  .cat-head .cbar i{display:block;height:100%}
+  .cat-head .cbar i.real{background:var(--real)} .cat-head .cbar i.proc{background:var(--proc)} .cat-head .cbar i.pend{background:var(--pend)} .cat-head .cbar i.bloq{background:var(--bloq)}
+  .cat-head .ccount{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--muted)}
+  .cat-body{padding:8px 0 4px;display:none}
+  .cat-body.show{display:block}
 
-  .card{background:var(--card);border:1px solid var(--line);border-left-width:3px;border-radius:9px;padding:11px 12px;box-shadow:var(--shadow);cursor:grab;position:relative}
-  .card:active{cursor:grabbing}
-  .card.dragging{opacity:.4}
-  .card.p-Alta{border-left-color:var(--bloq)} .card.p-Media{border-left-color:var(--pend)} .card.p-Baja{border-left-color:var(--muted)}
-  .card .ctop{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:5px}
-  .card .cid{font-family:ui-monospace,Menlo,monospace;font-size:10px;color:var(--muted)}
-  .card .ccat{font-family:ui-monospace,Menlo,monospace;font-size:9px;text-transform:uppercase;letter-spacing:.08em;padding:2px 7px;border-radius:10px;background:var(--accent-soft);color:var(--accent);font-weight:600}
-  .card h3{font-size:14px;margin:0 0 6px;font-weight:600;line-height:1.28;cursor:pointer}
-  .card .meta{display:flex;flex-wrap:wrap;gap:5px 9px;font-size:11px;color:var(--muted);align-items:center}
-  .card .who{font-weight:600}
+  /* proceso row */
+  .proc-row{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--muted);border-radius:9px;margin:8px 0;box-shadow:var(--shadow);overflow:hidden}
+  .proc-row.st-Pendiente{border-left-color:var(--pend)} .proc-row.st-Enproceso{border-left-color:var(--proc)} .proc-row.st-Realizada{border-left-color:var(--real)} .proc-row.st-Bloqueada{border-left-color:var(--bloq)}
+  .proc-main{display:flex;align-items:center;gap:10px;padding:11px 13px;cursor:pointer}
+  .proc-main .caret{transition:transform .12s;display:inline-block;font-size:13px;color:var(--muted);flex:none}
+  .proc-main.open .caret{transform:rotate(90deg)}
+  .proc-title{font-size:14.5px;font-weight:600;flex:1;line-height:1.25}
+  .badge{font-family:ui-monospace,Menlo,monospace;font-size:10px;padding:2px 8px;border-radius:10px;white-space:nowrap}
+  .badge.st-Pendiente{background:var(--pend-bg);color:var(--pend)} .badge.st-Enproceso{background:var(--proc-bg);color:var(--proc)} .badge.st-Realizada{background:var(--real-bg);color:var(--real)} .badge.st-Bloqueada{background:var(--bloq-bg);color:var(--bloq)}
+  .proc-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
   .tag-person{padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600;color:#fff}
   .p-jenny{background:var(--jenny)} .p-juan{background:var(--juan)} .p-otro{background:var(--muted)}
-  .due{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;padding:2px 7px;border-radius:6px;display:inline-flex;align-items:center;gap:4px}
-  .due.soon{background:var(--pend-bg);color:var(--pend);font-weight:700}
-  .due.over{background:var(--bloq-bg);color:var(--bloq);font-weight:700}
-  .due.ok{background:transparent;color:var(--muted)}
-  .card .icons{display:flex;gap:9px;margin-top:7px;font-size:11px;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
-  .card .icons span{display:inline-flex;align-items:center;gap:3px}
-  .subprog{height:4px;border-radius:4px;background:var(--accent-soft);margin-top:7px;overflow:hidden}
-  .subprog i{display:block;height:100%;background:var(--real)}
-  /* category board */
-  .catboard{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
-  .catcol .col-head .cbadge{background:var(--accent)}
-  .cat-c0 .cbadge{background:var(--proc)} .cat-c1 .cbadge{background:var(--pend)} .cat-c2 .cbadge{background:var(--real)}
-  .cat-c3 .cbadge{background:var(--bloq)} .cat-c4 .cbadge{background:var(--jenny)} .cat-c5 .cbadge{background:var(--juan)}
-  /* expandable subtasks inside a card */
-  .card .subtoggle{cursor:pointer;color:var(--muted);font-size:11px;font-family:ui-monospace,Menlo,monospace;display:inline-flex;align-items:center;gap:4px;margin-top:7px;user-select:none}
-  .card .subtoggle:hover{color:var(--ink)}
-  .card .subtoggle .caret{transition:transform .12s;display:inline-block}
-  .card .subtoggle.open .caret{transform:rotate(90deg)}
-  .card .sublist{margin-top:6px;padding-left:4px;display:none}
-  .card .sublist.show{display:block}
-  .card .sublist .sl{display:flex;align-items:center;gap:7px;padding:3px 0;font-size:12px;color:var(--muted)}
-  .card .sublist .sl input{width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex:none}
-  .card .sublist .sl.done span{text-decoration:line-through;opacity:.7}
-  .card .move{display:flex;gap:4px;margin-top:9px;flex-wrap:wrap}
-  .mvbtn{font-family:ui-monospace,Menlo,monospace;font-size:10px;padding:3px 8px;border:1px solid var(--line);border-radius:6px;background:transparent;cursor:pointer;color:var(--muted)}
-  .mvbtn:hover{border-color:var(--ink);color:var(--ink)}
-  .empty{font-size:12px;color:var(--muted);text-align:center;padding:22px 8px;font-style:italic;opacity:.7}
+  .due{font-family:ui-monospace,Menlo,monospace;font-size:10px;padding:2px 6px;border-radius:6px}
+  .due.soon{background:var(--pend-bg);color:var(--pend);font-weight:700} .due.over{background:var(--bloq-bg);color:var(--bloq);font-weight:700} .due.ok{color:var(--muted)}
+  .miniprog{height:4px;border-radius:4px;background:var(--accent-soft);overflow:hidden;width:60px;flex:none}
+  .miniprog i{display:block;height:100%;background:var(--real)}
 
-  /* person view */
-  .person-cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:16px}
-  .person-col{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:var(--shadow)}
-  .person-col h2{margin:0 0 4px;font-size:16px;display:flex;align-items:center;gap:8px}
-  .person-col .psub{font-family:ui-monospace,Menlo,monospace;font-size:10px;color:var(--muted);margin-bottom:12px}
-  .prow{padding:9px 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:4px;cursor:pointer}
-  .prow:hover{background:var(--paper)}
-  .prow .pt{font-size:13px;font-weight:600;line-height:1.25}
-  .prow .pm{display:flex;gap:8px;align-items:center;font-size:10.5px;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
-  .stbadge{width:8px;height:8px;border-radius:2px;display:inline-block}
-  .st-Pendiente{background:var(--pend)} .st-En\ proceso{background:var(--proc)} .st-Realizada{background:var(--real)} .st-Bloqueada{background:var(--bloq)}
+  /* actividades (nivel 2) */
+  .proc-kids{display:none;padding:2px 13px 12px 34px;border-top:1px solid var(--paper)}
+  .proc-kids.show{display:block}
+  .act-row{border-left:2px solid var(--line);margin:7px 0;padding-left:0}
+  .act-main{display:flex;align-items:center;gap:8px;padding:6px 10px;cursor:pointer}
+  .act-main .caret{transition:transform .12s;font-size:12px;color:var(--muted);flex:none}
+  .act-main.open .caret{transform:rotate(90deg)}
+  .act-title{font-size:13px;font-weight:600;flex:1}
+  .act-kids{display:none;padding:2px 10px 8px 30px}
+  .act-kids.show{display:block}
 
-  /* gantt */
-  .gantt{margin-top:16px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px;box-shadow:var(--shadow);overflow-x:auto}
-  .gantt-inner{min-width:900px}
-  .g-months{display:grid;position:sticky;top:0;background:var(--card);z-index:2;border-bottom:1px solid var(--line)}
-  .g-month{font-family:ui-monospace,Menlo,monospace;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:center;padding:8px 2px;border-left:1px solid var(--line)}
-  .g-row{display:grid;align-items:center;border-bottom:1px solid var(--paper);min-height:34px}
-  .g-row:hover{background:var(--paper)}
-  .g-label{padding:5px 10px 5px 4px;font-size:12px;font-weight:600;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;position:sticky;left:0;background:inherit;z-index:1;cursor:pointer}
-  .g-track{position:relative;height:34px;grid-column:2 / -1}
-  .g-bar{position:absolute;top:8px;height:18px;border-radius:5px;display:flex;align-items:center;padding:0 7px;font-size:10px;color:#fff;font-family:ui-monospace,Menlo,monospace;white-space:nowrap;overflow:hidden;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.12)}
-  .g-bar.Pendiente{background:var(--pend)} .g-bar.En\ proceso{background:var(--proc)} .g-bar.Realizada{background:var(--real)} .g-bar.Bloqueada{background:var(--bloq)}
-  .g-today{position:absolute;top:0;bottom:0;width:2px;background:var(--bloq);z-index:3}
-  .g-cat-head{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);padding:12px 8px 5px;font-weight:700}
+  /* tareas (nivel 3) */
+  .task-item{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12.5px;color:var(--muted)}
+  .task-item input[type=checkbox]{width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex:none}
+  .task-item.done span.tt{text-decoration:line-through;opacity:.65}
+  .task-item .tt{flex:1;color:var(--ink)}
+  .task-item .xdel{cursor:pointer;color:var(--muted);border:none;background:none;font-size:13px;padding:0 4px}
+  .task-item .xdel:hover{color:var(--bloq)}
+  .addrow{display:flex;gap:6px;margin-top:5px}
+  .addrow input{flex:1;font-family:inherit;font-size:12.5px;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--paper)}
+  .addrow button{font-family:ui-monospace,Menlo,monospace;font-size:11px;padding:5px 10px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:6px;cursor:pointer}
+  .addact{margin:6px 0 2px}
+  .miniedit{cursor:pointer;color:var(--muted);border:none;background:none;font-size:11px;font-family:ui-monospace,Menlo,monospace;padding:2px 6px}
+  .miniedit:hover{color:var(--accent)}
 
-  /* modal */
+  .empty{font-size:12px;color:var(--muted);text-align:center;padding:16px 8px;font-style:italic;opacity:.7}
+
+  /* modal (proceso detail) */
   .scrim{position:fixed;inset:0;background:rgba(20,20,15,.42);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}
   .scrim.open{display:flex}
-  .modal{background:var(--card);border-radius:14px;max-width:600px;width:100%;max-height:92vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.28);padding:22px 24px}
+  .modal{background:var(--card);border-radius:14px;max-width:560px;width:100%;max-height:92vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.28);padding:22px 24px}
   .modal h2{margin:0 0 3px;font-size:20px}
   .modal .mid{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--muted);margin-bottom:16px}
   .field{margin-bottom:13px}
@@ -140,49 +108,28 @@
   .field textarea{min-height:56px;resize:vertical}
   .frow{display:grid;grid-template-columns:1fr 1fr;gap:11px}
   .section-t{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:18px 0 8px;font-weight:700;border-top:1px solid var(--line);padding-top:14px}
-
-  /* subtasks */
-  .sub-item{display:flex;align-items:center;gap:9px;padding:6px 0}
-  .sub-item input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);flex:none;cursor:pointer}
-  .sub-item .st-txt{flex:1;font-size:13px}
-  .sub-item.done .st-txt{text-decoration:line-through;color:var(--muted)}
-  .sub-item .xdel{cursor:pointer;color:var(--muted);font-size:15px;padding:0 4px;border:none;background:none}
-  .sub-item .xdel:hover{color:var(--bloq)}
-  .addrow{display:flex;gap:7px;margin-top:6px}
-  .addrow input{flex:1;font-family:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:var(--paper)}
-  .addrow button{font-family:ui-monospace,Menlo,monospace;font-size:12px;padding:7px 12px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:7px;cursor:pointer}
-
-  /* comments */
   .cmt{padding:8px 0;border-top:1px solid var(--line)}
   .cmt .ch{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);font-family:ui-monospace,Menlo,monospace;margin-bottom:3px}
   .cmt .ch b{color:var(--ink)}
   .cmt .cbody{font-size:13px;line-height:1.4}
   .cmt .xdel{cursor:pointer;color:var(--muted);border:none;background:none;font-size:13px}
-  .cmt .xdel:hover{color:var(--bloq)}
   .cmt-compose{margin-top:10px}
   .cmt-compose .who-pick{display:flex;gap:6px;margin-bottom:6px}
   .cmt-compose .who-pick .chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
   .cmt-compose textarea{width:100%;font-family:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--paper);min-height:46px;resize:vertical}
-
   .mactions{display:flex;justify-content:space-between;gap:10px;margin-top:18px;border-top:1px solid var(--line);padding-top:15px}
   .btn{font-family:inherit;font-size:14px;padding:9px 18px;border-radius:8px;border:1px solid var(--line);background:var(--card);cursor:pointer;color:var(--ink)}
   .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
   .btn.danger{color:var(--bloq);border-color:var(--bloq-bg)}
-  .btn:hover{filter:brightness(.97)}
   .loading{text-align:center;padding:60px;color:var(--muted);font-family:ui-monospace,Menlo,monospace;font-size:13px}
   .hidden{display:none !important}
-
-  @media(max-width:1000px){.board{grid-template-columns:repeat(2,1fr)}.catboard{grid-template-columns:repeat(2,1fr)}.person-cols{grid-template-columns:1fr}}
-  @media(max-width:600px){.board{grid-template-columns:1fr}.catboard{grid-template-columns:1fr}.brand h1{font-size:22px}.frow{grid-template-columns:1fr}.wrap{padding:16px 13px 70px}}
+  @media(max-width:600px){.wrap{padding:16px 13px 80px}.brand h1{font-size:21px}.frow{grid-template-columns:1fr}.proc-kids{padding-left:18px}.cat-head .cbar{display:none}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="brand">
-      <h1>Seguimiento de acuerdos</h1>
-      <div class="sub">Jenny Torres · Juan Luis Corporán — desde 24 mayo 2026</div>
-    </div>
+    <div class="brand"><h1>Seguimiento de acuerdos</h1><div class="sub">Jenny Torres · Juan Luis Corporán</div></div>
     <div class="toolbar">
       <button class="iobtn" id="syncBtn" style="background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600">⟳ Sincronizar</button>
       <button class="iobtn" id="cfgBtn">⚙ Conexión</button>
@@ -193,26 +140,12 @@
     </div>
   </header>
 
-  <div class="tabs">
-    <div class="tab on" data-view="category">Por categoría</div>
-    <div class="tab" data-view="board">Tablero por estado</div>
-    <div class="tab" data-view="person">Por persona</div>
-    <div class="tab" data-view="gantt">Cronograma Gantt</div>
-  </div>
-
-  <div id="progressWrap"><div class="progress-strip" id="progress"></div></div>
-
-  <div class="controls" id="controls">
-    <input type="search" id="search" placeholder="Buscar tarea, persona, tema…">
-    <span class="chip catchip on" data-cat="all">Todas</span>
-    <span class="chip catchip" data-cat="Producción">Producción</span>
-    <span class="chip catchip" data-cat="Organización">Organización</span>
-    <span class="chip catchip" data-cat="Transversales">Transversales</span>
-    <span class="chip catchip" data-cat="Vida personal">Vida personal</span>
-    <span class="chip catchip" data-cat="Mantenimiento">Mantenimiento</span>
-    <span class="chip catchip" data-cat="Formación">Formación</span>
-    <span class="chip" id="soonChip" data-soon="1">⏱ Próximas (14 días)</span>
-    <span class="chip addbtn" id="addBtn">+ Nueva tarea</span>
+  <div class="controls">
+    <input type="search" id="search" placeholder="Buscar proceso, actividad, persona…">
+    <span class="chip" id="showDone" data-on="0">👁 Mostrar lo realizado</span>
+    <span class="chip" id="expandAll">⤢ Expandir todo</span>
+    <span class="chip" id="collapseAll">⤡ Colapsar todo</span>
+    <span class="chip addbtn" id="addProc">+ Nuevo proceso</span>
   </div>
 
   <div id="app"><div class="loading">Cargando…</div></div>
@@ -221,223 +154,273 @@
 <div class="scrim" id="scrim"><div class="modal" id="modal"></div></div>
 
 <script>
-const SEED = [{"id": "T-001", "cat": "Producción", "sub": "Libros", "tarea": "Capítulo libro Routledge — financiamiento de partidos políticos", "desc": "Capítulo en español para América Latina (libro original en inglés para Europa). Re-enfoque desde sociología política, territorio y financiamiento. Estructura: evolución histórica del sistema de partidos, regulación del financiamiento, financiamiento público-privado, mecanismo de supervisión, efectos sobre la democracia.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-05-26", "obj": "2027-12-31", "estado": "Realizada", "prio": "Alta", "notas": "Confirmar participación. Usar marcos teóricos de Villamán y otros autores nacionales. Producción estimada: 2 semanas una vez se decida arrancar.", "subtasks": [], "comments": []}, {"id": "T-002", "cat": "Producción", "sub": "Libros", "tarea": "Libro: Pobreza y Colonialidad — Diligencia 1: hablar con Frankeli", "desc": "Conversación formal con Frankeli para autorización de uso de datos del proyecto.", "resp": "Juan Luis", "coresp": "", "ini": "2026-05-25", "obj": "2026-05-25", "estado": "Realizada", "prio": "Alta", "notas": "Cristiana ya soltó todo en bandeja; no se prevé problema, pero la conversación formal es necesaria.", "subtasks": [], "comments": []}, {"id": "T-003", "cat": "Producción", "sub": "Libros", "tarea": "Libro: Pobreza y Colonialidad — Diligencia 2: hablar con Bonó", "desc": "Negociar publicación con editorial Bonó (preferida por su rigor y revisión externa).", "resp": "Jenny", "coresp": "", "ini": "2026-05-26", "obj": "2026-07-08", "estado": "Pendiente", "prio": "Alta", "notas": "Pablo ofreció publicar la tesis. Tres opciones evaluadas: (1) Bonó, (2) propuesta de María Teresa, (3) opción de Juan Luis. Decisión: Bonó.", "subtasks": [], "comments": []}, {"id": "T-004", "cat": "Producción", "sub": "Libros", "tarea": "Libro: Pobreza y Colonialidad — Producción del manuscrito", "desc": "Escritura del libro a partir de datos disponibles. Co-autoría: Jenny, Juan Luis y Gloria.", "resp": "Jenny", "coresp": "Juan Luis y Gloria", "ini": "2026-08-01", "obj": "2026-10-31", "estado": "Pendiente", "prio": "Alta", "notas": "Trabajo intensivo agosto–septiembre–octubre. Necesario garantizar revisor externo a los tres co-autores.", "subtasks": [], "comments": []}, {"id": "T-005", "cat": "Producción", "sub": "Libros", "tarea": "Libro: Sociología de la Pobreza en RD — Planificación", "desc": "Diseño detallado del libro: estructura, capítulos, integración de tesis y 20 años de trabajo.", "resp": "Jenny", "coresp": "Juan Luis y Gloria", "ini": "2027-01-01", "obj": "2027-03-30", "estado": "Pendiente", "prio": "Alta", "notas": "Quitar componente de cambio climático (sería otro libro). Hilo conductor: análisis de producción de pobreza en RD. Bajo sello editorial Jamai.", "subtasks": [], "comments": []}, {"id": "T-006", "cat": "Producción", "sub": "Libros", "tarea": "Libro: Sociología de la Pobreza en RD — Producción", "desc": "Escritura del libro. Jenny tiene toda la información, no requiere nuevo levantamiento.", "resp": "Jenny", "coresp": "Juan Luis y Gloria", "ini": "2027-01-01", "obj": "2027-03-30", "estado": "Pendiente", "prio": "Alta", "notas": "Primer cuatrimestre 2027. Inaugurar producción propia de Jamai con este libro. Comité editorial debe revisar.", "subtasks": [], "comments": []}, {"id": "T-007", "cat": "Producción", "sub": "Artículos", "tarea": "Artículo en inglés: Pobreza nacionalizada y jerarquías coloniales en la frontera caribeña", "desc": "Revisión final del artículo (ya tiene introducción, marco teórico, metodología, análisis cuantitativo, posición ética y resultados estables). Falta revisar bibliografía y traducción.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-05-31", "obj": "2026-06-06", "estado": "Pendiente", "prio": "Alta", "notas": "Reenviar a la misma revista (dieron oportunidad de rehacer). Jenny revisa bibliografía, luego Juan Luis revisa con conciencia.", "subtasks": [], "comments": []}, {"id": "T-008", "cat": "Producción", "sub": "Artículos", "tarea": "Artículo sobre Vudú (derivado de tesis Juan Luis)", "desc": "Producción de artículo derivado de la tesis doctoral de Juan Luis.", "resp": "Juan Luis", "coresp": "Jenny", "ini": "2026-06-01", "obj": "2026-06-07", "estado": "Pendiente", "prio": "Alta", "notas": "Semana 1 de junio. Jenny revisa.", "subtasks": [], "comments": []}, {"id": "T-009", "cat": "Producción", "sub": "Artículos", "tarea": "Artículo Estado del Arte de la Pobreza", "desc": "Actualizar artículo con publicaciones recientes y enviarlo a la revista de INTEC.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-06-08", "obj": "2026-06-14", "estado": "Pendiente", "prio": "Alta", "notas": "Semana 2 de junio. Jenny no tiene publicaciones en revista INTEC, oportunidad para entrar.", "subtasks": [], "comments": []}, {"id": "T-010", "cat": "Producción", "sub": "Artículos", "tarea": "Artículo sobre Autoridad (derivado de tesis Juan Luis)", "desc": "Producción de artículo derivado de la tesis doctoral de Juan Luis.", "resp": "Juan Luis", "coresp": "Jenny", "ini": "2026-06-08", "obj": "2026-06-14", "estado": "Pendiente", "prio": "Alta", "notas": "Semana 2 de junio.", "subtasks": [], "comments": []}, {"id": "T-011", "cat": "Producción", "sub": "Artículos", "tarea": "Artículo investigación CIMTRA", "desc": "Producción de artículo derivado de la investigación CIMTRA (proyecto compartido).", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-06-15", "obj": "2026-06-21", "estado": "Pendiente", "prio": "Alta", "notas": "Semana 3 de junio. Ambos producen.", "subtasks": [], "comments": []}, {"id": "T-012", "cat": "Producción", "sub": "Artículos", "tarea": "Artículo Pobreza y Filosofía", "desc": "Artículo más demandante. Requiere que ambos se sienten a producir conjuntamente.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-07-01", "obj": "2026-07-31", "estado": "Pendiente", "prio": "Media", "notas": "Julio. Jenny tiene anotaciones de clases que aportarán al artículo. Recuperar el material.", "subtasks": [], "comments": []}, {"id": "T-013", "cat": "Producción", "sub": "Manuales", "tarea": "Manual de Grupos Focales", "desc": "Manual ya redactado por Juan Luis. Modernizar técnica con nuevas herramientas. Añadir marco teórico.", "resp": "Juan Luis", "coresp": "Jenny", "ini": "2026-11-01", "obj": "2026-12-31", "estado": "Pendiente", "prio": "Media", "notas": "Publicación bajo Jamai en 2027. Última fase del año.", "subtasks": [], "comments": []}, {"id": "T-014", "cat": "Producción", "sub": "Manuales", "tarea": "Manual de Incidencia", "desc": "Manual de incidencia política y social. Producción conjunta.", "resp": "Juan Luis", "coresp": "Jenny", "ini": "2026-11-01", "obj": "2026-12-31", "estado": "Pendiente", "prio": "Media", "notas": "Publicación bajo Jamai en 2027.", "subtasks": [], "comments": []}, {"id": "T-015", "cat": "Producción", "sub": "Investigaciones", "tarea": "Investigación: Movimientos Sociales", "desc": "Investigación itinerante con cortes anuales. Levantamientos en manifestaciones del momento + entrevistas in situ + reflexión grabada el mismo día.", "resp": "Juan Luis", "coresp": "Jenny", "ini": "2027-01-01", "obj": "2027-12-31", "estado": "Pendiente", "prio": "Media", "notas": "Considerar agente de IA para revisión diaria de periódicos. Ligado a movimientos ambientales en San Juan y otros territorios. Línea CLACSO posible.", "subtasks": [], "comments": []}, {"id": "T-017", "cat": "Formación", "sub": "Formación Juan Luis", "tarea": "Especialidad en Medio Ambiente / Ecología", "desc": "Buscar especialidad (no maestría) en CLACSO u otras instituciones, relacionada con ecología y medio ambiente.", "resp": "Juan Luis", "coresp": "", "ini": "2026-05-25", "obj": "2026-06-30", "estado": "En proceso", "prio": "Media", "notas": "Relacionado con su rol como director del centro medioambiental en Loyola. Confirmar oferta CLACSO 2026.", "subtasks": [], "comments": []}, {"id": "T-018", "cat": "Formación", "sub": "Cursos CLACSO", "tarea": "Identificar cátedras abiertas CLACSO de interés", "desc": "Revisar oferta de cátedras abiertas: Buen Vivir, luchas transfronterizas, Movimiento Nacional Campesino, derecho a la ciudad, etc.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-05-25", "obj": "2026-06-15", "estado": "Pendiente", "prio": "Baja", "notas": "Identificadas: cambio climático y transiciones justas, construyendo afrodescendencia, violencia patriarcal, políticas de cuidado.", "subtasks": [], "comments": []}, {"id": "T-019", "cat": "Organización", "sub": "Loyola — Las Flores", "tarea": "Solicitud de censo a la ONE", "desc": "Redactar y enviar carta institucional desde Loyola a la ONE solicitando datos del censo para los cinco barrios (Las Flores, Jeringa, La Piscina y dos más).", "resp": "Juan Luis", "coresp": "Jenny", "ini": "2026-05-25", "obj": "2026-06-03", "estado": "Realizada", "prio": "Alta", "notas": "La peor lucha es la que no se da. Identificar contacto interno (alguien que conozca a alguien en la ONE).", "subtasks": [], "comments": []}, {"id": "T-020", "cat": "Organización", "sub": "Loyola — Las Flores", "tarea": "Solicitud de apoyo al SUBE (Augusto)", "desc": "Redactar carta solicitando apoyo del SUBE para el levantamiento en Las Flores y barrios aledaños.", "resp": "Juan Luis", "coresp": "Jenny", "ini": "2026-05-25", "obj": "2026-06-03", "estado": "Realizada", "prio": "Alta", "notas": "Augusto ya tiene buena relación con Jenny. Posible apoyo con tablets y logística. Diligencia paralela a la de la ONE.", "subtasks": [], "comments": []}, {"id": "T-021", "cat": "Organización", "sub": "Loyola — Las Flores", "tarea": "Trámite administrativo Loyola — presupuesto", "desc": "Averiguar procedimiento administrativo para ejecutar los 200,000 pesos asignados al diagnóstico.", "resp": "Juan Luis", "coresp": "", "ini": "2026-05-25", "obj": "2026-06-03", "estado": "Realizada", "prio": "Alta", "notas": "Saber qué papeles, recibos y modalidades de pago aplican (encuestadores, facilitadores grupos focales, etc.).", "subtasks": [], "comments": []}, {"id": "T-022", "cat": "Organización", "sub": "Loyola — Las Flores", "tarea": "Construcción de instrumentos (cuestionario, guías)", "desc": "Diseñar cuestionario para muestra de ~300 viviendas, guías de grupos focales, entrevistas a profundidad.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-05-26", "obj": "2026-06-07", "estado": "Realizada", "prio": "Alta", "notas": "Usar IA (Claude) para apoyar operacionalización de variables. Reunión convocada por Juan Luis en la semana.", "subtasks": [], "comments": []}, {"id": "T-023", "cat": "Organización", "sub": "Loyola — Las Flores", "tarea": "Capacitación a equipo encuestador y pilotaje", "desc": "Identificar equipo de encuestadores, capacitarlos, hacer pilotaje pequeño antes del levantamiento principal.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-06-08", "obj": "2026-06-14", "estado": "Realizada", "prio": "Alta", "notas": "Pago entre 250 y 400 pesos por encuesta. Posibles encuestadores: estudiantes (verificar calidad).", "subtasks": [], "comments": []}, {"id": "T-024", "cat": "Organización", "sub": "Loyola — Las Flores", "tarea": "Levantamiento de campo en Las Flores", "desc": "Aplicación de muestra de ~300 viviendas distribuidas en los cinco barrios.", "resp": "Juan Luis", "coresp": "Jenny", "ini": "2026-06-15", "obj": "2026-06-28", "estado": "Realizada", "prio": "Alta", "notas": "Segunda semana de junio. NO antes — requiere preparación previa.", "subtasks": [], "comments": []}, {"id": "T-025", "cat": "Organización", "sub": "Universidad UCI (Da Jabón)", "tarea": "Acompañamiento al plan estratégico de UCI", "desc": "Acompañar a la universidad (UCI / Dajabón) en la elaboración de su plan estratégico.", "resp": "Juan Luis", "coresp": "", "ini": "2026-06-01", "obj": "2026-09-30", "estado": "En proceso", "prio": "Media", "notas": "Solicitud reciente. No hay persona contratada para planificación en la universidad.", "subtasks": [], "comments": []}, {"id": "T-026", "cat": "Organización", "sub": "Unión Europea — Cañada/Jeringa", "tarea": "Nota conceptual proyecto Nicolás Cruz", "desc": "Elaborar nota conceptual + presupuesto para convocatoria Unión Europea sobre reparación de cañada y economía del cuidado.", "resp": "Juan Luis", "coresp": "Jenny (opinión/apoyo)", "ini": "2026-05-26", "obj": "2026-06-30", "estado": "Realizada", "prio": "Alta", "notas": "Nicolás Cruz ya envió marco lógico y presupuesto. Eje: economía del cuidado vinculada a riadas (mujeres, mayores, niños). Aprovechar levantamientos previos en Jeringa.", "subtasks": [], "comments": []}, {"id": "T-027", "cat": "Mantenimiento", "sub": "Eventos", "tarea": "Reunión informe Voces del Desarrollo Humano (PNUD)", "desc": "Reunión virtual con equipo PNUD para revisar presentación del informe.", "resp": "Jenny", "coresp": "", "ini": "2026-05-26", "obj": "2026-05-26", "estado": "Realizada", "prio": "Alta", "notas": "Aclarar con Sócrates avance real del trabajo (Jenny ha entregado cronograma, matriz de actores, delimitación de comités). Reclamar reconocimiento del trabajo realizado.", "subtasks": [], "comments": []}, {"id": "T-028", "cat": "Mantenimiento", "sub": "Eventos", "tarea": "Evento revista INTEC — miércoles 27 de mayo, 4 PM", "desc": "Asistir al evento de la revista INTEC donde Jenny y Juan Luis dan clases.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-05-27", "obj": "2026-05-27", "estado": "Realizada", "prio": "Alta", "notas": "Coincide con reunión de la Plataforma (mismo día/hora). Juan Luis pide a Garabito que le represente en la Plataforma.", "subtasks": [], "comments": []}, {"id": "T-029", "cat": "Mantenimiento", "sub": "Eventos", "tarea": "Seminario UASD — viernes 29 de mayo", "desc": "Jenny presenta su tesis en seminario en la UASD, junto a Domingo Matías. Carlos Arias coordina.", "resp": "Jenny", "coresp": "", "ini": "2026-05-29", "obj": "2026-05-29", "estado": "Realizada", "prio": "Alta", "notas": "Hora: 3:30 PM. Hablar sobre tesis (territorial poverty, cambio climático).", "subtasks": [], "comments": []}, {"id": "T-030", "cat": "Mantenimiento", "sub": "Plataforma movimientos sociales", "tarea": "Definir posición frente a la Plataforma", "desc": "Decisión: NO participar activamente en la Plataforma hasta que se reorganice con comisiones claras. Solo apoyar tema de incorporación.", "resp": "Juan Luis", "coresp": "Jenny", "ini": "2026-05-25", "obj": "2026-06-30", "estado": "En proceso", "prio": "Media", "notas": "Comunicar la posición en reunión. Apoyar la iniciativa de Camila con los jóvenes los sábados. Asesorar grupos puntuales.", "subtasks": [], "comments": []}, {"id": "T-031", "cat": "Mantenimiento", "sub": "Charlas/encuentros", "tarea": "Encuentros con Nataly (pequeñas charlas)", "desc": "Confirmar con Naftali la propuesta de pequeñas charlas que mencionó pero no formalizó.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-06-01", "obj": "2026-06-30", "estado": "Bloqueada", "prio": "Baja", "notas": "Esperando que Nataly precise la solicitud.", "subtasks": [], "comments": []}, {"id": "T-032", "cat": "Vida personal", "sub": "Ejercicio", "tarea": "Reactivar gimnasio Smartfit", "desc": "Reincorporación al gimnasio con plan estable: lunes, miércoles y domingo.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-05-25", "obj": "2026-05-31", "estado": "Pendiente", "prio": "Alta", "notas": "Tantear horario el primer día. Probar 7 PM o 12 del mediodía. Opción: si está muy lleno, hacer ejercicio en casa.", "subtasks": [], "comments": []}, {"id": "T-033", "cat": "Vida personal", "sub": "Ejercicio", "tarea": "Domingos a la playa de Najayo (alternativa al gym)", "desc": "Domingo temprano (7 AM): caminata 5 km, nadar un rato, regresar.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-05-31", "obj": "2026-12-31", "estado": "Pendiente", "prio": "Media", "notas": "Invitar a Raiza ocasionalmente. Sustituye el gimnasio del domingo.", "subtasks": [], "comments": []}, {"id": "T-034", "cat": "Vida personal", "sub": "Espiritualidad", "tarea": "Eucaristía Juan Luis — 2 días a la semana", "desc": "Juan Luis asiste a la eucaristía 2 días a la semana en horario matutino.", "resp": "Juan Luis", "coresp": "", "ini": "2026-05-26", "obj": "2026-12-31", "estado": "En proceso", "prio": "Media", "notas": "Compatible con días alternos del gimnasio.", "subtasks": [], "comments": []}, {"id": "T-035", "cat": "Vida personal", "sub": "Salud", "tarea": "Terapia semanal Jenny — martes", "desc": "Continuar terapia semanal los martes.", "resp": "Jenny", "coresp": "", "ini": "2026-05-26", "obj": "2026-12-31", "estado": "Bloqueada", "prio": "Alta", "notas": "Jenny la considera también ejercicio. Día fijo.", "subtasks": [], "comments": []}, {"id": "T-036", "cat": "Vida personal", "sub": "Familia", "tarea": "Fin de semana con Rosely (cuando llegue)", "desc": "Aprovechar visita de Rosely para organizar fin de semana familiar con Noa, ir a un lugar de descanso.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-06-01", "obj": "2026-06-30", "estado": "Pendiente", "prio": "Media", "notas": "Evento extraordinario; planificar fecha cuando confirme Rosely.", "subtasks": [], "comments": []}, {"id": "T-037", "cat": "Vida personal", "sub": "Familia", "tarea": "Plan continuo de tiempo familiar", "desc": "Definir actividades familiares regulares: cine con Julito y Noa, salidas, días en familia. Revisar a los 2 meses.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-07-01", "obj": "2026-08-31", "estado": "En proceso", "prio": "Media", "notas": "No debe ser solo eventos extraordinarios. Establecer rutina.", "subtasks": [], "comments": []}, {"id": "T-038", "cat": "Transversales", "sub": "Editorial Jamai", "tarea": "Reunión con Katherine — página web Jamai", "desc": "Reunión miércoles para continuar trabajo en la página web de Jamey", "resp": "Jenny", "coresp": "Katherine", "ini": "2026-05-27", "obj": "2026-05-27", "estado": "Pendiente", "prio": "Alta", "notas": "Se reprogramó del viernes por diplomado de Jenny. No se detuvo el trabajo.", "subtasks": [], "comments": []}, {"id": "T-039", "cat": "Transversales", "sub": "Editorial Jamai", "tarea": "Formalización de la editorial Jamai", "desc": "Avanzar en la formalización del sello editorial Jamey para publicar libros y manuales propios.", "resp": "Jenny", "coresp": "Katherine y Juan Luis", "ini": "2026-06-01", "obj": "2026-12-31", "estado": "En proceso", "prio": "Alta", "notas": "Necesario para publicar libro Sociología de la Pobreza en 2027 y los dos manuales.", "subtasks": [], "comments": []}, {"id": "T-040", "cat": "Transversales", "sub": "Financiamiento", "tarea": "Estrategia de fondos para publicaciones", "desc": "Diseñar mecanismo (San, fondo mutuo, porcentaje de consultorías) para financiar publicaciones de Jamey", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-06-01", "obj": "2026-08-31", "estado": "Pendiente", "prio": "Media", "notas": "Aprovechar consultorías como fuente. Pensar lanzamientos como Domingo Matías.", "subtasks": [], "comments": []}, {"id": "T-041", "cat": "Transversales", "sub": "Movilidad / logística", "tarea": "Evaluar compra de vehículo 4x4", "desc": "Análisis de presupuesto y condiciones para adquirir vehículo 4x4 que facilite investigación de campo (movimientos sociales, comunidades).", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2027-01-01", "obj": "2027-06-30", "estado": "Pendiente", "prio": "Baja", "notas": "Solo después de terminar de pagar vehículo actual. Posible Toyota 4x4 o jeepeta.", "subtasks": [], "comments": []}, {"id": "T-042", "cat": "Transversales", "sub": "Proyectos administrativos", "tarea": "Revisión documento Cismera", "desc": "Cada uno revisa el documento por su lado, luego se comunican entre 11 AM y 12:30 PM.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-05-25", "obj": "2026-05-26", "estado": "Pendiente", "prio": "Alta", "notas": "Verificar pago de boletos (aprox. 2,500–3,000 pesos).", "subtasks": [], "comments": []}, {"id": "T-043", "cat": "Transversales", "sub": "Proyectos administrativos", "tarea": "Convocatoria Ecuador — Cuidados", "desc": "Responder a convocatoria de Ecuador sobre temas de cuidados.", "resp": "Jenny", "coresp": "", "ini": "2026-05-24", "obj": "2026-05-26", "estado": "Realizada", "prio": "Alta", "notas": "Iniciar al terminar reunión del 24 de mayo.", "subtasks": [], "comments": []}, {"id": "T-044", "cat": "Transversales", "sub": "Proyectos administrativos", "tarea": "Informe Twitter", "desc": "Cerrar el informe de Twitter.", "resp": "Jenny", "coresp": "", "ini": "2026-05-25", "obj": "2026-05-26", "estado": "Pendiente", "prio": "Alta", "notas": "Hoy y mañana — bloque corto antes del informe Sintra.", "subtasks": [], "comments": []}, {"id": "T-045", "cat": "Transversales", "sub": "Proyectos administrativos", "tarea": "Informe Sintra", "desc": "Entregar informe Sintra antes del 3 de junio.", "resp": "Jenny", "coresp": "", "ini": "2026-05-27", "obj": "2026-06-03", "estado": "Pendiente", "prio": "Alta", "notas": "Tarea relativamente sencilla según Jenny.", "subtasks": [], "comments": []}, {"id": "T-046", "cat": "Transversales", "sub": "Proyectos administrativos", "tarea": "Reunión Juan Luis con Victoriano", "desc": "Reunión institucional con Victoriano.", "resp": "Juan Luis", "coresp": "", "ini": "2026-05-26", "obj": "2026-05-26", "estado": "Pendiente", "prio": "Media", "notas": "Mañana en la mañana.", "subtasks": [], "comments": []}, {"id": "T-047", "cat": "Transversales", "sub": "Proyectos administrativos", "tarea": "Tarea Dani (PNU)", "desc": "Atender solicitud de Dani relacionada con PNU (revisar contenido del correo).", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-05-25", "obj": "2026-05-31", "estado": "Pendiente", "prio": "Media", "notas": "Pendiente de revisar; aparenta ser ejemplo o portafolio María.", "subtasks": [], "comments": []}];
-const STATES=[{key:'Pendiente',cls:'pend',label:'Pendiente'},{key:'En proceso',cls:'proc',label:'En proceso'},{key:'Realizada',cls:'real',label:'Realizada'},{key:'Bloqueada',cls:'bloq',label:'Bloqueada'}];
-const CATS=['Producción','Formación','Organización','Mantenimiento','Vida personal','Transversales'];
-const STORE_KEY='seguimiento_jl_jt_v2';
-let tasks=[], filterCat='all', filterSoon=false, searchТ='', view='category';
-let expanded={};
+const SEED = [{"id": "T-001", "cat": "Libros", "sub": "Libros", "nombre": "Capítulo libro Routledge — financiamiento de partidos políticos", "desc": "Capítulo en español para América Latina (libro original en inglés para Europa). Re-enfoque desde sociología política, territorio y financiamiento. Estructura: evolución histórica del sistema de partidos, regulación del financiamiento, financiamiento público-privado, mecanismo de supervisión, efectos sobre la democracia.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-05-26", "obj": "2027-12-31", "prio": "Alta", "notas": "Confirmar participación. Usar marcos teóricos de Villamán y otros autores nacionales. Producción estimada: 2 semanas una vez se decida arrancar.", "estadoManual": null, "estadoBase": "Realizada", "actividades": [{"id": "A-404516170", "nombre": "Elaborar Abstract", "estado": "Pendiente", "tareas": []}], "comments": [], "_m": 1783540451617}, {"id": "T-002", "cat": "Libros", "sub": "Libros", "nombre": "Libro: Pobreza y Colonialidad", "desc": "Conversación formal con Frankeli para autorización de uso de datos del proyecto. · Negociar publicación con editorial Bonó (preferida por su rigor y revisión externa). · Escritura del libro a partir de datos disponibles. Co-autoría: Jenny, Juan Luis y Gloria.", "resp": "Juan Luis", "coresp": "", "ini": "2026-05-25", "obj": "2026-10-31", "prio": "Alta", "notas": "Proyecto agrupado. Cada subtarea es una etapa.", "estadoManual": null, "estadoBase": "En proceso", "actividades": [{"id": "A-404516170", "nombre": "Diligencia 1: hablar con Frankeli", "estado": "Realizada", "tareas": []}, {"id": "A-404516181", "nombre": "Diligencia 2: hablar con Bonó", "estado": "Pendiente", "tareas": []}, {"id": "A-404516192", "nombre": "Producción del manuscrito", "estado": "Pendiente", "tareas": []}], "comments": [], "_m": 1783540451617}, {"id": "T-005", "cat": "Libros", "sub": "Libros", "nombre": "Libro: Sociología de la Pobreza en RD", "desc": "Diseño detallado del libro: estructura, capítulos, integración de tesis y 20 años de trabajo. · Escritura del libro. Jenny tiene toda la información, no requiere nuevo levantamiento.", "resp": "Jenny", "coresp": "Juan Luis y Gloria", "ini": "2027-01-01", "obj": "2027-03-30", "prio": "Alta", "notas": "Proyecto agrupado. Cada subtarea es una etapa.", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [{"id": "A-404516170", "nombre": "Planificación", "estado": "Pendiente", "tareas": []}, {"id": "A-404516181", "nombre": "Producción", "estado": "Pendiente", "tareas": []}], "comments": [], "_m": 1783540451617}, {"id": "T-007", "cat": "Artículos", "sub": "Artículos", "nombre": "Artículo en inglés: Pobreza nacionalizada y jerarquías coloniales en la frontera caribeña", "desc": "Revisión final del artículo (ya tiene introducción, marco teórico, metodología, análisis cuantitativo, posición ética y resultados estables). Falta revisar bibliografía y traducción.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-05-31", "obj": "2026-06-06", "prio": "Alta", "notas": "Reenviar a la misma revista (dieron oportunidad de rehacer). Jenny revisa bibliografía, luego Juan Luis revisa con conciencia.", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-008", "cat": "Artículos", "sub": "Artículos", "nombre": "Artículo sobre Vudú (derivado de tesis Juan Luis)", "desc": "Producción de artículo derivado de la tesis doctoral de Juan Luis.", "resp": "Juan Luis", "coresp": "Jenny", "ini": "2026-06-01", "obj": "2026-06-07", "prio": "Alta", "notas": "Semana 1 de junio. Jenny revisa.", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-009", "cat": "Artículos", "sub": "Artículos", "nombre": "Artículo Estado del Arte de la Pobreza", "desc": "Actualizar artículo con publicaciones recientes y enviarlo a la revista de INTEC.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-06-08", "obj": "2026-06-14", "prio": "Alta", "notas": "Semana 2 de junio. Jenny no tiene publicaciones en revista INTEC, oportunidad para entrar.", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-010", "cat": "Artículos", "sub": "Artículos", "nombre": "Artículo sobre Autoridad (derivado de tesis Juan Luis)", "desc": "Producción de artículo derivado de la tesis doctoral de Juan Luis.", "resp": "Juan Luis", "coresp": "Jenny", "ini": "2026-06-08", "obj": "2026-06-14", "prio": "Alta", "notas": "Semana 2 de junio.", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-011", "cat": "Artículos", "sub": "Artículos", "nombre": "Artículo investigación CIMTRA", "desc": "Producción de artículo derivado de la investigación CIMTRA (proyecto compartido).", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-06-15", "obj": "2026-06-21", "prio": "Alta", "notas": "Semana 3 de junio. Ambos producen.", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-012", "cat": "Artículos", "sub": "Artículos", "nombre": "Artículo Pobreza y Filosofía", "desc": "Artículo más demandante. Requiere que ambos se sienten a producir conjuntamente.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-07-01", "obj": "2026-07-31", "prio": "Media", "notas": "Julio. Jenny tiene anotaciones de clases que aportarán al artículo. Recuperar el material.", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-013", "cat": "Manuales", "sub": "Manuales", "nombre": "Manual de Grupos Focales", "desc": "Manual ya redactado por Juan Luis. Modernizar técnica con nuevas herramientas. Añadir marco teórico.", "resp": "Juan Luis", "coresp": "Jenny", "ini": "2026-11-01", "obj": "2026-12-31", "prio": "Media", "notas": "Publicación bajo Jamai en 2027. Última fase del año.", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-014", "cat": "Manuales", "sub": "Manuales", "nombre": "Manual de Incidencia", "desc": "Manual de incidencia política y social. Producción conjunta.", "resp": "Juan Luis", "coresp": "Jenny", "ini": "2026-11-01", "obj": "2026-12-31", "prio": "Media", "notas": "Publicación bajo Jamai en 2027.", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-015", "cat": "Investigaciones", "sub": "Investigaciones", "nombre": "Investigación: Movimientos Sociales", "desc": "Investigación itinerante con cortes anuales. Levantamientos en manifestaciones del momento + entrevistas in situ + reflexión grabada el mismo día.", "resp": "Juan Luis", "coresp": "Jenny", "ini": "2027-01-01", "obj": "2027-12-31", "prio": "Media", "notas": "Considerar agente de IA para revisión diaria de periódicos. Ligado a movimientos ambientales en San Juan y otros territorios. Línea CLACSO posible.", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-017", "cat": "Formación", "sub": "Formación Juan Luis", "nombre": "Especialidad en Medio Ambiente / Ecología", "desc": "Buscar especialidad (no maestría) en CLACSO u otras instituciones, relacionada con ecología y medio ambiente.", "resp": "Juan Luis", "coresp": "", "ini": "2026-05-25", "obj": "2026-06-30", "prio": "Media", "notas": "Relacionado con su rol como director del centro medioambiental en Loyola. Confirmar oferta CLACSO 2026.", "estadoManual": null, "estadoBase": "En proceso", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-018", "cat": "Formación", "sub": "Cursos CLACSO", "nombre": "Identificar cátedras abiertas CLACSO de interés", "desc": "Revisar oferta de cátedras abiertas: Buen Vivir, luchas transfronterizas, Movimiento Nacional Campesino, derecho a la ciudad, etc.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-05-25", "obj": "2026-06-15", "prio": "Baja", "notas": "Identificadas: cambio climático y transiciones justas, construyendo afrodescendencia, violencia patriarcal, políticas de cuidado.", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-019", "cat": "Organización", "sub": "Loyola — Las Flores", "nombre": "Loyola — Las Flores (levantamiento)", "desc": "Redactar y enviar carta institucional desde Loyola a la ONE solicitando datos del censo para los cinco barrios (Las Flores, Jeringa, La Piscina y dos más). · Redactar carta solicitando apoyo del SUBE para el levantamiento en Las Flores y barrios aledaños. · Averiguar procedimiento administrativo para ejecutar los 200,000 pesos asignados al diagnóstico. · Diseñar cuestionario para muestra de ~300 viviendas, guías de grupos focales, entrevistas a profundidad. · Identificar equipo de encuestadores, capacitarlos, hacer pilotaje pequeño antes del levantamiento principal. · Aplicación de muestra de ~300 viviendas distribuidas en los cinco barrios.", "resp": "Juan Luis", "coresp": "Jenny", "ini": "2026-05-25", "obj": "2026-06-28", "prio": "Alta", "notas": "Proyecto agrupado. Cada subtarea es una etapa.", "estadoManual": null, "estadoBase": "Realizada", "actividades": [{"id": "A-404516170", "nombre": "Solicitud de censo a la ONE", "estado": "Realizada", "tareas": []}, {"id": "A-404516181", "nombre": "Solicitud de apoyo al SUBE (Augusto)", "estado": "Realizada", "tareas": []}, {"id": "A-404516192", "nombre": "presupuesto", "estado": "Realizada", "tareas": []}, {"id": "A-404516203", "nombre": "Construcción de instrumentos (cuestionario, guías)", "estado": "Realizada", "tareas": []}, {"id": "A-404516214", "nombre": "Capacitación a equipo encuestador y pilotaje", "estado": "Realizada", "tareas": []}, {"id": "A-404516225", "nombre": "Levantamiento de campo en Las Flores", "estado": "Realizada", "tareas": []}], "comments": [], "_m": 1783540451617}, {"id": "T-025", "cat": "Organización", "sub": "Universidad UCI (Da Jabón)", "nombre": "Acompañamiento al plan estratégico de UCI", "desc": "Acompañar a la universidad (UCI / Dajabón) en la elaboración de su plan estratégico.", "resp": "Juan Luis", "coresp": "", "ini": "2026-06-01", "obj": "2026-09-30", "prio": "Media", "notas": "Solicitud reciente. No hay persona contratada para planificación en la universidad.", "estadoManual": null, "estadoBase": "En proceso", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-026", "cat": "Organización", "sub": "Unión Europea — Cañada/Jeringa", "nombre": "Nota conceptual proyecto Nicolás Cruz", "desc": "Elaborar nota conceptual + presupuesto para convocatoria Unión Europea sobre reparación de cañada y economía del cuidado.", "resp": "Juan Luis", "coresp": "Jenny (opinión/apoyo)", "ini": "2026-05-26", "obj": "2026-06-30", "prio": "Alta", "notas": "Nicolás Cruz ya envió marco lógico y presupuesto. Eje: economía del cuidado vinculada a riadas (mujeres, mayores, niños). Aprovechar levantamientos previos en Jeringa.", "estadoManual": null, "estadoBase": "Realizada", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-027", "cat": "Mantenimiento", "sub": "Eventos", "nombre": "Reunión informe Voces del Desarrollo Humano (PNUD)", "desc": "Reunión virtual con equipo PNUD para revisar presentación del informe.", "resp": "Jenny", "coresp": "", "ini": "2026-05-26", "obj": "2026-05-26", "prio": "Alta", "notas": "Aclarar con Sócrates avance real del trabajo (Jenny ha entregado cronograma, matriz de actores, delimitación de comités). Reclamar reconocimiento del trabajo realizado.", "estadoManual": null, "estadoBase": "Realizada", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-028", "cat": "Mantenimiento", "sub": "Eventos", "nombre": "Evento revista INTEC — miércoles 27 de mayo, 4 PM", "desc": "Asistir al evento de la revista INTEC donde Jenny y Juan Luis dan clases.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-05-27", "obj": "2026-05-27", "prio": "Alta", "notas": "Coincide con reunión de la Plataforma (mismo día/hora). Juan Luis pide a Garabito que le represente en la Plataforma.", "estadoManual": null, "estadoBase": "Realizada", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-029", "cat": "Mantenimiento", "sub": "Eventos", "nombre": "Seminario UASD — viernes 29 de mayo", "desc": "Jenny presenta su tesis en seminario en la UASD, junto a Domingo Matías. Carlos Arias coordina.", "resp": "Jenny", "coresp": "", "ini": "2026-05-29", "obj": "2026-05-29", "prio": "Alta", "notas": "Hora: 3:30 PM. Hablar sobre tesis (territorial poverty, cambio climático).", "estadoManual": null, "estadoBase": "Realizada", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-030", "cat": "Mantenimiento", "sub": "Plataforma movimientos sociales", "nombre": "Definir posición frente a la Plataforma", "desc": "Decisión: NO participar activamente en la Plataforma hasta que se reorganice con comisiones claras. Solo apoyar tema de incorporación.", "resp": "Juan Luis", "coresp": "Jenny", "ini": "2026-05-25", "obj": "2026-06-30", "prio": "Media", "notas": "Comunicar la posición en reunión. Apoyar la iniciativa de Camila con los jóvenes los sábados. Asesorar grupos puntuales.", "estadoManual": null, "estadoBase": "En proceso", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-031", "cat": "Mantenimiento", "sub": "Charlas/encuentros", "nombre": "Encuentros con Nataly (pequeñas charlas)", "desc": "Confirmar con Naftali la propuesta de pequeñas charlas que mencionó pero no formalizó.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-06-01", "obj": "2026-06-30", "prio": "Baja", "notas": "Esperando que Nataly precise la solicitud.", "estadoManual": null, "estadoBase": "Bloqueada", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-032", "cat": "Vida personal", "sub": "Ejercicio", "nombre": "Reactivar gimnasio Smartfit", "desc": "Reincorporación al gimnasio con plan estable: lunes, miércoles y domingo.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-05-25", "obj": "2026-05-31", "prio": "Alta", "notas": "Tantear horario el primer día. Probar 7 PM o 12 del mediodía. Opción: si está muy lleno, hacer ejercicio en casa.", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-033", "cat": "Vida personal", "sub": "Ejercicio", "nombre": "Domingos a la playa de Najayo (alternativa al gym)", "desc": "Domingo temprano (7 AM): caminata 5 km, nadar un rato, regresar.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-05-31", "obj": "2026-12-31", "prio": "Media", "notas": "Invitar a Raiza ocasionalmente. Sustituye el gimnasio del domingo.", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-034", "cat": "Vida personal", "sub": "Espiritualidad", "nombre": "Eucaristía Juan Luis — 2 días a la semana", "desc": "Juan Luis asiste a la eucaristía 2 días a la semana en horario matutino.", "resp": "Juan Luis", "coresp": "", "ini": "2026-05-26", "obj": "2026-12-31", "prio": "Media", "notas": "Compatible con días alternos del gimnasio.", "estadoManual": null, "estadoBase": "En proceso", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-035", "cat": "Vida personal", "sub": "Salud", "nombre": "Terapia semanal Jenny — martes", "desc": "Continuar terapia semanal los martes.", "resp": "Jenny", "coresp": "", "ini": "2026-05-26", "obj": "2026-12-31", "prio": "Alta", "notas": "Jenny la considera también ejercicio. Día fijo.", "estadoManual": null, "estadoBase": "Bloqueada", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-036", "cat": "Vida personal", "sub": "Familia", "nombre": "Fin de semana con Rosely (cuando llegue)", "desc": "Aprovechar visita de Rosely para organizar fin de semana familiar con Noa, ir a un lugar de descanso.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-06-01", "obj": "2026-06-30", "prio": "Media", "notas": "Evento extraordinario; planificar fecha cuando confirme Rosely.", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-037", "cat": "Vida personal", "sub": "Familia", "nombre": "Plan continuo de tiempo familiar", "desc": "Definir actividades familiares regulares: cine con Julito y Noa, salidas, días en familia. Revisar a los 2 meses.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-07-01", "obj": "2026-08-31", "prio": "Media", "notas": "No debe ser solo eventos extraordinarios. Establecer rutina.", "estadoManual": null, "estadoBase": "En proceso", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-038", "cat": "Transversales", "sub": "Editorial Jamai", "nombre": "Reunión con Katherine — página web Jamai", "desc": "Reunión miércoles para continuar trabajo en la página web de Jamey", "resp": "Jenny", "coresp": "Katherine", "ini": "2026-05-27", "obj": "2026-05-27", "prio": "Alta", "notas": "Se reprogramó del viernes por diplomado de Jenny. No se detuvo el trabajo.", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-039", "cat": "Transversales", "sub": "Editorial Jamai", "nombre": "Formalización de la editorial Jamai", "desc": "Avanzar en la formalización del sello editorial Jamey para publicar libros y manuales propios.", "resp": "Jenny", "coresp": "Katherine y Juan Luis", "ini": "2026-06-01", "obj": "2026-12-31", "prio": "Alta", "notas": "Necesario para publicar libro Sociología de la Pobreza en 2027 y los dos manuales.", "estadoManual": null, "estadoBase": "En proceso", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-040", "cat": "Transversales", "sub": "Financiamiento", "nombre": "Estrategia de fondos para publicaciones", "desc": "Diseñar mecanismo (San, fondo mutuo, porcentaje de consultorías) para financiar publicaciones de Jamey", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-06-01", "obj": "2026-08-31", "prio": "Media", "notas": "Aprovechar consultorías como fuente. Pensar lanzamientos como Domingo Matías.", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-041", "cat": "Transversales", "sub": "Movilidad / logística", "nombre": "Evaluar compra de vehículo 4x4", "desc": "Análisis de presupuesto y condiciones para adquirir vehículo 4x4 que facilite investigación de campo (movimientos sociales, comunidades).", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2027-01-01", "obj": "2027-06-30", "prio": "Baja", "notas": "Solo después de terminar de pagar vehículo actual. Posible Toyota 4x4 o jeepeta.", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-042", "cat": "Transversales", "sub": "Proyectos administrativos", "nombre": "Revisión documento Cismera", "desc": "Cada uno revisa el documento por su lado, luego se comunican entre 11 AM y 12:30 PM.", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-05-25", "obj": "2026-05-26", "prio": "Alta", "notas": "Verificar pago de boletos (aprox. 2,500–3,000 pesos).", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-043", "cat": "Transversales", "sub": "Proyectos administrativos", "nombre": "Convocatoria Ecuador — Cuidados", "desc": "Responder a convocatoria de Ecuador sobre temas de cuidados.", "resp": "Jenny", "coresp": "", "ini": "2026-05-24", "obj": "2026-05-26", "prio": "Alta", "notas": "Iniciar al terminar reunión del 24 de mayo.", "estadoManual": null, "estadoBase": "Realizada", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-044", "cat": "Transversales", "sub": "Proyectos administrativos", "nombre": "Informe Twitter", "desc": "Cerrar el informe de Twitter.", "resp": "Jenny", "coresp": "", "ini": "2026-05-25", "obj": "2026-05-26", "prio": "Alta", "notas": "Hoy y mañana — bloque corto antes del informe Sintra.", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-045", "cat": "Transversales", "sub": "Proyectos administrativos", "nombre": "Informe Sintra", "desc": "Entregar informe Sintra antes del 3 de junio.", "resp": "Jenny", "coresp": "", "ini": "2026-05-27", "obj": "2026-06-03", "prio": "Alta", "notas": "Tarea relativamente sencilla según Jenny.", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-046", "cat": "Transversales", "sub": "Proyectos administrativos", "nombre": "Reunión Juan Luis con Victoriano", "desc": "Reunión institucional con Victoriano.", "resp": "Juan Luis", "coresp": "", "ini": "2026-05-26", "obj": "2026-05-26", "prio": "Media", "notas": "Mañana en la mañana.", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783540451617}, {"id": "T-047", "cat": "Transversales", "sub": "Proyectos administrativos", "nombre": "Tarea Dani (PNU)", "desc": "Atender solicitud de Dani relacionada con PNU (revisar contenido del correo).", "resp": "Jenny", "coresp": "Juan Luis", "ini": "2026-05-25", "obj": "2026-05-31", "prio": "Media", "notas": "Pendiente de revisar; aparenta ser ejemplo o portafolio María.", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783540451617}];
+const STORE_KEY='seguimiento_jl_jt_v3';
+const URL_KEY='seguimiento_sync_url';
+const CAT_ORDER=['Libros','Artículos','Manuales','Investigaciones','Producción','Formación','Organización','Mantenimiento','Vida personal','Transversales'];
+const STATES=['Pendiente','En proceso','Realizada','Bloqueada'];
+let data=[], SYNC_URL='', showDone=false, searchТ='';
+let openCat={}, openProc={}, openAct={};
 
-/* storage */
-// Adaptador: usa window.storage si existe (dentro de Claude); si no, usa el
-// almacenamiento normal del navegador. Así funciona también como archivo suelto.
-const STORE = (function(){
-  if (typeof window!=='undefined' && window.storage && typeof window.storage.get==='function'){
-    return window.storage;
-  }
-  return {
-    get: async (k)=>{ try{ const v=localStorage.getItem(k); return v!==null?{value:v}:null; }catch(e){ return null; } },
-    set: async (k,v)=>{ try{ localStorage.setItem(k,v); }catch(e){} return {value:v}; },
-  };
+/* ---- storage adapter (Claude or browser) ---- */
+const STORE=(function(){
+  if(typeof window!=='undefined'&&window.storage&&typeof window.storage.get==='function')return window.storage;
+  return {get:async(k)=>{try{const v=localStorage.getItem(k);return v!==null?{value:v}:null;}catch(e){return null;}},
+          set:async(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}return{value:v};}};
 })();
 function setSync(s){const d=document.getElementById('syncDot'),t=document.getElementById('syncTxt');if(s){d.classList.add('saving');t.textContent='Guardando…';}else{d.classList.remove('saving');t.textContent='Guardado';}}
-async function loadTasks(){try{const r=await STORE.get(STORE_KEY,true);if(r&&r.value){tasks=JSON.parse(r.value);normalize();return;}}catch(e){}tasks=SEED.map(t=>({...t}));normalize();await saveTasks();}
-function normalize(){tasks.forEach(t=>{if(!Array.isArray(t.subtasks))t.subtasks=[];if(!Array.isArray(t.comments))t.comments=[];});}
+function normalize(){data.forEach(p=>{if(!Array.isArray(p.actividades))p.actividades=[];if(!Array.isArray(p.comments))p.comments=[];p.actividades.forEach(a=>{if(!Array.isArray(a.tareas))a.tareas=[];if(!a.estado)a.estado='Pendiente';});});}
+async function loadData(){try{const r=await STORE.get(STORE_KEY,true);if(r&&r.value){data=JSON.parse(r.value);normalize();return;}}catch(e){}data=SEED.map(p=>({...p}));normalize();await saveData();}
 let saveTimer=null;
-async function saveTasks(){setSync(true);try{await STORE.set(STORE_KEY,JSON.stringify(tasks),true);}catch(e){console.error(e);}setSync(false);}
-function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(saveTasks,250);}
-
-/* ---- SYNC con Google Sheets (manual) ---- */
-const URL_KEY='seguimiento_sync_url';
-let SYNC_URL='';
+async function saveData(){setSync(true);try{await STORE.set(STORE_KEY,JSON.stringify(data),true);}catch(e){console.error(e);}setSync(false);}
+function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(saveData,250);}
 async function loadSyncUrl(){try{const r=await STORE.get(URL_KEY,false);if(r&&r.value)SYNC_URL=r.value;}catch(e){}}
 async function saveSyncUrl(u){SYNC_URL=u;try{await STORE.set(URL_KEY,u,false);}catch(e){}}
-function touch(t){t._m=Date.now();}
-function ensureStamps(){let ch=false;tasks.forEach(t=>{if(!t._m){t._m=1;ch=true;}});return ch;}
+function touch(p){p._m=Date.now();}
 
-// Fusiona la lista remota con la local: por cada tarea gana la versión con _m más reciente.
-// Las tareas que existen en una sola de las dos se conservan.
-function merge(remote){
-  const byId={};
-  tasks.forEach(t=>byId[t.id]={...t});
-  remote.forEach(r=>{
-    if(!r||!r.id)return;
-    if(!r._m)r._m=1;
-    const local=byId[r.id];
-    if(!local){ byId[r.id]=r; }               // solo existe remota → traer
-    else if((r._m||0)>(local._m||0)){ byId[r.id]=r; } // remota más nueva → gana
-    // si local es más nueva o igual, se queda la local
-  });
-  return Object.values(byId);
-}
-
-function syncStatus(msg,kind){
-  const t=document.getElementById('syncTxt');const d=document.getElementById('syncDot');
-  t.textContent=msg;
-  d.style.background = kind==='err'?'var(--bloq)':kind==='busy'?'var(--pend)':'var(--real)';
-  d.classList.toggle('saving',kind==='busy');
-}
-
-async function doSync(){
-  if(!SYNC_URL){ openConfig(); return; }
-  ensureStamps();
-  syncStatus('Sincronizando…','busy');
-  try{
-    // 1) traer remoto
-    const res=await fetch(SYNC_URL,{method:'GET'});
-    const txt=await res.text();
-    let remote=[];
-    try{ remote=JSON.parse(txt); }catch(e){ remote=[]; }
-    if(!Array.isArray(remote)) remote=[];
-    // 2) fusionar
-    tasks=merge(remote);
-    normalize();
-    // 3) enviar el resultado fusionado
-    await fetch(SYNC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(tasks)});
-    await saveTasks();
-    renderAll();
-    const now=new Date().toLocaleTimeString('es-DO',{hour:'2-digit',minute:'2-digit'});
-    syncStatus('Sincronizado '+now,'ok');
-  }catch(err){
-    console.error(err);
-    syncStatus('Error de conexión','err');
-    alert('No se pudo sincronizar. Revisa la conexión o la URL en ⚙ Conexión.\\n\\nDetalle: '+err);
-  }
-}
-
-function openConfig(){
-  const m=document.getElementById('modal');
-  m.innerHTML=`<h2>Conexión con Google Sheets</h2>
-    <div class="mid">Pega aquí la URL de tu Web App (una sola vez). Queda guardada en este dispositivo.</div>
-    <div class="field"><label>URL de la Web App</label><input id="cfgUrl" placeholder="https://script.google.com/macros/s/…/exec" value="${esc(SYNC_URL)}"></div>
-    <div style="font-size:12.5px;color:var(--muted);line-height:1.5;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:11px 13px">
-      <b>Cómo obtenerla (una vez):</b><br>
-      1. Crea una hoja en Google Sheets.<br>
-      2. Menú <b>Extensiones → Apps Script</b>.<br>
-      3. Borra lo que haya y pega el código del archivo <b>AppsScript_Codigo.gs</b>. Guarda.<br>
-      4. <b>Implementar → Nueva implementación → Aplicación web</b>.<br>
-      5. En «Quién tiene acceso» elige <b>Cualquier persona</b>. Implementa y autoriza.<br>
-      6. Copia la <b>URL de la aplicación web</b> y pégala arriba.<br>
-      Juan Luis pega esa <b>misma URL</b> en su copia y ambos quedan conectados.
-    </div>
-    <div class="mactions"><div><button class="btn danger" id="cfgClear">Desconectar</button></div>
-    <div style="display:flex;gap:8px"><button class="btn" id="cfgCancel">Cerrar</button><button class="btn primary" id="cfgSave">Guardar y sincronizar</button></div></div>`;
-  document.getElementById('scrim').classList.add('open');
-  document.getElementById('cfgCancel').onclick=closeModal;
-  document.getElementById('cfgClear').onclick=async()=>{await saveSyncUrl('');syncStatus('Sin conexión','ok');closeModal();};
-  document.getElementById('cfgSave').onclick=async()=>{const u=document.getElementById('cfgUrl').value.trim();if(!/^https:\/\/script\.google\.com\/.*\/exec$/.test(u)){if(!confirm('Esa URL no parece la de una Web App de Apps Script (debe terminar en /exec). ¿Guardar de todas formas?'))return;}await saveSyncUrl(u);closeModal();doSync();};
-}
-
-/* dates */
+/* ---- dates ---- */
 function today(){const d=new Date();d.setHours(0,0,0,0);return d;}
 function parseD(s){if(!s)return null;const d=new Date(s+'T00:00:00');return isNaN(d)?null:d;}
 function daysTo(s){const d=parseD(s);if(!d)return null;return Math.round((d-today())/864e5);}
 function fmtD(s){const d=parseD(s);if(!d)return '—';return d.toLocaleDateString('es-DO',{day:'2-digit',month:'short',year:'2-digit'});}
-function dueClass(t){if(t.estado==='Realizada')return 'ok';const n=daysTo(t.obj);if(n===null)return 'ok';if(n<0)return 'over';if(n<=14)return 'soon';return 'ok';}
-function dueLabel(t){const n=daysTo(t.obj);if(t.estado==='Realizada')return 'hecho';if(n===null)return fmtD(t.obj);if(n<0)return 'venció '+fmtD(t.obj);if(n===0)return 'hoy';if(n<=14)return 'en '+n+'d';return fmtD(t.obj);}
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
-function personClass(name){const n=(name||'').toLowerCase();if(n.includes('jenny'))return 'p-jenny';if(n.includes('juan'))return 'p-juan';return 'p-otro';}
+function personClass(n){n=(n||'').toLowerCase();if(n.includes('jenny'))return 'p-jenny';if(n.includes('juan'))return 'p-juan';return 'p-otro';}
+function stCls(s){return 'st-'+(s||'').replace(/\s/g,'');}
 
-/* progress */
-function renderProgress(){const box=document.getElementById('progress');box.innerHTML='';CATS.forEach(cat=>{const list=tasks.filter(t=>t.cat===cat&&!t._del);if(!list.length)return;const c={};list.forEach(t=>c[t.estado]=(c[t.estado]||0)+1);const tot=list.length,pct=s=>((c[s]||0)/tot*100);const el=document.createElement('div');el.className='pcard';el.innerHTML=`<div class="plabel"><span>${cat}</span><span class="pcount">${c['Realizada']||0}/${tot} hechas</span></div><div class="bar"><i class="real" style="width:${pct('Realizada')}%"></i><i class="proc" style="width:${pct('En proceso')}%"></i><i class="pend" style="width:${pct('Pendiente')}%"></i><i class="bloq" style="width:${pct('Bloqueada')}%"></i></div>`;box.appendChild(el);});}
+/* ---- estado que sube solo ---- */
+// actividad: Realizada si todas sus tareas hechas y tiene tareas; si no tiene tareas, usa su propio estado
+function actEstado(a){
+  if(a.tareas&&a.tareas.length){
+    const done=a.tareas.filter(t=>t.done).length;
+    if(done===0)return a.estado==='Bloqueada'?'Bloqueada':'Pendiente';
+    if(done===a.tareas.length)return 'Realizada';
+    return 'En proceso';
+  }
+  return a.estado||'Pendiente';
+}
+// proceso: se calcula desde sus actividades; si no tiene, usa estadoBase
+function procEstado(p){
+  if(p.estadoManual)return p.estadoManual;
+  if(!p.actividades.length)return p.estadoBase||'Pendiente';
+  const ests=p.actividades.map(actEstado);
+  if(ests.every(e=>e==='Realizada'))return 'Realizada';
+  if(ests.some(e=>e==='Bloqueada'))return 'Bloqueada';
+  if(ests.some(e=>e==='En proceso'||e==='Realizada'))return 'En proceso';
+  return 'Pendiente';
+}
+function procProgress(p){
+  // porcentaje basado en actividades realizadas
+  if(!p.actividades.length)return procEstado(p)==='Realizada'?1:0;
+  const done=p.actividades.filter(a=>actEstado(a)==='Realizada').length;
+  return done/p.actividades.length;
+}
 
-/* filter */
-function visible(){return tasks.filter(t=>{if(t._del)return false;if(filterCat!=='all'&&t.cat!==filterCat)return false;if(filterSoon){const n=daysTo(t.obj);if(t.estado==='Realizada')return false;if(n===null||n>14)return false;}if(searchТ){const hay=(t.tarea+' '+t.desc+' '+t.resp+' '+t.coresp+' '+t.notas+' '+t.sub).toLowerCase();if(!hay.includes(searchТ))return false;}return true;});}
+/* ---- filtering ---- */
+function procMatchesSearch(p){
+  if(!searchТ)return true;
+  let hay=(p.nombre+' '+p.desc+' '+p.resp+' '+p.coresp+' '+p.notas+' '+p.cat).toLowerCase();
+  p.actividades.forEach(a=>{hay+=' '+a.nombre.toLowerCase();a.tareas.forEach(t=>hay+=' '+t.txt.toLowerCase());});
+  return hay.includes(searchТ);
+}
+function procVisible(p){
+  if(!procMatchesSearch(p))return false;
+  if(!showDone&&procEstado(p)==='Realizada')return false;
+  return true;
+}
 
-function subCount(t){const d=t.subtasks.filter(s=>s.done).length;return {d,n:t.subtasks.length};}
+/* ---- render ---- */
+function catsInUse(){const s=new Set(data.map(p=>p.cat));return CAT_ORDER.filter(c=>s.has(c)).concat([...s].filter(c=>!CAT_ORDER.includes(c)));}
 
-/* ---- BOARD ---- */
-/* ---- CATEGORY BOARD ---- */
-function renderCategory(){const app=document.getElementById('app');const vis=visible();const board=document.createElement('div');board.className='catboard';CATS.forEach((cat,ci)=>{const inCat=vis.filter(t=>t.cat===cat);const col=document.createElement('div');col.className='col catcol cat-c'+ci;col.innerHTML=`<div class="col-head"><span class="cname"><span class="cbadge"></span>${cat}</span><span class="cnum">${inCat.length}</span></div>`;const body=document.createElement('div');body.className='col-body';body.dataset.cat=cat;body.addEventListener('dragover',e=>{e.preventDefault();body.classList.add('drag-over');});body.addEventListener('dragleave',()=>body.classList.remove('drag-over'));body.addEventListener('drop',e=>{e.preventDefault();body.classList.remove('drag-over');const id=e.dataTransfer.getData('text/plain');const t=tasks.find(x=>x.id===id);if(t&&t.cat!==cat){t.cat=cat;touch(t);queueSave();renderAll();}});if(!inCat.length){const em=document.createElement('div');em.className='empty';em.textContent='Sin tareas aquí';body.appendChild(em);}const sorted=[...inCat].sort((a,b)=>{const da=parseD(a.obj),db=parseD(b.obj);if(!da)return 1;if(!db)return -1;return da-db;});sorted.forEach(t=>body.appendChild(cardEl(t)));col.appendChild(body);board.appendChild(col);});app.innerHTML='';app.appendChild(board);}
-
-function renderBoard(){const app=document.getElementById('app');const vis=visible();const board=document.createElement('div');board.className='board';STATES.forEach(st=>{const inState=vis.filter(t=>t.estado===st.key);const col=document.createElement('div');col.className='col '+st.cls;col.innerHTML=`<div class="col-head"><span class="cname"><span class="cbadge"></span>${st.label}</span><span class="cnum">${inState.length}</span></div>`;const body=document.createElement('div');body.className='col-body';body.dataset.state=st.key;body.addEventListener('dragover',e=>{e.preventDefault();body.classList.add('drag-over');});body.addEventListener('dragleave',()=>body.classList.remove('drag-over'));body.addEventListener('drop',e=>{e.preventDefault();body.classList.remove('drag-over');const id=e.dataTransfer.getData('text/plain');const t=tasks.find(x=>x.id===id);if(t&&t.estado!==st.key){t.estado=st.key;touch(t);queueSave();renderAll();}});if(!inState.length){const em=document.createElement('div');em.className='empty';em.textContent='Sin tareas aquí';body.appendChild(em);}inState.forEach(t=>body.appendChild(cardEl(t)));col.appendChild(body);board.appendChild(col);});app.innerHTML='';app.appendChild(board);}
-function nextStates(cur){return STATES.filter(s=>s.key!==cur);}
-function cardEl(t){const el=document.createElement('div');el.className='card p-'+(t.prio||'Media');el.draggable=true;el.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',t.id);el.classList.add('dragging');});el.addEventListener('dragend',()=>el.classList.remove('dragging'));const sc=subCount(t);const moves=nextStates(t.estado).map(s=>`<button class="mvbtn" data-mv="${s.key}">→ ${s.label}</button>`).join('');const isOpen=!!expanded[t.id];let subBlock='';if(sc.n){const items=t.subtasks.map((s,i)=>`<label class="sl ${s.done?'done':''}"><input type="checkbox" data-sub="${i}" ${s.done?'checked':''}><span>${esc(s.txt)}</span></label>`).join('');subBlock=`<div class="subprog"><i style="width:${sc.d/sc.n*100}%"></i></div><div class="subtoggle ${isOpen?'open':''}"><span class="caret">▸</span> ☑ ${sc.d}/${sc.n} subtareas</div><div class="sublist ${isOpen?'show':''}">${items}</div>`;}let icons='';if(t.comments.length)icons+=`<span>💬 ${t.comments.length}</span>`;el.innerHTML=`<div class="ctop"><span class="ccat">${t.cat}</span><span class="cid">${t.id}</span></div><h3>${esc(t.tarea)}</h3><div class="meta"><span class="tag-person ${personClass(t.resp)}">${esc(t.resp)}</span>${t.coresp?`<span class="tag-person ${personClass(t.coresp)}">${esc(t.coresp)}</span>`:''}<span class="due ${dueClass(t)}">${dueLabel(t)}</span></div>${subBlock}${icons?`<div class="icons">${icons}</div>`:''}<div class="move">${moves}</div>`;el.querySelector('h3').addEventListener('click',()=>openModal(t.id));el.querySelector('.ccat').addEventListener('click',()=>openModal(t.id));el.querySelectorAll('[data-mv]').forEach(b=>b.addEventListener('click',ev=>{ev.stopPropagation();t.estado=b.dataset.mv;touch(t);queueSave();renderAll();}));const tog=el.querySelector('.subtoggle');if(tog){tog.addEventListener('click',ev=>{ev.stopPropagation();expanded[t.id]=!expanded[t.id];tog.classList.toggle('open');el.querySelector('.sublist').classList.toggle('show');});}el.querySelectorAll('.sublist input[data-sub]').forEach(cb=>cb.addEventListener('click',ev=>{ev.stopPropagation();const i=+cb.dataset.sub;t.subtasks[i].done=cb.checked;touch(t);queueSave();renderAll();}));return el;}
-
-/* ---- PERSON VIEW ---- */
-function personBucket(t){const who=[];const rc=personClass(t.resp);if(rc==='p-jenny')who.push('Jenny');else if(rc==='p-juan')who.push('Juan Luis');const cc=personClass(t.coresp);if(t.coresp){if(cc==='p-jenny'&&!who.includes('Jenny'))who.push('Jenny');if(cc==='p-juan'&&!who.includes('Juan Luis'))who.push('Juan Luis');}if(!who.length)who.push('Otros');return who;}
-function renderPerson(){const app=document.getElementById('app');const vis=visible();const cols={'Jenny':[],'Juan Luis':[],'Otros':[]};vis.forEach(t=>{personBucket(t).forEach(p=>{if(cols[p])cols[p].push(t);else cols['Otros'].push(t);});});const order=[['Jenny','p-jenny'],['Juan Luis','p-juan'],['Otros','p-otro']];const wrap=document.createElement('div');wrap.className='person-cols';order.forEach(([name,cls])=>{const list=cols[name];const done=list.filter(t=>t.estado==='Realizada').length;const col=document.createElement('div');col.className='person-col';col.innerHTML=`<h2><span class="tag-person ${cls}">${name}</span></h2><div class="psub">${list.length} tareas · ${done} hechas · ${list.filter(t=>t.estado!=='Realizada'&&daysTo(t.obj)!==null&&daysTo(t.obj)<0).length} vencidas</div>`;const sorted=[...list].sort((a,b)=>{const da=parseD(a.obj),db=parseD(b.obj);if(!da)return 1;if(!db)return -1;return da-db;});sorted.forEach(t=>{const row=document.createElement('div');row.className='prow';row.innerHTML=`<div class="pt">${esc(t.tarea)}</div><div class="pm"><span class="stbadge st-${t.estado.replace(' ','\\ ')}"></span>${t.estado} · ${dueLabel(t)} · <span style="color:var(--accent)">${esc(t.cat)}</span></div>`;row.addEventListener('click',()=>openModal(t.id));col.appendChild(row);});if(!list.length){const em=document.createElement('div');em.className='empty';em.textContent='Sin tareas';col.appendChild(em);}wrap.appendChild(col);});app.innerHTML='';app.appendChild(wrap);}
-
-/* ---- GANTT ---- */
-function renderGantt(){const app=document.getElementById('app');const vis=visible().filter(t=>parseD(t.ini)||parseD(t.obj));
-  // range
-  let min=null,max=null;vis.forEach(t=>{const a=parseD(t.ini)||parseD(t.obj),b=parseD(t.obj)||parseD(t.ini);if(a&&(!min||a<min))min=a;if(b&&(!max||b>max))max=b;});
-  if(!min){app.innerHTML='<div class="empty" style="padding:40px">No hay tareas con fechas para mostrar.</div>';return;}
-  min=new Date(min.getFullYear(),min.getMonth(),1);max=new Date(max.getFullYear(),max.getMonth()+1,0);
-  const months=[];let cur=new Date(min);while(cur<=max){months.push(new Date(cur));cur.setMonth(cur.getMonth()+1);}
-  const totalDays=(max-min)/864e5+1;const LABELW=220;
-  const gantt=document.createElement('div');gantt.className='gantt';const inner=document.createElement('div');inner.className='gantt-inner';
-  const colTemplate=`${LABELW}px repeat(${months.length},1fr)`;
-  // month header
-  const mh=document.createElement('div');mh.className='g-months';mh.style.gridTemplateColumns=colTemplate;mh.innerHTML=`<div></div>`+months.map(m=>`<div class="g-month">${m.toLocaleDateString('es-DO',{month:'short'})} '${String(m.getFullYear()).slice(2)}</div>`).join('');inner.appendChild(mh);
-  const pctFor=d=>((d-min)/864e5)/totalDays*100;
-  const nowPct=pctFor(today());
-  // group by category
-  CATS.forEach(cat=>{const list=vis.filter(t=>t.cat===cat).sort((a,b)=>(parseD(a.ini)||parseD(a.obj))-(parseD(b.ini)||parseD(b.obj)));if(!list.length)return;const ch=document.createElement('div');ch.className='g-cat-head';ch.textContent=cat;inner.appendChild(ch);
-    list.forEach(t=>{const row=document.createElement('div');row.className='g-row';row.style.gridTemplateColumns=colTemplate;const a=parseD(t.ini)||parseD(t.obj),b=parseD(t.obj)||parseD(t.ini);let left=pctFor(a),right=pctFor(b);let w=Math.max(right-left,1.2);
-      const track=document.createElement('div');track.className='g-track';
-      const bar=document.createElement('div');bar.className='g-bar '+t.estado;bar.style.left=left+'%';bar.style.width=w+'%';bar.title=t.tarea+' · '+dueLabel(t);bar.textContent=t.id;bar.addEventListener('click',()=>openModal(t.id));
-      if(nowPct>=0&&nowPct<=100){const tl=document.createElement('div');tl.className='g-today';tl.style.left=nowPct+'%';track.appendChild(tl);}
-      track.appendChild(bar);
-      const lbl=document.createElement('div');lbl.className='g-label';lbl.textContent=t.tarea;lbl.title=t.tarea;lbl.addEventListener('click',()=>openModal(t.id));
-      row.appendChild(lbl);row.appendChild(track);inner.appendChild(row);});
+function render(){
+  const app=document.getElementById('app');app.innerHTML='';
+  const cats=catsInUse();
+  let anyShown=false;
+  cats.forEach(cat=>{
+    const procs=data.filter(p=>p.cat===cat&&procVisible(p));
+    const totalInCat=data.filter(p=>p.cat===cat).length;
+    if(!procs.length&&!searchТ&&!showDone&&totalInCat>0){
+      // all done & hidden -> show a slim header noting it
+    }
+    if(!procs.length)return;
+    anyShown=true;
+    const sec=document.createElement('div');sec.className='cat-section';
+    const isOpen=openCat[cat]!==false; // default open
+    // progress
+    const done=data.filter(p=>p.cat===cat&&procEstado(p)==='Realizada').length;
+    const head=document.createElement('div');head.className='cat-head'+(isOpen?' open':'');
+    head.innerHTML=`<span class="caret">▸</span><h2>${esc(cat)}</h2><span class="ccount">${done}/${totalInCat} hechos</span>`;
+    const body=document.createElement('div');body.className='cat-body'+(isOpen?' show':'');
+    head.addEventListener('click',()=>{openCat[cat]=!isOpen;render();});
+    procs.forEach(p=>body.appendChild(procRow(p)));
+    sec.appendChild(head);sec.appendChild(body);app.appendChild(sec);
   });
-  gantt.appendChild(inner);app.innerHTML='';app.appendChild(gantt);}
+  if(!anyShown){const e=document.createElement('div');e.className='empty';e.style.padding='40px';e.textContent=showDone?'No hay procesos que coincidan.':'Todo lo visible está realizado. Pulsa "Mostrar lo realizado" para verlo.';app.appendChild(e);}
+}
 
-/* ---- MODAL ---- */
-let editingId=null;
-function openModal(id){const t=id?tasks.find(x=>x.id===id):{id:'',cat:'Producción',sub:'',tarea:'',desc:'',resp:'Jenny',coresp:'',ini:null,obj:null,estado:'Pendiente',prio:'Media',notas:'',subtasks:[],comments:[]};editingId=id;const isNew=!id;const m=document.getElementById('modal');
-  const subHTML=t.subtasks.map((s,i)=>`<div class="sub-item ${s.done?'done':''}"><input type="checkbox" data-sub="${i}" ${s.done?'checked':''}><span class="st-txt">${esc(s.txt)}</span><button class="xdel" data-subdel="${i}">✕</button></div>`).join('');
-  const cmtHTML=t.comments.map((c,i)=>`<div class="cmt"><div class="ch"><b>${esc(c.autor)}</b><span>${esc(c.fecha)} <button class="xdel" data-cmtdel="${i}">✕</button></span></div><div class="cbody">${esc(c.texto)}</div></div>`).join('');
-  m.innerHTML=`<h2>${isNew?'Nueva tarea':esc(t.tarea)}</h2><div class="mid">${isNew?'Se añadirá al tablero':t.id+' · '+t.cat}</div>
-    <div class="field"><label>Tarea</label><input id="f_tarea" value="${esc(t.tarea)}"></div>
-    <div class="field"><label>Descripción</label><textarea id="f_desc">${esc(t.desc)}</textarea></div>
-    <div class="frow"><div class="field"><label>Categoría</label><select id="f_cat">${CATS.map(c=>`<option ${c===t.cat?'selected':''}>${c}</option>`).join('')}</select></div><div class="field"><label>Sub-tema</label><input id="f_sub" value="${esc(t.sub)}"></div></div>
-    <div class="frow"><div class="field"><label>Responsable</label><input id="f_resp" value="${esc(t.resp)}"></div><div class="field"><label>Co-responsable</label><input id="f_coresp" value="${esc(t.coresp)}"></div></div>
-    <div class="frow"><div class="field"><label>Fecha inicio</label><input type="date" id="f_ini" value="${t.ini||''}"></div><div class="field"><label>Fecha objetivo</label><input type="date" id="f_obj" value="${t.obj||''}"></div></div>
-    <div class="frow"><div class="field"><label>Estado</label><select id="f_estado">${STATES.map(s=>`<option ${s.key===t.estado?'selected':''}>${s.key}</option>`).join('')}</select></div><div class="field"><label>Prioridad</label><select id="f_prio">${['Alta','Media','Baja'].map(p=>`<option ${p===t.prio?'selected':''}>${p}</option>`).join('')}</select></div></div>
-    <div class="field"><label>Notas</label><textarea id="f_notas">${esc(t.notas)}</textarea></div>
-    ${isNew?'':`<div class="section-t">Subtareas</div><div id="subList">${subHTML||'<div class="empty" style="padding:6px;text-align:left">Sin subtareas aún.</div>'}</div><div class="addrow"><input id="newSub" placeholder="Añadir subtarea y Enter…"><button id="addSubBtn">Añadir</button></div>
-    <div class="section-t">Comentarios</div><div id="cmtList">${cmtHTML||'<div class="empty" style="padding:6px;text-align:left">Sin comentarios aún.</div>'}</div>
+function procRow(p){
+  const est=procEstado(p);const prog=procProgress(p);
+  const row=document.createElement('div');row.className='proc-row '+stCls(est);
+  const isOpen=!!openProc[p.id];
+  const who=p.resp+(p.coresp?(' · '+p.coresp):'');
+  const n=daysTo(p.obj);let dc='ok',dl=fmtD(p.obj);
+  if(est==='Realizada'){dc='ok';dl='hecho';}else if(n!==null){if(n<0){dc='over';dl='venció '+fmtD(p.obj);}else if(n<=14){dc='soon';dl=n===0?'hoy':'en '+n+'d';}}
+  const main=document.createElement('div');main.className='proc-main'+(isOpen?' open':'');
+  main.innerHTML=`<span class="caret">▸</span>
+    <span class="proc-title">${esc(p.nombre)}</span>
+    <span class="proc-meta">
+      ${p.actividades.length?`<span class="miniprog"><i style="width:${Math.round(prog*100)}%"></i></span>`:''}
+      <span class="tag-person ${personClass(p.resp)}">${esc(p.resp||'—')}</span>
+      <span class="due ${dc}">${dl}</span>
+      <span class="badge ${stCls(est)}">${est}</span>
+    </span>`;
+  main.addEventListener('click',e=>{if(e.target.closest('.badge'))return;openProc[p.id]=!isOpen;render();});
+  row.appendChild(main);
+
+  const kids=document.createElement('div');kids.className='proc-kids'+(isOpen?' show':'');
+  // header actions
+  const bar=document.createElement('div');bar.style.cssText='display:flex;gap:10px;align-items:center;margin:2px 0 6px';
+  bar.innerHTML=`<button class="miniedit" data-editproc="${p.id}">✎ editar proceso / comentarios</button>`;
+  kids.appendChild(bar);
+  bar.querySelector('[data-editproc]').addEventListener('click',ev=>{ev.stopPropagation();openModal(p.id);});
+  // actividades
+  if(!p.actividades.length){const e=document.createElement('div');e.className='empty';e.style.textAlign='left';e.textContent='Sin actividades. Agrega una abajo.';kids.appendChild(e);}
+  p.actividades.forEach((a,ai)=>kids.appendChild(actRow(p,a,ai)));
+  // add actividad
+  const addA=document.createElement('div');addA.className='addrow addact';
+  addA.innerHTML=`<input placeholder="Nueva actividad…"><button>+ Actividad</button>`;
+  const addAdo=()=>{const inp=addA.querySelector('input');const v=inp.value.trim();if(!v)return;a_push(p,v);};
+  addA.querySelector('button').addEventListener('click',ev=>{ev.stopPropagation();addAdo();});
+  addA.querySelector('input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addAdo();}});
+  addA.querySelector('input').addEventListener('click',e=>e.stopPropagation());
+  kids.appendChild(addA);
+  row.appendChild(kids);
+  return row;
+}
+function a_push(p,nombre){p.actividades.push({id:'A-'+Date.now()+Math.floor(Math.random()*99),nombre:nombre,estado:'Pendiente',tareas:[]});touch(p);queueSave();render();}
+
+function actRow(p,a,ai){
+  const est=actEstado(a);
+  const wrap=document.createElement('div');wrap.className='act-row';
+  const isOpen=!!openAct[a.id];
+  const done=a.tareas.filter(t=>t.done).length;
+  const main=document.createElement('div');main.className='act-main'+(isOpen?' open':'');
+  main.innerHTML=`<span class="caret">▸</span><span class="act-title">${esc(a.nombre)}</span>
+    <span class="proc-meta">${a.tareas.length?`<span class="ccount" style="font-family:ui-monospace;font-size:10px;color:var(--muted)">☑ ${done}/${a.tareas.length}</span>`:''}<span class="badge ${stCls(est)}">${est}</span></span>`;
+  main.addEventListener('click',e=>{openAct[a.id]=!isOpen;render();});
+  wrap.appendChild(main);
+  const kids=document.createElement('div');kids.className='act-kids'+(isOpen?' show':'');
+  // tareas
+  a.tareas.forEach((t,ti)=>{
+    const it=document.createElement('div');it.className='task-item'+(t.done?' done':'');
+    it.innerHTML=`<input type="checkbox" ${t.done?'checked':''}><span class="tt">${esc(t.txt)}</span><button class="xdel">✕</button>`;
+    it.querySelector('input').addEventListener('click',ev=>{ev.stopPropagation();t.done=ev.target.checked;touch(p);queueSave();render();});
+    it.querySelector('.xdel').addEventListener('click',ev=>{ev.stopPropagation();a.tareas.splice(ti,1);touch(p);queueSave();render();});
+    kids.appendChild(it);
+  });
+  // estado manual de actividad si no tiene tareas
+  if(!a.tareas.length){
+    const sel=document.createElement('div');sel.style.cssText='margin:4px 0';
+    sel.innerHTML=`<select style="font-family:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper)">${STATES.map(s=>`<option ${s===a.estado?'selected':''}>${s}</option>`).join('')}</select> <span style="font-size:11px;color:var(--muted)">estado de la actividad</span>`;
+    sel.querySelector('select').addEventListener('change',ev=>{a.estado=ev.target.value;touch(p);queueSave();render();});
+    sel.querySelector('select').addEventListener('click',e=>e.stopPropagation());
+    kids.appendChild(sel);
+  }
+  // add tarea
+  const addT=document.createElement('div');addT.className='addrow';
+  addT.innerHTML=`<input placeholder="Nueva tarea…"><button>+ Tarea</button>`;
+  const addTdo=()=>{const inp=addT.querySelector('input');const v=inp.value.trim();if(!v)return;a.tareas.push({txt:v,done:false});touch(p);queueSave();render();};
+  addT.querySelector('button').addEventListener('click',ev=>{ev.stopPropagation();addTdo();});
+  addT.querySelector('input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addTdo();}});
+  addT.querySelector('input').addEventListener('click',e=>e.stopPropagation());
+  kids.appendChild(addT);
+  // delete actividad
+  const del=document.createElement('button');del.className='miniedit';del.style.color='var(--bloq)';del.textContent='✕ eliminar actividad';
+  del.addEventListener('click',ev=>{ev.stopPropagation();if(confirm('¿Eliminar la actividad "'+a.nombre+'" y sus tareas?')){p.actividades.splice(ai,1);touch(p);queueSave();render();}});
+  kids.appendChild(del);
+  wrap.appendChild(kids);
+  return wrap;
+}
+
+/* ---- modal: edit proceso ---- */
+function openModal(id){
+  const isNew=!id;
+  const p=id?data.find(x=>x.id===id):{id:'',cat:'Libros',sub:'',nombre:'',desc:'',resp:'Jenny',coresp:'',ini:null,obj:null,prio:'Media',notas:'',estadoManual:null,estadoBase:'Pendiente',actividades:[],comments:[]};
+  const cats=catsInUse();const allCats=[...new Set([...CAT_ORDER,...cats])];
+  const m=document.getElementById('modal');
+  const cmtHTML=(p.comments||[]).map((c,i)=>`<div class="cmt"><div class="ch"><b>${esc(c.autor)}</b><span>${esc(c.fecha)} <button class="xdel" data-cmtdel="${i}">✕</button></span></div><div class="cbody">${esc(c.texto)}</div></div>`).join('');
+  m.innerHTML=`<h2>${isNew?'Nuevo proceso':esc(p.nombre)}</h2><div class="mid">${isNew?'Se añadirá al tablero':p.id+' · '+p.cat}</div>
+    <div class="field"><label>Nombre del proceso</label><input id="f_nombre" value="${esc(p.nombre)}"></div>
+    <div class="field"><label>Descripción</label><textarea id="f_desc">${esc(p.desc)}</textarea></div>
+    <div class="frow"><div class="field"><label>Categoría</label><select id="f_cat">${allCats.map(c=>`<option ${c===p.cat?'selected':''}>${c}</option>`).join('')}</select></div><div class="field"><label>Prioridad</label><select id="f_prio">${['Alta','Media','Baja'].map(x=>`<option ${x===p.prio?'selected':''}>${x}</option>`).join('')}</select></div></div>
+    <div class="frow"><div class="field"><label>Responsable</label><input id="f_resp" value="${esc(p.resp)}"></div><div class="field"><label>Co-responsable</label><input id="f_coresp" value="${esc(p.coresp)}"></div></div>
+    <div class="frow"><div class="field"><label>Fecha inicio</label><input type="date" id="f_ini" value="${p.ini||''}"></div><div class="field"><label>Fecha objetivo</label><input type="date" id="f_obj" value="${p.obj||''}"></div></div>
+    <div class="field"><label>Estado (vacío = automático desde actividades)</label><select id="f_estman"><option value="">Automático</option>${STATES.map(s=>`<option ${p.estadoManual===s?'selected':''}>${s}</option>`).join('')}</select></div>
+    <div class="field"><label>Notas</label><textarea id="f_notas">${esc(p.notas)}</textarea></div>
+    ${isNew?'':`<div class="section-t">Comentarios</div><div id="cmtList">${cmtHTML||'<div class="empty" style="text-align:left">Sin comentarios.</div>'}</div>
     <div class="cmt-compose"><div class="who-pick"><span class="chip whopick on" data-who="Jenny">Jenny</span><span class="chip whopick" data-who="Juan Luis">Juan Luis</span></div><textarea id="newCmt" placeholder="Escribe un comentario…"></textarea><div style="margin-top:6px"><button class="btn primary" id="addCmtBtn" style="padding:7px 14px;font-size:13px">Comentar</button></div></div>`}
-    <div class="mactions"><div>${isNew?'':'<button class="btn danger" id="delBtn">Eliminar tarea</button>'}</div><div style="display:flex;gap:8px"><button class="btn" id="cancelBtn">Cerrar</button><button class="btn primary" id="saveBtn">${isNew?'Crear':'Guardar'}</button></div></div>`;
+    <div class="mactions"><div>${isNew?'':'<button class="btn danger" id="delBtn">Eliminar proceso</button>'}</div><div style="display:flex;gap:8px"><button class="btn" id="cancelBtn">Cerrar</button><button class="btn primary" id="saveBtn">${isNew?'Crear':'Guardar'}</button></div></div>`;
   document.getElementById('scrim').classList.add('open');
   document.getElementById('cancelBtn').onclick=closeModal;
-  document.getElementById('saveBtn').onclick=()=>saveModal(t,isNew);
-  const del=document.getElementById('delBtn');if(del)del.onclick=()=>{if(confirm('¿Eliminar esta tarea?')){const tt=tasks.find(x=>x.id===id);if(tt){tt._del=true;touch(tt);}saveTasks();closeModal();renderAll();}};
+  document.getElementById('saveBtn').onclick=()=>{
+    const g=i=>document.getElementById(i).value;
+    const nombre=g('f_nombre').trim();if(!nombre){alert('Escribe el nombre del proceso.');return;}
+    const obj={cat:g('f_cat'),nombre,desc:g('f_desc'),resp:g('f_resp'),coresp:g('f_coresp'),ini:g('f_ini')||null,obj:g('f_obj')||null,prio:g('f_prio'),notas:g('f_notas'),estadoManual:g('f_estman')||null};
+    if(isNew){const nums=data.map(x=>parseInt((x.id||'').replace('T-',''))||0);obj.id='T-'+String(Math.max(0,...nums)+1).padStart(3,'0');obj.sub='';obj.estadoBase='Pendiente';obj.actividades=[];obj.comments=[];obj._m=Date.now();data.push(obj);}
+    else{Object.assign(p,obj);touch(p);}
+    saveData();closeModal();render();
+  };
+  const del=document.getElementById('delBtn');if(del)del.onclick=()=>{if(confirm('¿Eliminar todo el proceso?')){data=data.filter(x=>x.id!==id);saveData();closeModal();render();}};
   if(!isNew){
-    // subtasks
-    m.querySelectorAll('[data-sub]').forEach(cb=>cb.addEventListener('change',()=>{t.subtasks[+cb.dataset.sub].done=cb.checked;touch(t);queueSave();openModal(id);}));
-    m.querySelectorAll('[data-subdel]').forEach(b=>b.addEventListener('click',()=>{t.subtasks.splice(+b.dataset.subdel,1);touch(t);queueSave();openModal(id);}));
-    const nס=document.getElementById('newSub');const addSub=()=>{const v=nס.value.trim();if(!v)return;t.subtasks.push({txt:v,done:false});touch(t);queueSave();openModal(id);};
-    document.getElementById('addSubBtn').onclick=addSub;nס.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addSub();}});
-    // comments
     let who='Jenny';m.querySelectorAll('.whopick').forEach(c=>c.addEventListener('click',()=>{m.querySelectorAll('.whopick').forEach(x=>x.classList.remove('on'));c.classList.add('on');who=c.dataset.who;}));
-    m.querySelectorAll('[data-cmtdel]').forEach(b=>b.addEventListener('click',()=>{t.comments.splice(+b.dataset.cmtdel,1);touch(t);queueSave();openModal(id);}));
-    document.getElementById('addCmtBtn').onclick=()=>{const v=document.getElementById('newCmt').value.trim();if(!v)return;const f=new Date().toLocaleDateString('es-DO',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});t.comments.push({autor:who,texto:v,fecha:f});touch(t);queueSave();openModal(id);};
+    m.querySelectorAll('[data-cmtdel]').forEach(b=>b.addEventListener('click',()=>{p.comments.splice(+b.dataset.cmtdel,1);touch(p);queueSave();openModal(id);}));
+    document.getElementById('addCmtBtn').onclick=()=>{const v=document.getElementById('newCmt').value.trim();if(!v)return;const f=new Date().toLocaleDateString('es-DO',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});p.comments.push({autor:who,texto:v,fecha:f});touch(p);queueSave();openModal(id);};
   }
 }
-function saveModal(t,isNew){const g=i=>document.getElementById(i).value;const data={cat:g('f_cat'),sub:g('f_sub'),tarea:g('f_tarea').trim(),desc:g('f_desc'),resp:g('f_resp'),coresp:g('f_coresp'),ini:g('f_ini')||null,obj:g('f_obj')||null,estado:g('f_estado'),prio:g('f_prio'),notas:g('f_notas')};if(!data.tarea){alert('Escribe el nombre de la tarea.');return;}if(isNew){const nums=tasks.map(x=>parseInt((x.id||'').replace('T-',''))||0);data.id='T-'+String(Math.max(0,...nums)+1).padStart(3,'0');data.subtasks=[];data.comments=[];touch(data);tasks.push(data);}else{Object.assign(t,data);touch(t);}saveTasks();closeModal();renderAll();}
-function closeModal(){editingId=null;document.getElementById('scrim').classList.remove('open');}
+function closeModal(){document.getElementById('scrim').classList.remove('open');}
 document.getElementById('scrim').addEventListener('click',e=>{if(e.target.id==='scrim')closeModal();});
 
-/* export / import */
-document.getElementById('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify(tasks,null,1)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='seguimiento_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);};
-document.getElementById('importBtn').onclick=()=>document.getElementById('fileInput').click();
-document.getElementById('fileInput').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const data=JSON.parse(rd.result);if(!Array.isArray(data))throw 0;if(!confirm('Esto reemplazará el tablero actual con '+data.length+' tareas del archivo. ¿Continuar?'))return;tasks=data;normalize();saveTasks();renderAll();}catch(err){alert('El archivo no es válido.');}};rd.readAsText(f);e.target.value='';});
+/* ---- sync ---- */
+function ensureStamps(){data.forEach(p=>{if(!p._m)p._m=1;});}
+function merge(remote){const byId={};data.forEach(p=>byId[p.id]={...p});remote.forEach(r=>{if(!r||!r.id)return;if(!r._m)r._m=1;const l=byId[r.id];if(!l)byId[r.id]=r;else if((r._m||0)>(l._m||0))byId[r.id]=r;});return Object.values(byId);}
+function syncStatus(msg,kind){const t=document.getElementById('syncTxt'),d=document.getElementById('syncDot');t.textContent=msg;d.style.background=kind==='err'?'var(--bloq)':kind==='busy'?'var(--pend)':'var(--real)';d.classList.toggle('saving',kind==='busy');}
+async function doSync(){
+  if(!SYNC_URL){openConfig();return;}
+  ensureStamps();syncStatus('Sincronizando…','busy');
+  try{
+    const res=await fetch(SYNC_URL,{method:'GET'});const txt=await res.text();let remote=[];try{remote=JSON.parse(txt);}catch(e){remote=[];}if(!Array.isArray(remote))remote=[];
+    data=merge(remote);normalize();
+    await fetch(SYNC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(data)});
+    await saveData();render();
+    syncStatus('Sincronizado '+new Date().toLocaleTimeString('es-DO',{hour:'2-digit',minute:'2-digit'}),'ok');
+  }catch(err){console.error(err);syncStatus('Error de conexión','err');alert('No se pudo sincronizar. Revisa ⚙ Conexión.\n\nDetalle: '+err);}
+}
+function openConfig(){
+  const m=document.getElementById('modal');
+  m.innerHTML=`<h2>Conexión con Google Sheets</h2><div class="mid">Pega la URL de tu Web App (termina en /exec).</div>
+    <div class="field"><label>URL de la Web App</label><input id="cfgUrl" placeholder="https://script.google.com/macros/s/…/exec" value="${esc(SYNC_URL)}"></div>
+    <div class="mactions"><div><button class="btn danger" id="cfgClear">Desconectar</button></div><div style="display:flex;gap:8px"><button class="btn" id="cfgCancel">Cerrar</button><button class="btn primary" id="cfgSave">Guardar y sincronizar</button></div></div>`;
+  document.getElementById('scrim').classList.add('open');
+  document.getElementById('cfgCancel').onclick=closeModal;
+  document.getElementById('cfgClear').onclick=async()=>{await saveSyncUrl('');syncStatus('Sin conexión','ok');closeModal();};
+  document.getElementById('cfgSave').onclick=async()=>{const u=document.getElementById('cfgUrl').value.trim();await saveSyncUrl(u);closeModal();doSync();};
+}
 
-/* views + controls */
-function renderAll(){renderProgress();if(view==='category')renderCategory();else if(view==='board')renderBoard();else if(view==='person')renderPerson();else renderGantt();}
-document.querySelectorAll('.tab').forEach(tb=>tb.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));tb.classList.add('on');view=tb.dataset.view;document.getElementById('progressWrap').classList.toggle('hidden',!(view==='board'||view==='category'));renderAll();}));
-document.querySelectorAll('.catchip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('.catchip').forEach(x=>x.classList.remove('on'));c.classList.add('on');filterCat=c.dataset.cat;renderAll();}));
-document.getElementById('soonChip').addEventListener('click',function(){filterSoon=!filterSoon;this.classList.toggle('on',filterSoon);renderAll();});
-document.getElementById('search').addEventListener('input',e=>{searchТ=e.target.value.toLowerCase().trim();renderAll();});
-document.getElementById('addBtn').addEventListener('click',()=>openModal(null));
+/* ---- export / import ---- */
+document.getElementById('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='seguimiento_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);};
+document.getElementById('importBtn').onclick=()=>document.getElementById('fileInput').click();
+document.getElementById('fileInput').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);if(!Array.isArray(d))throw 0;if(!confirm('Reemplazar el tablero con '+d.length+' procesos del archivo?'))return;data=d;normalize();saveData();render();}catch(err){alert('Archivo no válido.');}};rd.readAsText(f);e.target.value='';});
+
+/* ---- controls ---- */
+document.getElementById('showDone').addEventListener('click',function(){showDone=!showDone;this.classList.toggle('on',showDone);this.textContent=showDone?'👁 Ocultar lo realizado':'👁 Mostrar lo realizado';render();});
+document.getElementById('search').addEventListener('input',e=>{searchТ=e.target.value.toLowerCase().trim();render();});
+document.getElementById('expandAll').addEventListener('click',()=>{data.forEach(p=>{openProc[p.id]=true;p.actividades.forEach(a=>openAct[a.id]=true);});catsInUse().forEach(c=>openCat[c]=true);render();});
+document.getElementById('collapseAll').addEventListener('click',()=>{openProc={};openAct={};render();});
+document.getElementById('addProc').addEventListener('click',()=>openModal(null));
 document.getElementById('syncBtn').addEventListener('click',doSync);
 document.getElementById('cfgBtn').addEventListener('click',openConfig);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
-(async function(){await loadSyncUrl();await loadTasks();ensureStamps();renderAll();if(SYNC_URL){doSync();}else{syncStatus('Sin conexión — pulsa ⚙ Conexión','ok');}})();
+(async function(){await loadSyncUrl();await loadData();ensureStamps();render();if(SYNC_URL){doSync();}else{syncStatus('Sin conexión — pulsa ⚙ Conexión','ok');}})();
 </script>
 </body>
 </html>
