@@ -114,7 +114,7 @@
   .empty{font-size:12px;color:var(--muted);text-align:center;padding:16px 8px;font-style:italic;opacity:.7}
 
   /* person view */
-  .person-cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:16px}
+  .person-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:16px}
   .person-col{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:var(--shadow)}
   .person-col h2{margin:0 0 4px;font-size:16px;display:flex;align-items:center;gap:8px}
   .person-col .psub{font-family:ui-monospace,Menlo,monospace;font-size:10px;color:var(--muted);margin-bottom:12px}
@@ -634,11 +634,30 @@ function renderEstado(){
 function renderPerson(){
   const app=document.getElementById('app');
   const vis=procsOnly().filter(p=>procVisible(p));
-  const cols={'Jenny':[],'Camila':[],'Otros':[]};
-  vis.forEach(p=>{const b=[];const rc=personClass(p.resp);if(rc==='p-jenny')b.push('Jenny');else if(rc==='p-camila')b.push('Camila');const extra=p.invol||p.coresp;if(extra){const cc=personClass(extra);if(cc==='p-jenny'&&!b.includes('Jenny'))b.push('Jenny');if(cc==='p-camila'&&!b.includes('Camila'))b.push('Camila');}if(!b.length)b.push('Otros');b.forEach(x=>cols[x]?cols[x].push(p):cols['Otros'].push(p));});
-  const order=[['Jenny','p-jenny'],['Camila','p-camila'],['Otros','p-otro']];
+  const names=peopleNames();
+  // buckets: una por persona registrada + "Sin asignar"
+  const buckets={};names.forEach(n=>buckets[n]=[]);buckets['__none__']=[];
+  const has=(txt,n)=>((txt||'').toLowerCase().includes(n.toLowerCase()));
+  vis.forEach(p=>{
+    let asignada=false;
+    names.forEach(n=>{if(has(p.resp,n)||has(p.invol,n)){buckets[n].push(p);asignada=true;}});
+    if(!asignada)buckets['__none__'].push(p);
+  });
   const wrap=document.createElement('div');wrap.className='person-cols';
-  order.forEach(([name,cls])=>{const list=cols[name];const done=list.filter(p=>procEstado(p)==='Realizada').length;const col=document.createElement('div');col.className='person-col';col.innerHTML=`<h2><span class="tag-person ${cls}">${name}</span></h2><div class="psub">${list.length} actividades · ${done} hechas · ${list.filter(p=>procEstado(p)!=='Realizada'&&daysTo(p.obj)!==null&&daysTo(p.obj)<0).length} vencidos</div>`;const sorted=[...list].sort((a,b)=>{const da=parseD(a.obj),db=parseD(b.obj);if(!da)return 1;if(!db)return -1;return da-db;});sorted.forEach(p=>{const est=procEstado(p);const row=document.createElement('div');row.className='prow';const n=daysTo(p.obj);let dl=fmtD(p.obj);if(est==='Realizada')dl='hecho';else if(n!==null){if(n<0)dl='venció';else if(n===0)dl='hoy';else if(n<=14)dl='en '+n+'d';}row.innerHTML=`<div class="pt">${esc(p.nombre)}</div><div class="pm"><span class="stbadge ${stCls(est)}"></span>${est} · ${dl} · <span style="color:var(--accent)">${esc(p.cat)}</span></div>`;row.addEventListener('click',()=>openModal(p.id));col.appendChild(row);});if(!list.length){const e=document.createElement('div');e.className='empty';e.textContent='Sin actividades';col.appendChild(e);}wrap.appendChild(col);});
+  const cols=names.concat(['__none__']);
+  cols.forEach(name=>{
+    const list=buckets[name];
+    const label=name==='__none__'?'Sin asignar':name;
+    const cls=name==='__none__'?'p-otro':personClass(name);
+    const done=list.filter(p=>procEstado(p)==='Realizada').length;
+    const venc=list.filter(p=>procEstado(p)!=='Realizada'&&daysTo(p.obj)!==null&&daysTo(p.obj)<0).length;
+    const col=document.createElement('div');col.className='person-col';
+    col.innerHTML=`<h2><span class="tag-person ${cls}">${esc(label)}</span></h2><div class="psub">${list.length} actividades · ${done} hechas · ${venc} vencidas</div>`;
+    const sorted=[...list].sort((a,b)=>{const da=parseD(a.obj),db=parseD(b.obj);if(!da)return 1;if(!db)return -1;return da-db;});
+    sorted.forEach(p=>{const est=procEstado(p);const row=document.createElement('div');row.className='prow';const n=daysTo(p.obj);let dl=fmtD(p.obj);if(est==='Realizada')dl='hecho';else if(n!==null){if(n<0)dl='venció';else if(n===0)dl='hoy';else if(n<=14)dl='en '+n+'d';}row.innerHTML=`<div class="pt">${esc(p.nombre)}</div><div class="pm"><span class="stbadge ${stCls(est)}"></span>${est} · ${dl} · <span style="color:var(--accent)">${esc(p.cat)}</span></div>`;row.addEventListener('click',()=>openModal(p.id));col.appendChild(row);});
+    if(!list.length){const e=document.createElement('div');e.className='empty';e.textContent='Sin actividades';col.appendChild(e);}
+    wrap.appendChild(col);
+  });
   app.appendChild(wrap);
 }
 
