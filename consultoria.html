@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consultorías Jamey</title>
+<style>
+  :root{
+    --paper:#f6f4ef; --ink:#20211d; --muted:#6b6a61; --line:#ddd8cc;
+    --card:#fffefb; --accent:#3a5a40; --accent-soft:#e7ede4;
+    --pend:#a8763e; --proc:#3a6ea5; --real:#3a7d44; --bloq:#a4423a;
+    --pend-bg:#f6ecdd; --proc-bg:#e4eef7; --real-bg:#e3f0e6; --bloq-bg:#f7e5e3;
+    --shadow:0 1px 2px rgba(30,30,20,.06),0 4px 14px rgba(30,30,20,.05);
+    --jenny:#8e4585; --juan:#2f6d6a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;-webkit-font-smoothing:antialiased;line-height:1.4;}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 20px 90px}
+  .stickytop{position:sticky;top:0;z-index:30;background:var(--paper);padding-top:16px;margin-bottom:2px}
+  .stickytop::after{content:"";position:absolute;left:0;right:0;bottom:-10px;height:10px;background:linear-gradient(var(--paper),transparent);pointer-events:none}
+  header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:14px}
+  .brand h1{font-size:25px;margin:0;letter-spacing:-.01em;font-weight:600}
+  .brand .sub{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:5px}
+  .toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .synced{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:7px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--real);display:inline-block}
+  .dot.saving{background:var(--pend);animation:pulse 1s infinite}
+  @keyframes pulse{50%{opacity:.3}}
+  .iobtn{font-family:ui-monospace,Menlo,monospace;font-size:11px;padding:6px 11px;border:1px solid var(--line);border-radius:7px;background:var(--card);cursor:pointer;color:var(--muted)}
+  .iobtn:hover{border-color:var(--ink);color:var(--ink)}
+
+  .tabs{display:flex;gap:4px;margin:18px 0 4px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .tab{font-size:14px;padding:9px 15px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:600}
+  .tab.on{color:var(--ink);border-bottom-color:var(--accent)}
+
+  .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0 6px}
+  .controls input[type=search]{flex:1;min-width:180px;font-family:inherit;font-size:14px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+  .chip{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.04em;padding:6px 11px;border:1px solid var(--line);border-radius:20px;background:var(--card);cursor:pointer;color:var(--muted);transition:.12s}
+  .chip:hover{border-color:var(--ink)}
+  .chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .chip.addbtn{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+
+  /* category sections */
+  .cat-section{margin-top:18px}
+  .cat-head{display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px 4px;border-bottom:1.5px solid var(--ink);user-select:none}
+  .cat-head .caret{transition:transform .12s;display:inline-block;font-size:13px;color:var(--muted)}
+  .cat-head.open .caret{transform:rotate(90deg)}
+  .cat-head h2{font-size:17px;margin:0;font-weight:600;flex:1}
+  .cat-head .cbar{height:6px;width:110px;border-radius:20px;background:var(--accent-soft);overflow:hidden;display:flex}
+  .cat-head .cbar i{display:block;height:100%}
+  .cat-head .cbar i.real{background:var(--real)} .cat-head .cbar i.proc{background:var(--proc)} .cat-head .cbar i.pend{background:var(--pend)} .cat-head .cbar i.bloq{background:var(--bloq)}
+  .cat-head .ccount{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--muted)}
+  .cat-body{padding:8px 0 4px;display:none}
+  .cat-body.show{display:block}
+
+  /* proceso row */
+  .proc-row{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--muted);border-radius:9px;margin:8px 0;box-shadow:var(--shadow);overflow:hidden}
+  .proc-row.st-Pendiente{border-left-color:var(--pend)} .proc-row.st-Enproceso{border-left-color:var(--proc)} .proc-row.st-Realizada{border-left-color:var(--real)} .proc-row.st-Bloqueada{border-left-color:var(--bloq)}
+  .proc-main{display:flex;align-items:center;gap:10px;padding:11px 13px;cursor:pointer}
+  .proc-main .caret{transition:transform .12s;display:inline-block;font-size:13px;color:var(--muted);flex:none}
+  .proc-main.open .caret{transform:rotate(90deg)}
+  .proc-title{font-size:14.5px;font-weight:600;flex:1;line-height:1.25}
+  .badge{font-family:ui-monospace,Menlo,monospace;font-size:10px;padding:2px 8px;border-radius:10px;white-space:nowrap}
+  .badge.st-Pendiente{background:var(--pend-bg);color:var(--pend)} .badge.st-Enproceso{background:var(--proc-bg);color:var(--proc)} .badge.st-Realizada{background:var(--real-bg);color:var(--real)} .badge.st-Bloqueada{background:var(--bloq-bg);color:var(--bloq)}
+  .proc-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .tag-person{padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600;color:#fff}
+  .p-jenny{background:var(--jenny)} .p-juan{background:var(--juan)} .p-otro{background:var(--muted)}
+  .due{font-family:ui-monospace,Menlo,monospace;font-size:10px;padding:2px 6px;border-radius:6px}
+  .due.soon{background:var(--pend-bg);color:var(--pend);font-weight:700} .due.over{background:var(--bloq-bg);color:var(--bloq);font-weight:700} .due.ok{color:var(--muted)}
+  .miniprog{height:4px;border-radius:4px;background:var(--accent-soft);overflow:hidden;width:60px;flex:none}
+  .miniprog i{display:block;height:100%;background:var(--real)}
+
+  /* actividades (nivel 2) */
+  .proc-kids{display:none;padding:2px 13px 12px 34px;border-top:1px solid var(--paper)}
+  .proc-kids.show{display:block}
+  .act-row{border-left:2px solid var(--line);margin:7px 0;padding-left:0}
+  .act-main{display:flex;align-items:center;gap:8px;padding:6px 10px;cursor:pointer}
+  .act-main .caret{transition:transform .12s;font-size:12px;color:var(--muted);flex:none}
+  .act-main.open .caret{transform:rotate(90deg)}
+  .act-title{font-size:13px;font-weight:600;flex:1}
+  .act-kids{display:none;padding:2px 10px 8px 30px}
+  .act-kids.show{display:block}
+
+  /* tareas (nivel 3) */
+  .task-item{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12.5px;color:var(--muted)}
+  .task-item input[type=checkbox]{width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex:none}
+  .task-item.done span.tt{text-decoration:line-through;opacity:.65}
+  .task-item .tt{flex:1;color:var(--ink)}
+  .task-item .xdel{cursor:pointer;color:var(--muted);border:none;background:none;font-size:13px;padding:0 4px}
+  .task-item .xdel:hover{color:var(--bloq)}
+  .addrow{display:flex;gap:6px;margin-top:5px}
+  .addrow input{flex:1;font-family:inherit;font-size:12.5px;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--paper)}
+  .addrow button{font-family:ui-monospace,Menlo,monospace;font-size:11px;padding:5px 10px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:6px;cursor:pointer}
+  .addact{margin:6px 0 2px}
+  .miniedit{cursor:pointer;color:var(--muted);border:none;background:none;font-size:11px;font-family:ui-monospace,Menlo,monospace;padding:2px 6px}
+  .miniedit:hover{color:var(--accent)}
+
+  .empty{font-size:12px;color:var(--muted);text-align:center;padding:16px 8px;font-style:italic;opacity:.7}
+
+  /* person view */
+  .person-cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:16px}
+  .person-col{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:var(--shadow)}
+  .person-col h2{margin:0 0 4px;font-size:16px;display:flex;align-items:center;gap:8px}
+  .person-col .psub{font-family:ui-monospace,Menlo,monospace;font-size:10px;color:var(--muted);margin-bottom:12px}
+  .prow{padding:9px 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:4px;cursor:pointer}
+  .prow:hover{background:var(--paper)}
+  .prow .pt{font-size:13px;font-weight:600;line-height:1.25}
+  .prow .pm{display:flex;gap:8px;align-items:center;font-size:10.5px;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
+  .stbadge{width:8px;height:8px;border-radius:2px;display:inline-block}
+  .stbadge.st-Pendiente{background:var(--pend)} .stbadge.st-Enproceso{background:var(--proc)} .stbadge.st-Realizada{background:var(--real)} .stbadge.st-Bloqueada{background:var(--bloq)}
+
+  /* gantt */
+  .gantt{margin-top:16px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px;box-shadow:var(--shadow);overflow-x:auto}
+  .gantt-inner{min-width:820px}
+  .g-months{display:grid;position:sticky;top:0;background:var(--card);z-index:2;border-bottom:1px solid var(--line)}
+  .g-month{font-family:ui-monospace,Menlo,monospace;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:center;padding:8px 2px;border-left:1px solid var(--line)}
+  .g-row{display:grid;align-items:center;border-bottom:1px solid var(--paper);min-height:30px}
+  .g-row:hover{background:var(--paper)}
+  .g-row.act .g-label{padding-left:22px;font-weight:400;font-size:11px;color:var(--muted)}
+  .g-label{padding:5px 10px 5px 4px;font-size:12px;font-weight:600;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;position:sticky;left:0;background:inherit;z-index:1;cursor:pointer}
+  .g-track{position:relative;height:30px;grid-column:2 / -1}
+  .g-bar{position:absolute;top:7px;height:16px;border-radius:5px;display:flex;align-items:center;padding:0 7px;font-size:10px;color:#fff;font-family:ui-monospace,Menlo,monospace;white-space:nowrap;overflow:hidden;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+  .g-bar.st-Pendiente{background:var(--pend)} .g-bar.st-Enproceso{background:var(--proc)} .g-bar.st-Realizada{background:var(--real)} .g-bar.st-Bloqueada{background:var(--bloq)}
+  .g-bar.act{height:11px;top:9px;opacity:.8;font-size:9px}
+  .g-bar.act.nodate{opacity:.45;border:1px dashed rgba(255,255,255,.7)}
+  .g-today{position:absolute;top:0;bottom:0;width:2px;background:var(--bloq);z-index:3}
+  .g-cat-head{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);padding:12px 8px 5px;font-weight:700}
+
+  /* estado board */
+  .estboard{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+  .estcol{min-height:80px}
+  .estcol .ecolhead{display:flex;align-items:center;justify-content:space-between;padding:0 4px 8px}
+  .estcol .ecolhead .ename{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .estcol .ecolhead .ebadge{width:9px;height:9px;border-radius:3px}
+  .estcol.st-Pendiente .ebadge{background:var(--pend)} .estcol.st-Enproceso .ebadge{background:var(--proc)} .estcol.st-Realizada .ebadge{background:var(--real)} .estcol.st-Bloqueada .ebadge{background:var(--bloq)}
+  .estcol .ecolhead .enum{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1px 8px}
+  .estcol .ebody{display:flex;flex-direction:column;gap:8px;padding:4px;border-radius:10px;min-height:50px;transition:.12s}
+  .estcol .ebody.drag-over{background:var(--accent-soft);outline:2px dashed var(--accent);outline-offset:-3px}
+  .estcol .proc-row{margin:0}
+  .estcol .proc-main{cursor:grab}
+  .estcol .proc-row.dragging{opacity:.4}
+  .est-auto{font-family:ui-monospace,Menlo,monospace;font-size:10px;color:var(--accent);cursor:pointer;padding:4px 4px 0}
+  .est-auto:hover{text-decoration:underline}
+  @media(max-width:900px){.estboard{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.estboard{grid-template-columns:1fr}}
+
+  /* modal (proceso detail) */
+  .scrim{position:fixed;inset:0;background:rgba(20,20,15,.42);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}
+  .scrim.open{display:flex}
+  .modal{background:var(--card);border-radius:14px;max-width:560px;width:100%;max-height:92vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.28);padding:22px 24px}
+  .modal h2{margin:0 0 3px;font-size:20px}
+  .modal .mid{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--muted);margin-bottom:16px}
+  .field{margin-bottom:13px}
+  .field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:4px;font-family:ui-monospace,Menlo,monospace}
+  .field input,.field textarea,.field select{width:100%;font-family:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--ink)}
+  .field textarea{min-height:56px;resize:vertical}
+  .frow{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .section-t{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:18px 0 8px;font-weight:700;border-top:1px solid var(--line);padding-top:14px}
+  .cmt{padding:8px 0;border-top:1px solid var(--line)}
+  .cmt .ch{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);font-family:ui-monospace,Menlo,monospace;margin-bottom:3px}
+  .cmt .ch b{color:var(--ink)}
+  .cmt .cbody{font-size:13px;line-height:1.4}
+  .cmt .xdel{cursor:pointer;color:var(--muted);border:none;background:none;font-size:13px}
+  .cmt-compose{margin-top:10px}
+  .cmt-compose .who-pick{display:flex;gap:6px;margin-bottom:6px}
+  .cmt-compose .who-pick .chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .cmt-compose textarea{width:100%;font-family:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--paper);min-height:46px;resize:vertical}
+  .mactions{display:flex;justify-content:space-between;gap:10px;margin-top:18px;border-top:1px solid var(--line);padding-top:15px}
+  .btn{font-family:inherit;font-size:14px;padding:9px 18px;border-radius:8px;border:1px solid var(--line);background:var(--card);cursor:pointer;color:var(--ink)}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+  .btn.danger{color:var(--bloq);border-color:var(--bloq-bg)}
+  .loading{text-align:center;padding:60px;color:var(--muted);font-family:ui-monospace,Menlo,monospace;font-size:13px}
+  .hidden{display:none !important}
+  @media(max-width:600px){.wrap{padding:16px 13px 80px}.brand h1{font-size:21px}.frow{grid-template-columns:1fr}.proc-kids{padding-left:18px}.cat-head .cbar{display:none}.person-cols{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="stickytop">
+  <header class="top">
+    <div class="brand"><h1>Consultorías Jamey</h1><div class="sub">Seguimiento de proyectos de consultoría</div></div>
+    <div class="toolbar">
+      <button class="iobtn" id="syncBtn" style="background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600">⟳ Sincronizar</button>
+      <button class="iobtn" id="cfgBtn">⚙ Conexión</button>
+      <button class="iobtn" id="exportBtn">↓ Exportar</button>
+      <button class="iobtn" id="importBtn">↑ Importar</button>
+      <input type="file" id="fileInput" accept=".json" class="hidden">
+      <span class="synced"><span class="dot" id="syncDot"></span><span id="syncTxt">Guardado</span></span>
+    </div>
+  </header>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="controls">
+    <input type="search" id="search" placeholder="Buscar proceso, actividad, persona…">
+    <span class="chip" id="showDone" data-on="0">👁 Mostrar lo realizado</span>
+    <span class="chip" id="expandAll">⤢ Expandir todo</span>
+    <span class="chip" id="collapseAll">⤡ Colapsar todo</span>
+    <span class="chip addbtn" id="addCat" style="background:var(--card);color:var(--accent);border-color:var(--accent)">+ Nueva categoría</span>
+    <span class="chip addbtn" id="addProc">+ Nuevo proceso</span>
+  </div>
+  </div>
+
+  <div id="app"><div class="loading">Cargando…</div></div>
+</div>
+
+<div class="scrim" id="scrim"><div class="modal" id="modal"></div></div>
+
+<script>
+const SEED = [{"id": "P-40476330", "cat": "Conde", "nombre": "Presentación resultados", "desc": "", "resp": "Jenny", "invol": "Camila", "ini": "2026-07-08", "obj": "2026-07-09", "prio": "Media", "notas": "", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [{"id": "A-40476330", "nombre": "Elborar el esquema", "estado": "Pendiente", "estadoManual": null, "resp": "Jenny", "invol": "Camila", "ini": "2026-07-08", "obj": "2026-07-09", "tareas": []}, {"id": "A-40476341", "nombre": "Elaborar presentación", "estado": "Pendiente", "estadoManual": null, "resp": "Jenny", "invol": "Camila", "ini": "2026-07-10", "obj": "2026-07-13", "tareas": []}, {"id": "A-40476352", "nombre": "Presentación en PIDTUCC", "estado": "Pendiente", "estadoManual": null, "resp": "Jenny", "invol": "Camila", "ini": "2026-07-14", "obj": "2026-07-14", "tareas": []}], "comments": [], "_m": 1783554047633, "sub": "Conde", "coresp": ""}, {"id": "P-40476341", "cat": "Conde", "nombre": "Ajustar informe", "desc": "", "resp": "Camila", "invol": "Jenny", "ini": "2026-07-09", "obj": "2026-07-09", "prio": "Media", "notas": "", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [{"id": "A-40476330", "nombre": "Integrar casos Perla en Base de Datos", "estado": "Pendiente", "estadoManual": null, "resp": "Camila", "invol": "Jenny", "ini": "2026-07-09", "obj": "2026-07-09", "tareas": []}, {"id": "A-40476341", "nombre": "Actualizar informe", "estado": "Pendiente", "estadoManual": null, "resp": "Camila", "invol": "Jenny", "ini": "2026-07-09", "obj": "2026-07-09", "tareas": []}], "comments": [], "_m": 1783554047633, "sub": "Conde", "coresp": ""}, {"id": "P-40476352", "cat": "Conde", "nombre": "Proceso de retroalimentación", "desc": "", "resp": "", "invol": "", "ini": null, "obj": null, "prio": "Media", "notas": "", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [{"id": "A-40476330", "nombre": "Integrar sugerencias", "estado": "Pendiente", "estadoManual": null, "resp": "", "invol": "", "ini": null, "obj": null, "tareas": []}, {"id": "A-40476341", "nombre": "Enviar invorme", "estado": "Pendiente", "estadoManual": null, "resp": "", "invol": "", "ini": null, "obj": null, "tareas": []}], "comments": [], "_m": 1783554047633, "sub": "Conde", "coresp": ""}, {"id": "P-40476363", "cat": "CIMTRA", "nombre": "Integrar observaciones al informe", "desc": "", "resp": "Jenny", "invol": "Camila", "ini": "2026-07-10", "obj": "2026-07-10", "prio": "Media", "notas": "", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [{"id": "A-40476330", "nombre": "Revisar documento", "estado": "Pendiente", "estadoManual": null, "resp": "Jenny", "invol": "Camila", "ini": "2026-07-10", "obj": "2026-07-10", "tareas": []}, {"id": "A-40476341", "nombre": "Enviar informe", "estado": "Pendiente", "estadoManual": null, "resp": "Jenny", "invol": "", "ini": "2026-07-10", "obj": "2026-07-10", "tareas": []}], "comments": [], "_m": 1783554047633, "sub": "CIMTRA", "coresp": ""}, {"id": "P-40476374", "cat": "Mapa del Acecho", "nombre": "Arreglar URL de las noticias", "desc": "", "resp": "Jenny", "invol": "Camila", "ini": null, "obj": null, "prio": "Media", "notas": "", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [{"id": "A-40476330", "nombre": "Revisar la matriz", "estado": "Pendiente", "estadoManual": null, "resp": "Jenny", "invol": "Camila", "ini": null, "obj": null, "tareas": []}, {"id": "A-40476341", "nombre": "Actualizar URL", "estado": "Pendiente", "estadoManual": null, "resp": "Jenny", "invol": "Camila", "ini": null, "obj": null, "tareas": []}], "comments": [], "_m": 1783554047633, "sub": "Mapa del Acecho", "coresp": ""}, {"id": "P-40476385", "cat": "Las Flores", "nombre": "Reunión del equipo", "desc": "", "resp": "", "invol": "", "ini": "2026-07-09", "obj": "2026-07-09", "prio": "Media", "notas": "", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783554047633, "sub": "Las Flores", "coresp": ""}, {"id": "P-40476396", "cat": "Las Flores", "nombre": "Revisión Cuanti", "desc": "", "resp": "", "invol": "", "ini": "2026-07-09", "obj": "2026-07-10", "prio": "Media", "notas": "", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783554047633, "sub": "Las Flores", "coresp": ""}, {"id": "P-40476407", "cat": "Las Flores", "nombre": "Planificación GF", "desc": "", "resp": "", "invol": "", "ini": "2026-07-09", "obj": "2026-07-09", "prio": "Media", "notas": "", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783554047633, "sub": "Las Flores", "coresp": ""}, {"id": "P-40476418", "cat": "Las Flores", "nombre": "Planificación Calendario Histórico", "desc": "", "resp": "", "invol": "", "ini": "2026-07-09", "obj": "2026-07-09", "prio": "Media", "notas": "", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783554047633, "sub": "Las Flores", "coresp": ""}, {"id": "P-40476429", "cat": "Las Flores", "nombre": "Planificación Mapeo", "desc": "", "resp": "", "invol": "", "ini": "2026-07-09", "obj": "2026-07-09", "prio": "Media", "notas": "", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783554047633, "sub": "Las Flores", "coresp": ""}, {"id": "P-404764310", "cat": "Las Flores", "nombre": "Planifición Entrevistas", "desc": "", "resp": "", "invol": "", "ini": "2026-07-09", "obj": "2026-07-09", "prio": "Media", "notas": "", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783554047633, "sub": "Las Flores", "coresp": ""}];
+const STORE_KEY='consultoria_jamey_v1';
+const URL_KEY='consultoria_sync_url';
+let CAT_ORDER=["Conde", "CIMTRA", "Mapa del Acecho", "Las Flores", "Acaparamiento", "TUI", "PNUD", "Feminicidios", "Cine y Colonialidad"];
+const CATS_KEY='consultoria_cats_v1';
+const STATES=['Pendiente','En proceso','Realizada','Bloqueada'];
+let data=[], SYNC_URL='', showDone=false, searchТ='', showEmptyCats=false;
+let view='cat:Libros';
+let openCat={}, openProc={}, openAct={};
+
+/* ---- storage adapter (Claude or browser) ---- */
+const STORE=(function(){
+  if(typeof window!=='undefined'&&window.storage&&typeof window.storage.get==='function')return window.storage;
+  return {get:async(k)=>{try{const v=localStorage.getItem(k);return v!==null?{value:v}:null;}catch(e){return null;}},
+          set:async(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}return{value:v};}};
+})();
+function setSync(s){const d=document.getElementById('syncDot'),t=document.getElementById('syncTxt');if(s){d.classList.add('saving');t.textContent='Guardando…';}else{d.classList.remove('saving');t.textContent='Guardado';}}
+function normalize(){data.forEach(p=>{if(!Array.isArray(p.actividades))p.actividades=[];if(!Array.isArray(p.comments))p.comments=[];if(!('invol' in p))p.invol='';p.actividades.forEach(a=>{if(!Array.isArray(a.tareas))a.tareas=[];if(!a.estado)a.estado='Pendiente';if(!('estadoManual' in a))a.estadoManual=null;if(!('ini' in a))a.ini=null;if(!('obj' in a))a.obj=null;if(!('resp' in a))a.resp='';if(!('invol' in a))a.invol='';a.tareas.forEach(t=>{if(!('ini' in t))t.ini=null;if(!('obj' in t))t.obj=null;if(!('resp' in t))t.resp='';if(!('invol' in t))t.invol='';if(!t.estado)t.estado=t.done?'Realizada':'Pendiente';t.done=t.estado==='Realizada';});});});}
+async function loadData(){try{const r=await STORE.get(STORE_KEY,true);if(r&&r.value){data=JSON.parse(r.value);normalize();return;}}catch(e){}data=SEED.map(p=>({...p}));normalize();await saveData();}
+let saveTimer=null;
+async function saveData(){setSync(true);try{await STORE.set(STORE_KEY,JSON.stringify(data),true);}catch(e){console.error(e);}setSync(false);}
+async function loadCats(){try{const r=await STORE.get(CATS_KEY,true);if(r&&r.value){const arr=JSON.parse(r.value);if(Array.isArray(arr)&&arr.length)CAT_ORDER=arr;}}catch(e){}}
+async function saveCats(){try{await STORE.set(CATS_KEY,JSON.stringify(CAT_ORDER),true);}catch(e){}}
+function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(saveData,250);}
+async function loadSyncUrl(){try{const r=await STORE.get(URL_KEY,false);if(r&&r.value)SYNC_URL=r.value;}catch(e){}}
+async function saveSyncUrl(u){SYNC_URL=u;try{await STORE.set(URL_KEY,u,false);}catch(e){}}
+function touch(p){p._m=Date.now();}
+
+/* ---- dates ---- */
+function today(){const d=new Date();d.setHours(0,0,0,0);return d;}
+function parseD(s){if(!s)return null;const d=new Date(s+'T00:00:00');return isNaN(d)?null:d;}
+function daysTo(s){const d=parseD(s);if(!d)return null;return Math.round((d-today())/864e5);}
+function fmtD(s){const d=parseD(s);if(!d)return '—';return d.toLocaleDateString('es-DO',{day:'2-digit',month:'short',year:'2-digit'});}
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function personClass(n){n=(n||'').toLowerCase();if(n.includes('jenny'))return 'p-jenny';if(n.includes('juan'))return 'p-juan';return 'p-otro';}
+function stCls(s){return 'st-'+(s||'').replace(/\s/g,'');}
+
+/* ---- estado que sube solo ---- */
+// actividad: Realizada si todas sus tareas hechas y tiene tareas; si no tiene tareas, usa su propio estado
+function taskEstado(t){
+  // estado es la fuente de verdad; la casilla equivale a Realizada
+  if(t.estado)return t.estado;
+  return t.done?'Realizada':'Pendiente';
+}
+function actEstado(a){
+  if(a.estadoManual)return a.estadoManual;
+  if(a.tareas&&a.tareas.length){
+    const ests=a.tareas.map(taskEstado);
+    if(ests.every(e=>e==='Realizada'))return 'Realizada';
+    if(ests.some(e=>e==='Bloqueada'))return 'Bloqueada';
+    if(ests.some(e=>e==='En proceso'||e==='Realizada'))return 'En proceso';
+    return 'Pendiente';
+  }
+  return a.estado||'Pendiente';
+}
+// proceso: se calcula desde sus actividades; si no tiene, usa estadoBase
+function procEstado(p){
+  if(p.estadoManual)return p.estadoManual;
+  if(!p.actividades.length)return p.estadoBase||'Pendiente';
+  const ests=p.actividades.map(actEstado);
+  if(ests.every(e=>e==='Realizada'))return 'Realizada';
+  if(ests.some(e=>e==='Bloqueada'))return 'Bloqueada';
+  if(ests.some(e=>e==='En proceso'||e==='Realizada'))return 'En proceso';
+  return 'Pendiente';
+}
+function procProgress(p){
+  // porcentaje basado en actividades realizadas
+  if(!p.actividades.length)return procEstado(p)==='Realizada'?1:0;
+  const done=p.actividades.filter(a=>actEstado(a)==='Realizada').length;
+  return done/p.actividades.length;
+}
+
+/* ---- filtering ---- */
+function procMatchesSearch(p){
+  if(!searchТ)return true;
+  let hay=(p.nombre+' '+p.desc+' '+p.resp+' '+p.coresp+' '+p.notas+' '+p.cat).toLowerCase();
+  p.actividades.forEach(a=>{hay+=' '+a.nombre.toLowerCase();a.tareas.forEach(t=>hay+=' '+t.txt.toLowerCase());});
+  return hay.includes(searchТ);
+}
+function procVisible(p){
+  if(!procMatchesSearch(p))return false;
+  if(!showDone&&procEstado(p)==='Realizada')return false;
+  return true;
+}
+
+/* ---- render ---- */
+function allCatsPresent(){const s=new Set(data.map(p=>p.cat));const inData=[...s];return CAT_ORDER.concat(inData.filter(c=>!CAT_ORDER.includes(c)));}
+function catHasProcs(c){return data.some(p=>p.cat===c);}
+function catsInUse(){return allCatsPresent().filter(c=>showEmptyCats||catHasProcs(c));}
+function emptyCatsCount(){return allCatsPresent().filter(c=>!catHasProcs(c)).length;}
+
+function buildTabs(){
+  const bar=document.getElementById('tabs');bar.innerHTML='';
+  const cats=catsInUse();
+  const tabs=cats.map(c=>({key:'cat:'+c,label:c})).concat([{key:'estado',label:'Por estado'},{key:'person',label:'Por persona'},{key:'gantt',label:'Cronograma Gantt'}]);
+  if(!tabs.some(t=>t.key===view))view=tabs[0].key;
+  tabs.forEach(t=>{const el=document.createElement('div');el.className='tab'+(t.key===view?' on':'');el.textContent=t.label;el.addEventListener('click',()=>{view=t.key;render();});bar.appendChild(el);});
+  const ne=emptyCatsCount();
+  if(ne>0||showEmptyCats){const tog=document.createElement('div');tog.className='tab';tog.style.color='var(--muted)';tog.style.fontWeight='400';tog.textContent=showEmptyCats?'ocultar vacías':`+ ${ne} vacía${ne===1?'':'s'}`;tog.title='Mostrar u ocultar categorías sin procesos';tog.addEventListener('click',()=>{showEmptyCats=!showEmptyCats;render();});bar.appendChild(tog);}
+}
+
+function render(){
+  buildTabs();
+  const app=document.getElementById('app');app.innerHTML='';
+  const isCat=view.startsWith('cat:');
+  const showExp=isCat||view==='estado';
+  document.getElementById('expandAll').style.display=showExp?'':'none';
+  document.getElementById('collapseAll').style.display=showExp?'':'none';
+  // "Mostrar lo realizado" solo aplica a las vistas de categoría (ahí despeja la lista);
+  // en Por estado la columna Realizada ya muestra lo hecho, así que se oculta el botón.
+  document.getElementById('showDone').style.display=isCat?'':'none';
+  if(isCat){renderCategory(view.slice(4));}
+  else if(view==='estado'){renderEstado();}
+  else if(view==='person'){renderPerson();}
+  else if(view==='gantt'){renderGantt();}
+}
+
+function renderCategory(cat){
+  const app=document.getElementById('app');
+  const procs=data.filter(p=>p.cat===cat&&procVisible(p));
+  const totalInCat=data.filter(p=>p.cat===cat).length;
+  const done=data.filter(p=>p.cat===cat&&procEstado(p)==='Realizada').length;
+  const bar=document.createElement('div');bar.style.cssText='display:flex;align-items:center;gap:12px;margin:16px 0 4px;flex-wrap:wrap';
+  bar.innerHTML=`<span class="ccount" style="font-family:ui-monospace;font-size:12px;color:var(--muted)">${done}/${totalInCat} procesos realizados en ${esc(cat)}</span>`;
+  const delCat=document.createElement('button');delCat.className='miniedit';delCat.style.color='var(--bloq)';delCat.textContent='✕ borrar categoría';
+  delCat.addEventListener('click',()=>deleteCategory(cat));
+  const renCat=document.createElement('button');renCat.className='miniedit';renCat.textContent='✎ renombrar categoría';
+  renCat.addEventListener('click',()=>renameCategory(cat));
+  bar.appendChild(renCat);
+  bar.appendChild(delCat);
+  app.appendChild(bar);
+  if(!procs.length){const e=document.createElement('div');e.className='empty';e.style.padding='40px';e.textContent=(totalInCat>0&&!showDone)?'Todos los procesos de esta categoría están realizados. Pulsa "Mostrar lo realizado".':'No hay procesos en esta categoría.';app.appendChild(e);return;}
+  procs.forEach(p=>app.appendChild(procRow(p)));
+}
+
+let estadoNivel='proceso'; // proceso | actividad | tarea
+function renderEstado(){
+  const app=document.getElementById('app');
+  // selector de nivel
+  const bar=document.createElement('div');bar.style.cssText='display:flex;gap:8px;align-items:center;margin:16px 0 6px;flex-wrap:wrap';
+  bar.innerHTML=`<span style="font-size:12px;color:var(--muted);font-family:ui-monospace">Mover por estado:</span>`;
+  [['proceso','Procesos'],['actividad','Actividades'],['tarea','Tareas']].forEach(([k,l])=>{
+    const c=document.createElement('span');c.className='chip'+(estadoNivel===k?' on':'');c.textContent=l;c.style.cursor='pointer';
+    c.addEventListener('click',()=>{estadoNivel=k;render();});bar.appendChild(c);
+  });
+  app.appendChild(bar);
+
+  // recolectar items del nivel elegido
+  // en niveles actividad/tarea NO filtramos por proceso realizado: queremos ver TODAS
+  // (incluidas las realizadas en su columna). Solo aplicamos el filtro de búsqueda.
+  const inSearch=p=>procMatchesSearch(p);
+  let items=[]; // {id, estado, set:(st)=>{}, ...}
+  if(estadoNivel==='proceso'){
+    data.filter(inSearch).forEach(p=>items.push({key:'P|'+p.id,estado:procEstado(p),p,manual:!!p.estadoManual,
+      set:st=>{p.estadoManual=st;touch(p);},clearAuto:()=>{p.estadoManual=null;touch(p);},
+      title:p.nombre,crumb:esc(p.cat),node:()=>procRow(p)}));
+  } else if(estadoNivel==='actividad'){
+    data.filter(inSearch).forEach(p=>p.actividades.forEach(a=>items.push({key:'A|'+a.id,estado:actEstado(a),p,a,manual:!!a.estadoManual,
+      set:st=>{if(a.tareas&&a.tareas.length){a.estadoManual=st;}else{a.estado=st;}touch(p);},
+      clearAuto:()=>{a.estadoManual=null;touch(p);},
+      title:a.nombre,crumb:esc(p.nombre),node:null})));
+  } else {
+    data.filter(inSearch).forEach(p=>p.actividades.forEach(a=>a.tareas.forEach((t,ti)=>items.push({key:'T|'+p.id+'|'+a.id+'|'+ti,estado:taskEstado(t),p,a,t,
+      set:st=>{t.estado=st;t.done=st==='Realizada';touch(p);},
+      title:t.txt,crumb:esc(p.nombre)+' › '+esc(a.nombre),node:null}))));
+  }
+  // En la vista "Por estado" NO ocultamos lo realizado: la columna Realizada
+  // existe precisamente para mostrar tareas/actividades/procesos ya terminados,
+  // aunque su proceso padre no esté completo.
+
+  const board=document.createElement('div');board.className='estboard';
+  STATES.forEach(st=>{
+    const inSt=items.filter(x=>x.estado===st);
+    const col=document.createElement('div');col.className='estcol '+stCls(st);
+    col.innerHTML=`<div class="ecolhead"><span class="ename"><span class="ebadge"></span>${st}</span><span class="enum">${inSt.length}</span></div>`;
+    const body=document.createElement('div');body.className='ebody';body.dataset.st=st;
+    body.addEventListener('dragover',e=>{e.preventDefault();body.classList.add('drag-over');});
+    body.addEventListener('dragleave',()=>body.classList.remove('drag-over'));
+    body.addEventListener('drop',e=>{e.preventDefault();body.classList.remove('drag-over');const key=e.dataTransfer.getData('text/plain');const it=items.find(x=>x.key===key);if(it&&it.estado!==st){it.set(st);queueSave();render();}});
+    if(!inSt.length){const em=document.createElement('div');em.className='empty';em.textContent='—';body.appendChild(em);}
+    inSt.forEach(it=>{
+      let el;
+      if(it.node){ el=it.node(); }
+      else{
+        el=document.createElement('div');el.className='proc-row '+stCls(st);
+        const meta=[];if(it.t&&it.t.resp)meta.push(`<span class="tag-person ${personClass(it.t.resp)}">${esc(it.t.resp)}</span>`);if(it.a&&!it.t&&it.a.resp)meta.push(`<span class="tag-person ${personClass(it.a.resp)}">${esc(it.a.resp)}</span>`);
+        const obj=(it.t&&it.t.obj)||(it.a&&it.a.obj);
+        if(obj){const dn=it.estado==='Realizada';meta.push(`<span class="due ${dueCls(obj,dn)}">${dn?'hecho':fmtD(obj)}</span>`);}
+        el.innerHTML=`<div class="proc-main" style="cursor:grab"><span style="flex:1"><span style="font-size:13px;font-weight:600;display:block;line-height:1.25">${esc(it.title)}</span><span style="font-size:10px;color:var(--muted);font-family:ui-monospace">${it.crumb}</span></span><span class="proc-meta">${meta.join('')}</span></div>`;
+        el.querySelector('.proc-main').addEventListener('click',ev=>{if(ev.target.closest('.estsel'))return;openModal(it.p.id);});
+      }
+      el.draggable=true;
+      el.addEventListener('dragstart',ev=>{ev.dataTransfer.setData('text/plain',it.key);el.classList.add('dragging');});
+      el.addEventListener('dragend',()=>el.classList.remove('dragging'));
+      // selector de estado (funciona en cualquier dispositivo, no depende de arrastrar)
+      const selWrap=document.createElement('div');selWrap.style.cssText='display:flex;align-items:center;gap:6px;padding:6px 12px 10px';
+      selWrap.innerHTML=`<span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Estado</span><select class="estsel" style="font-family:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper)">${STATES.map(s=>`<option ${s===it.estado?'selected':''}>${s}</option>`).join('')}</select>`;
+      const sel=selWrap.querySelector('select');
+      sel.addEventListener('click',ev=>ev.stopPropagation());
+      sel.addEventListener('change',ev=>{if(it.estado!==ev.target.value){it.set(ev.target.value);queueSave();render();}});
+      el.appendChild(selWrap);
+      if(it.manual&&it.clearAuto){const auto=document.createElement('div');auto.className='est-auto';auto.textContent='↩ estado automático';auto.addEventListener('click',ev=>{ev.stopPropagation();it.clearAuto();queueSave();render();});el.appendChild(auto);}
+      body.appendChild(el);
+    });
+    col.appendChild(body);board.appendChild(col);
+  });
+  app.appendChild(board);
+}
+
+function renderPerson(){
+  const app=document.getElementById('app');
+  const vis=data.filter(p=>procVisible(p));
+  const cols={'Jenny':[],'Juan Luis':[],'Otros':[]};
+  vis.forEach(p=>{const b=[];const rc=personClass(p.resp);if(rc==='p-jenny')b.push('Jenny');else if(rc==='p-juan')b.push('Juan Luis');const cc=personClass(p.coresp);if(p.coresp){if(cc==='p-jenny'&&!b.includes('Jenny'))b.push('Jenny');if(cc==='p-juan'&&!b.includes('Juan Luis'))b.push('Juan Luis');}if(!b.length)b.push('Otros');b.forEach(x=>cols[x]?cols[x].push(p):cols['Otros'].push(p));});
+  const order=[['Jenny','p-jenny'],['Juan Luis','p-juan'],['Otros','p-otro']];
+  const wrap=document.createElement('div');wrap.className='person-cols';
+  order.forEach(([name,cls])=>{const list=cols[name];const done=list.filter(p=>procEstado(p)==='Realizada').length;const col=document.createElement('div');col.className='person-col';col.innerHTML=`<h2><span class="tag-person ${cls}">${name}</span></h2><div class="psub">${list.length} procesos · ${done} hechos · ${list.filter(p=>procEstado(p)!=='Realizada'&&daysTo(p.obj)!==null&&daysTo(p.obj)<0).length} vencidos</div>`;const sorted=[...list].sort((a,b)=>{const da=parseD(a.obj),db=parseD(b.obj);if(!da)return 1;if(!db)return -1;return da-db;});sorted.forEach(p=>{const est=procEstado(p);const row=document.createElement('div');row.className='prow';const n=daysTo(p.obj);let dl=fmtD(p.obj);if(est==='Realizada')dl='hecho';else if(n!==null){if(n<0)dl='venció';else if(n===0)dl='hoy';else if(n<=14)dl='en '+n+'d';}row.innerHTML=`<div class="pt">${esc(p.nombre)}</div><div class="pm"><span class="stbadge ${stCls(est)}"></span>${est} · ${dl} · <span style="color:var(--accent)">${esc(p.cat)}</span></div>`;row.addEventListener('click',()=>openModal(p.id));col.appendChild(row);});if(!list.length){const e=document.createElement('div');e.className='empty';e.textContent='Sin procesos';col.appendChild(e);}wrap.appendChild(col);});
+  app.appendChild(wrap);
+}
+
+function renderGantt(){
+  const app=document.getElementById('app');
+  const vis=data.filter(p=>procVisible(p)&&(parseD(p.ini)||parseD(p.obj)));
+  let min=null,max=null;
+  vis.forEach(p=>{const a=parseD(p.ini)||parseD(p.obj),b=parseD(p.obj)||parseD(p.ini);if(a&&(!min||a<min))min=a;if(b&&(!max||b>max))max=b;p.actividades.forEach(act=>{const aa=parseD(act.ini),ab=parseD(act.obj);if(aa&&(!min||aa<min))min=aa;if(ab&&(!max||ab>max))max=ab;if(ab&&(!min||ab<min))min=ab;});});
+  if(!min){app.innerHTML='<div class="empty" style="padding:40px">No hay procesos con fechas para mostrar.</div>';return;}
+  min=new Date(min.getFullYear(),min.getMonth(),1);max=new Date(max.getFullYear(),max.getMonth()+1,0);
+  const months=[];let cur=new Date(min);while(cur<=max){months.push(new Date(cur));cur.setMonth(cur.getMonth()+1);}
+  const totalDays=(max-min)/864e5+1;const LABELW=210;const colT=`${LABELW}px repeat(${months.length},1fr)`;
+  const g=document.createElement('div');g.className='gantt';const inner=document.createElement('div');inner.className='gantt-inner';
+  const mh=document.createElement('div');mh.className='g-months';mh.style.gridTemplateColumns=colT;mh.innerHTML=`<div></div>`+months.map(m=>`<div class="g-month">${m.toLocaleDateString('es-DO',{month:'short'})} '${String(m.getFullYear()).slice(2)}</div>`).join('');inner.appendChild(mh);
+  const pctFor=d=>((d-min)/864e5)/totalDays*100;const nowPct=pctFor(today());
+  catsInUse().forEach(cat=>{
+    const list=vis.filter(p=>p.cat===cat).sort((a,b)=>(parseD(a.ini)||parseD(a.obj))-(parseD(b.ini)||parseD(b.obj)));
+    if(!list.length)return;
+    const ch=document.createElement('div');ch.className='g-cat-head';ch.textContent=cat;inner.appendChild(ch);
+    list.forEach(p=>{
+      const est=procEstado(p);const a=parseD(p.ini)||parseD(p.obj),b=parseD(p.obj)||parseD(p.ini);
+      const row=document.createElement('div');row.className='g-row';row.style.gridTemplateColumns=colT;
+      const track=document.createElement('div');track.className='g-track';
+      const bar=document.createElement('div');bar.className='g-bar '+stCls(est);bar.style.left=pctFor(a)+'%';bar.style.width=Math.max(pctFor(b)-pctFor(a),1.2)+'%';bar.title=p.nombre+' · '+fmtD(p.obj);bar.textContent=p.id;bar.addEventListener('click',()=>openModal(p.id));
+      if(nowPct>=0&&nowPct<=100){const tl=document.createElement('div');tl.className='g-today';tl.style.left=nowPct+'%';track.appendChild(tl);}
+      track.appendChild(bar);
+      const lbl=document.createElement('div');lbl.className='g-label';lbl.textContent=p.nombre;lbl.title=p.nombre;lbl.addEventListener('click',()=>openModal(p.id));
+      row.appendChild(lbl);row.appendChild(track);inner.appendChild(row);
+      // actividades (nivel 2) — usan sus propias fechas; si no tienen, caen al rango del proceso
+      if(p.actividades.length){
+        p.actividades.forEach(act=>{
+          const aa=parseD(act.ini)||parseD(act.obj)||a, ab2=parseD(act.obj)||parseD(act.ini)||b;
+          const ar=document.createElement('div');ar.className='g-row act';ar.style.gridTemplateColumns=colT;
+          const at=document.createElement('div');at.className='g-track';
+          const ownDates=parseD(act.ini)||parseD(act.obj);
+          const ab=document.createElement('div');ab.className='g-bar act '+stCls(actEstado(act))+(ownDates?'':' nodate');ab.style.left=pctFor(aa)+'%';ab.style.width=Math.max(pctFor(ab2)-pctFor(aa),1.2)+'%';ab.title=act.nombre+(ownDates?' · '+fmtD(act.obj):' (sin fechas propias)');ab.textContent=act.nombre.slice(0,18);
+          at.appendChild(ab);
+          const al=document.createElement('div');al.className='g-label';al.textContent=act.nombre;al.title=act.nombre;
+          ar.appendChild(al);ar.appendChild(at);inner.appendChild(ar);
+        });
+      }
+    });
+  });
+  g.appendChild(inner);app.innerHTML='';app.appendChild(g);
+}
+
+function procRow(p){
+  const est=procEstado(p);const prog=procProgress(p);
+  const row=document.createElement('div');row.className='proc-row '+stCls(est);
+  const isOpen=!!openProc[p.id];
+  const who=p.resp+((p.invol||p.coresp)?(' · con '+(p.invol||p.coresp)):'');
+  const n=daysTo(p.obj);let dc='ok',dl=fmtD(p.obj);
+  if(est==='Realizada'){dc='ok';dl='hecho';}else if(n!==null){if(n<0){dc='over';dl='venció '+fmtD(p.obj);}else if(n<=14){dc='soon';dl=n===0?'hoy':'en '+n+'d';}}
+  const main=document.createElement('div');main.className='proc-main'+(isOpen?' open':'');
+  main.innerHTML=`<span class="caret">▸</span>
+    <span class="proc-title">${esc(p.nombre||('(sin nombre) '+(p.desc?'— '+p.desc.slice(0,40):'')))}</span>
+    <span class="proc-meta">
+      ${p.actividades.length?`<span class="miniprog"><i style="width:${Math.round(prog*100)}%"></i></span>`:''}
+      <span class="tag-person ${personClass(p.resp)}">${esc(p.resp||'—')}</span>
+      <span class="due ${dc}">${dl}</span>
+      <span class="badge ${stCls(est)}">${est}</span>
+    </span>`;
+  main.addEventListener('click',e=>{if(e.target.closest('.badge'))return;openProc[p.id]=!isOpen;render();});
+  row.appendChild(main);
+
+  const kids=document.createElement('div');kids.className='proc-kids'+(isOpen?' show':'');
+  // header actions
+  const bar=document.createElement('div');bar.style.cssText='display:flex;gap:10px;align-items:center;margin:2px 0 6px';
+  bar.innerHTML=`<button class="miniedit" data-editproc="${p.id}">✎ editar proceso / comentarios</button>`;
+  kids.appendChild(bar);
+  bar.querySelector('[data-editproc]').addEventListener('click',ev=>{ev.stopPropagation();openModal(p.id);});
+  // actividades
+  if(!p.actividades.length){const e=document.createElement('div');e.className='empty';e.style.textAlign='left';e.textContent='Sin actividades. Agrega una abajo.';kids.appendChild(e);}
+  p.actividades.forEach((a,ai)=>kids.appendChild(actRow(p,a,ai)));
+  // add actividad
+  const addA=document.createElement('div');addA.className='addrow addact';
+  addA.innerHTML=`<input placeholder="Nueva actividad…"><button>+ Actividad</button>`;
+  const addAdo=()=>{const inp=addA.querySelector('input');const v=inp.value.trim();if(!v)return;a_push(p,v);};
+  addA.querySelector('button').addEventListener('click',ev=>{ev.stopPropagation();addAdo();});
+  addA.querySelector('input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addAdo();}});
+  addA.querySelector('input').addEventListener('click',e=>e.stopPropagation());
+  kids.appendChild(addA);
+  row.appendChild(kids);
+  return row;
+}
+function a_push(p,nombre){p.actividades.push({id:'A-'+Date.now()+Math.floor(Math.random()*99),nombre:nombre,estado:'Pendiente',resp:'',invol:'',ini:null,obj:null,tareas:[]});touch(p);queueSave();render();}
+
+function actRow(p,a,ai){
+  const est=actEstado(a);
+  const wrap=document.createElement('div');wrap.className='act-row';
+  const isOpen=!!openAct[a.id];
+  const done=a.tareas.filter(t=>t.done).length;
+  const main=document.createElement('div');main.className='act-main'+(isOpen?' open':'');
+  const adue=dueMini(a,est);
+  const aresp=a.resp?`<span class="tag-person ${personClass(a.resp)}">${esc(a.resp)}</span>`:'';
+  main.innerHTML=`<span class="caret">▸</span><span class="act-title">${esc(a.nombre)}</span>
+    <span class="proc-meta">${aresp}${adue}${a.tareas.length?`<span class="ccount" style="font-family:ui-monospace;font-size:10px;color:var(--muted)">☑ ${done}/${a.tareas.length}</span>`:''}<span class="badge ${stCls(est)}">${est}</span></span>`;
+  main.addEventListener('click',e=>{openAct[a.id]=!isOpen;render();});
+  wrap.appendChild(main);
+  const kids=document.createElement('div');kids.className='act-kids'+(isOpen?' show':'');
+  // responsable + fechas de la actividad
+  const drow=document.createElement('div');drow.style.cssText='display:flex;gap:10px;align-items:center;margin:4px 0 8px;flex-wrap:wrap';
+  drow.innerHTML=`<span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Responsable</span>${respInput(a.resp)}<span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Involucrados</span><input class="involfield" value="${esc(a.invol||'')}" placeholder="Involucrados" style="font-family:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper);width:130px"><span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Inicio</span><input type="date" value="${a.ini||''}" data-af="ini" style="font-family:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper)"><span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Objetivo</span><input type="date" value="${a.obj||''}" data-af="obj" style="font-family:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper)">`;
+  drow.querySelectorAll('input[type=date]').forEach(inp=>{inp.addEventListener('click',e=>e.stopPropagation());inp.addEventListener('change',e=>{a[inp.dataset.af]=e.target.value||null;touch(p);queueSave();render();});});
+  const arf=drow.querySelector('.respfield');arf.addEventListener('click',e=>e.stopPropagation());arf.addEventListener('change',e=>{a.resp=e.target.value.trim()||'';touch(p);queueSave();render();});
+  const aif=drow.querySelector('.involfield');aif.addEventListener('click',e=>e.stopPropagation());aif.addEventListener('change',e=>{a.invol=e.target.value.trim()||'';touch(p);queueSave();render();});
+  kids.appendChild(drow);
+  // tareas
+  a.tareas.forEach((t,ti)=>{
+    const test=taskEstado(t);
+    const it=document.createElement('div');it.className='task-item'+(test==='Realizada'?' done':'');
+    const tdue=t.obj?`<span class="due ${dueCls(t.obj,test==='Realizada')}" style="margin-left:6px">${test==='Realizada'?'hecho':fmtD(t.obj)}</span>`:'';
+    const tresp=t.resp?`<span class="tag-person ${personClass(t.resp)}" style="margin-left:6px">${esc(t.resp)}</span>`:'';
+    const tbadge=(test!=='Pendiente'&&test!=='Realizada')?`<span class="badge ${stCls(test)}" style="margin-left:6px">${test}</span>`:'';
+    it.innerHTML=`<input type="checkbox" ${test==='Realizada'?'checked':''}><span class="tt">${esc(t.txt)}</span>${tresp}${tbadge}${tdue}<button class="tdate xdel" title="responsable y fechas">📅</button><button class="xdel">✕</button>`;
+    it.querySelector('input[type=checkbox]').addEventListener('click',ev=>{ev.stopPropagation();t.estado=ev.target.checked?'Realizada':'Pendiente';t.done=ev.target.checked;touch(p);queueSave();render();});
+    it.querySelector('.xdel:last-child').addEventListener('click',ev=>{ev.stopPropagation();a.tareas.splice(ti,1);touch(p);queueSave();render();});
+    // toggle editor for task (responsable + fechas)
+    const dedit=document.createElement('div');dedit.style.cssText='display:none;gap:8px;align-items:center;padding:2px 0 6px 23px;flex-wrap:wrap';
+    dedit.innerHTML=`<span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Resp.</span>${respInput(t.resp,true)}<span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Involucr.</span><input class="involfield" value="${esc(t.invol||'')}" placeholder="Involucrados" style="font-family:inherit;font-size:11px;padding:2px 5px;border:1px solid var(--line);border-radius:6px;background:var(--paper);width:110px"><span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Inicio</span><input type="date" value="${t.ini||''}" data-tf="ini" style="font-family:inherit;font-size:11px;padding:2px 5px;border:1px solid var(--line);border-radius:6px;background:var(--paper)"><span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Objetivo</span><input type="date" value="${t.obj||''}" data-tf="obj" style="font-family:inherit;font-size:11px;padding:2px 5px;border:1px solid var(--line);border-radius:6px;background:var(--paper)">`;
+    dedit.querySelectorAll('input[type=date]').forEach(inp=>{inp.addEventListener('click',e=>e.stopPropagation());inp.addEventListener('change',e=>{t[inp.dataset.tf]=e.target.value||null;touch(p);queueSave();render();});});
+    const trf=dedit.querySelector('.respfield');trf.addEventListener('click',e=>e.stopPropagation());trf.addEventListener('change',e=>{t.resp=e.target.value.trim()||'';touch(p);queueSave();render();});
+    const tif=dedit.querySelector('.involfield');tif.addEventListener('click',e=>e.stopPropagation());tif.addEventListener('change',e=>{t.invol=e.target.value.trim()||'';touch(p);queueSave();render();});
+    it.querySelector('.tdate').addEventListener('click',ev=>{ev.stopPropagation();dedit.style.display=dedit.style.display==='none'?'flex':'none';});
+    kids.appendChild(it);kids.appendChild(dedit);
+  });
+  // estado manual + mover de proceso, si la actividad no tiene tareas (está vacía)
+  if(!a.tareas.length){
+    const sel=document.createElement('div');sel.style.cssText='margin:4px 0';
+    sel.innerHTML=`<select style="font-family:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper)">${STATES.map(s=>`<option ${s===a.estado?'selected':''}>${s}</option>`).join('')}</select> <span style="font-size:11px;color:var(--muted)">estado de la actividad</span>`;
+    sel.querySelector('select').addEventListener('change',ev=>{a.estado=ev.target.value;touch(p);queueSave();render();});
+    sel.querySelector('select').addEventListener('click',e=>e.stopPropagation());
+    kids.appendChild(sel);
+    // mover actividad vacía a otro proceso
+    const mv=document.createElement('div');mv.style.cssText='margin:6px 0';
+    const otros=data.filter(x=>x.id!==p.id);
+    mv.innerHTML=`<span style="font-size:11px;color:var(--muted)">Mover a proceso: </span><select style="font-family:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper);max-width:220px"><option value="">— elegir —</option>${otros.map(x=>`<option value="${x.id}">${esc(x.nombre)} (${esc(x.cat)})</option>`).join('')}</select>`;
+    const msel=mv.querySelector('select');
+    msel.addEventListener('click',e=>e.stopPropagation());
+    msel.addEventListener('change',ev=>{const tid=ev.target.value;if(!tid)return;const target=data.find(x=>x.id===tid);if(!target)return;p.actividades.splice(ai,1);target.actividades.push(a);touch(p);touch(target);queueSave();render();});
+    kids.appendChild(mv);
+  }
+  // add tarea
+  const addT=document.createElement('div');addT.className='addrow';
+  addT.innerHTML=`<input placeholder="Nueva tarea…"><button>+ Tarea</button>`;
+  const addTdo=()=>{const inp=addT.querySelector('input');const v=inp.value.trim();if(!v)return;a.tareas.push({txt:v,done:false,resp:'',invol:'',ini:null,obj:null});touch(p);queueSave();render();};
+  addT.querySelector('button').addEventListener('click',ev=>{ev.stopPropagation();addTdo();});
+  addT.querySelector('input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addTdo();}});
+  addT.querySelector('input').addEventListener('click',e=>e.stopPropagation());
+  kids.appendChild(addT);
+  // delete actividad
+  const del=document.createElement('button');del.className='miniedit';del.style.color='var(--bloq)';del.textContent='✕ eliminar actividad';
+  del.addEventListener('click',ev=>{ev.stopPropagation();if(confirm('¿Eliminar la actividad "'+a.nombre+'" y sus tareas?')){p.actividades.splice(ai,1);touch(p);queueSave();render();}});
+  kids.appendChild(del);
+  wrap.appendChild(kids);
+  return wrap;
+}
+function dueCls(obj,done){if(done)return 'ok';const n=daysTo(obj);if(n===null)return 'ok';if(n<0)return 'over';if(n<=14)return 'soon';return 'ok';}
+function dueMini(a,est){if(!a.obj)return '';const done=est==='Realizada';const n=daysTo(a.obj);let l=fmtD(a.obj);if(done)l='hecho';else if(n!==null){if(n<0)l='venció';else if(n===0)l='hoy';else if(n<=14)l='en '+n+'d';}return `<span class="due ${dueCls(a.obj,done)}">${l}</span>`;}
+let respDLid=0;
+// input de responsable: menú con sugerencias (Jenny/Juan Luis) pero permite escribir otro
+function respInput(current,small){
+  const id='rl'+(respDLid++);
+  const fs=small?'11px':'12px';const pd=small?'2px 5px':'3px 6px';
+  return `<input list="${id}" value="${esc(current||'')}" placeholder="Responsable" class="respfield" style="font-family:inherit;font-size:${fs};padding:${pd};border:1px solid var(--line);border-radius:6px;background:var(--paper);width:120px"><datalist id="${id}"><option value="Jenny"><option value="Juan Luis"><option value="Otros"></datalist>`;
+}
+
+/* ---- modal: edit proceso ---- */
+function addCategory(){
+  const nombre=prompt('Nombre de la nueva categoría:');
+  if(!nombre||!nombre.trim())return;
+  const n=nombre.trim();
+  if(CAT_ORDER.includes(n)){alert('Esa categoría ya existe.');return;}
+  CAT_ORDER.push(n);saveCats();showEmptyCats=true;view='cat:'+n;render();
+}
+function renameCategory(cat){
+  const nuevo=prompt('Nuevo nombre para la categoría "'+cat+'":',cat);
+  if(!nuevo||!nuevo.trim())return;
+  const n=nuevo.trim();
+  if(n===cat)return;
+  if(CAT_ORDER.includes(n)&&n!==cat){if(!confirm('Ya existe una categoría "'+n+'". Se fusionarán los procesos de ambas. ¿Continuar?'))return;}
+  // renombrar en la lista de categorías
+  const idx=CAT_ORDER.indexOf(cat);
+  if(idx>=0){if(CAT_ORDER.includes(n)){CAT_ORDER.splice(idx,1);}else{CAT_ORDER[idx]=n;}}
+  // renombrar en todos los procesos
+  data.forEach(p=>{if(p.cat===cat){p.cat=n;touch(p);}});
+  saveCats();saveData();view='cat:'+n;render();
+}
+function deleteCategory(cat){
+  const procs=data.filter(p=>p.cat===cat);
+  const otras=allCatsPresent().filter(c=>c!==cat).concat(CAT_ORDER.filter(c=>!allCatsPresent().includes(c)));
+  const uniqOtras=[...new Set(otras)];
+  const m=document.getElementById('modal');
+  if(procs.length===0){
+    m.innerHTML=`<h2>Borrar categoría</h2><div class="mid">${esc(cat)} está vacía</div><p style="font-size:14px;line-height:1.5">Esta categoría no tiene procesos. ¿Quieres quitarla de la lista de categorías?</p><div class="mactions"><div></div><div style="display:flex;gap:8px"><button class="btn" id="cCancel">Cancelar</button><button class="btn danger" id="cDel">Quitar categoría</button></div></div>`;
+    document.getElementById('scrim').classList.add('open');document.getElementById('cCancel').onclick=closeModal;
+    document.getElementById('cDel').onclick=()=>{const i=CAT_ORDER.indexOf(cat);if(i>=0)CAT_ORDER.splice(i,1);saveCats();closeModal();view='cat:'+(catsInUse()[0]||'');render();};
+    return;
+  }
+  m.innerHTML=`<h2>Borrar categoría "${esc(cat)}"</h2><div class="mid">Contiene ${procs.length} proceso${procs.length===1?'':'s'}</div>
+    <p style="font-size:14px;line-height:1.5">¿Qué hago con los procesos de esta categoría?</p>
+    <div class="field"><label>Opción</label><select id="dcMode"><option value="move">Mover los procesos a otra categoría</option><option value="delete">Borrar los procesos junto con la categoría</option></select></div>
+    <div class="field" id="dcTargetWrap"><label>Mover a</label><select id="dcTarget">${uniqOtras.map(c=>`<option>${esc(c)}</option>`).join('')}</select></div>
+    <div class="mactions"><div></div><div style="display:flex;gap:8px"><button class="btn" id="dcCancel">Cancelar</button><button class="btn danger" id="dcOk">Aplicar</button></div></div>`;
+  document.getElementById('scrim').classList.add('open');
+  const modeSel=document.getElementById('dcMode');const tw=document.getElementById('dcTargetWrap');
+  modeSel.addEventListener('change',()=>{tw.style.display=modeSel.value==='move'?'':'none';});
+  document.getElementById('dcCancel').onclick=closeModal;
+  document.getElementById('dcOk').onclick=()=>{
+    if(modeSel.value==='move'){const tgt=document.getElementById('dcTarget').value;procs.forEach(p=>{p.cat=tgt;touch(p);});}
+    else{if(!confirm('Se borrarán '+procs.length+' proceso(s) con sus actividades y tareas. ¿Seguro?'))return;const ids=new Set(procs.map(p=>p.id));data=data.filter(p=>!ids.has(p.id));const i=CAT_ORDER.indexOf(cat);if(i>=0)CAT_ORDER.splice(i,1);saveCats();}
+    saveData();closeModal();view='cat:'+(catsInUse()[0]||'');render();
+  };
+}
+
+function openModal(id){
+  const isNew=!id;
+  const p=id?data.find(x=>x.id===id):{id:'',cat:'Libros',sub:'',nombre:'',desc:'',resp:'Jenny',coresp:'',ini:null,obj:null,prio:'Media',notas:'',estadoManual:null,estadoBase:'Pendiente',actividades:[],comments:[]};
+  const cats=catsInUse();const allCats=[...new Set([...CAT_ORDER,...cats])];
+  const m=document.getElementById('modal');
+  const cmtHTML=(p.comments||[]).map((c,i)=>`<div class="cmt"><div class="ch"><b>${esc(c.autor)}</b><span>${esc(c.fecha)} <button class="xdel" data-cmtdel="${i}">✕</button></span></div><div class="cbody">${esc(c.texto)}</div></div>`).join('');
+  m.innerHTML=`<h2>${isNew?'Nuevo proceso':(esc(p.nombre)||'(proceso sin nombre)')}</h2><div class="mid">${isNew?'Se añadirá al tablero':p.id+' · '+p.cat}</div>
+    ${isNew?'':`<div style="background:var(--accent-soft);border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:16px"><div style="font-size:12.5px;font-weight:600;margin-bottom:4px">¿Es en realidad una etapa de otro proceso?</div><div style="font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.45">Conviértelo en actividad de otro proceso. Su contenido interno se conserva como tareas.</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><select id="convTarget" style="font-family:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:var(--card);flex:1;min-width:170px"><option value="">— elegir proceso destino —</option>${data.filter(x=>x.id!==id).map(x=>`<option value="${x.id}">${esc(x.nombre||'(sin nombre)')} · ${esc(x.cat)}</option>`).join('')}</select><button class="btn" id="convBtn">Convertir</button></div></div>`}
+    <div class="field"><label>Nombre del proceso</label><input id="f_nombre" value="${esc(p.nombre)}"></div>
+    <div class="field"><label>Descripción</label><textarea id="f_desc">${esc(p.desc)}</textarea></div>
+    <div class="frow"><div class="field"><label>Categoría</label><select id="f_cat">${allCats.map(c=>`<option ${c===p.cat?'selected':''}>${c}</option>`).join('')}</select></div><div class="field"><label>Prioridad</label><select id="f_prio">${['Alta','Media','Baja'].map(x=>`<option ${x===p.prio?'selected':''}>${x}</option>`).join('')}</select></div></div>
+    <div class="frow"><div class="field"><label>Responsable</label><input id="f_resp" value="${esc(p.resp)}"></div><div class="field"><label>Involucrados</label><input id="f_invol" value="${esc(p.invol||'')}"></div></div>
+    <div class="frow"><div class="field"><label>Fecha inicio</label><input type="date" id="f_ini" value="${p.ini||''}"></div><div class="field"><label>Fecha objetivo</label><input type="date" id="f_obj" value="${p.obj||''}"></div></div>
+    <div class="field"><label>Estado (vacío = automático desde actividades)</label><select id="f_estman"><option value="">Automático</option>${STATES.map(s=>`<option ${p.estadoManual===s?'selected':''}>${s}</option>`).join('')}</select></div>
+    <div class="field"><label>Notas</label><textarea id="f_notas">${esc(p.notas)}</textarea></div>
+    ${isNew?'':`<div class="section-t">Comentarios</div><div id="cmtList">${cmtHTML||'<div class="empty" style="text-align:left">Sin comentarios.</div>'}</div>
+    <div class="cmt-compose"><div class="who-pick"><span class="chip whopick on" data-who="Jenny">Jenny</span><span class="chip whopick" data-who="Juan Luis">Juan Luis</span></div><textarea id="newCmt" placeholder="Escribe un comentario…"></textarea><div style="margin-top:6px"><button class="btn primary" id="addCmtBtn" style="padding:7px 14px;font-size:13px">Comentar</button></div></div>`}
+    <div class="mactions"><div>${isNew?'':'<button class="btn danger" id="delBtn">Eliminar proceso</button>'}</div><div style="display:flex;gap:8px"><button class="btn" id="cancelBtn">Cerrar</button><button class="btn primary" id="saveBtn">${isNew?'Crear':'Guardar'}</button></div></div>`;
+  document.getElementById('scrim').classList.add('open');
+  document.getElementById('cancelBtn').onclick=closeModal;
+  document.getElementById('saveBtn').onclick=()=>{
+    const g=i=>document.getElementById(i).value;
+    const nombre=g('f_nombre').trim();if(!nombre){alert('Escribe el nombre del proceso.');return;}
+    const obj={cat:g('f_cat'),nombre,desc:g('f_desc'),resp:g('f_resp'),invol:g('f_invol'),coresp:g('f_invol'),ini:g('f_ini')||null,obj:g('f_obj')||null,prio:g('f_prio'),notas:g('f_notas'),estadoManual:g('f_estman')||null};
+    if(isNew){const nums=data.map(x=>parseInt((x.id||'').replace('T-',''))||0);obj.id='T-'+String(Math.max(0,...nums)+1).padStart(3,'0');obj.sub='';obj.estadoBase='Pendiente';obj.actividades=[];obj.comments=[];obj._m=Date.now();data.push(obj);}
+    else{Object.assign(p,obj);touch(p);}
+    saveData();closeModal();render();
+  };
+  const del=document.getElementById('delBtn');if(del)del.onclick=()=>{if(confirm('¿Eliminar todo el proceso?')){data=data.filter(x=>x.id!==id);saveData();closeModal();render();}};
+  if(!isNew){
+    const convBtn=document.getElementById('convBtn');
+    if(convBtn)convBtn.onclick=()=>{
+      const tid=document.getElementById('convTarget').value;
+      if(!tid){alert('Elige el proceso destino.');return;}
+      const target=data.find(x=>x.id===tid);if(!target)return;
+      const nombreAct=(p.nombre&&p.nombre.trim())?p.nombre.trim():(p.desc?p.desc.slice(0,50):'Actividad');
+      // construir la nueva actividad a partir del proceso
+      const nuevaAct={id:'A-'+Date.now()+Math.floor(Math.random()*99),nombre:nombreAct,estado:'Pendiente',estadoManual:null,resp:p.resp||'',ini:p.ini||null,obj:p.obj||null,tareas:[]};
+      // sus actividades internas -> tareas; sus tareas -> tareas
+      (p.actividades||[]).forEach(a=>{
+        nuevaAct.tareas.push({txt:a.nombre,done:actEstado(a)==='Realizada',estado:actEstado(a),resp:a.resp||'',ini:a.ini||null,obj:a.obj||null});
+        (a.tareas||[]).forEach(t=>nuevaAct.tareas.push({txt:'  · '+t.txt,done:t.estado==='Realizada',estado:t.estado||'Pendiente',resp:t.resp||'',ini:t.ini||null,obj:t.obj||null}));
+      });
+      if(!confirm('Convertir "'+(p.nombre||'(sin nombre)')+'" en una actividad dentro de "'+target.nombre+'"?'))return;
+      target.actividades.push(nuevaAct);touch(target);
+      data=data.filter(x=>x.id!==id);
+      saveData();closeModal();view='cat:'+target.cat;render();
+    };
+    let who='Jenny';m.querySelectorAll('.whopick').forEach(c=>c.addEventListener('click',()=>{m.querySelectorAll('.whopick').forEach(x=>x.classList.remove('on'));c.classList.add('on');who=c.dataset.who;}));
+    m.querySelectorAll('[data-cmtdel]').forEach(b=>b.addEventListener('click',()=>{p.comments.splice(+b.dataset.cmtdel,1);touch(p);queueSave();openModal(id);}));
+    document.getElementById('addCmtBtn').onclick=()=>{const v=document.getElementById('newCmt').value.trim();if(!v)return;const f=new Date().toLocaleDateString('es-DO',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});p.comments.push({autor:who,texto:v,fecha:f});touch(p);queueSave();openModal(id);};
+  }
+}
+function closeModal(){document.getElementById('scrim').classList.remove('open');}
+document.getElementById('scrim').addEventListener('click',e=>{if(e.target.id==='scrim')closeModal();});
+
+/* ---- sync ---- */
+function ensureStamps(){data.forEach(p=>{if(!p._m)p._m=1;});}
+function merge(remote){const byId={};data.forEach(p=>byId[p.id]={...p});remote.forEach(r=>{if(!r||!r.id)return;if(!r._m)r._m=1;const l=byId[r.id];if(!l)byId[r.id]=r;else if((r._m||0)>(l._m||0))byId[r.id]=r;});return Object.values(byId);}
+function syncStatus(msg,kind){const t=document.getElementById('syncTxt'),d=document.getElementById('syncDot');t.textContent=msg;d.style.background=kind==='err'?'var(--bloq)':kind==='busy'?'var(--pend)':'var(--real)';d.classList.toggle('saving',kind==='busy');}
+async function doSync(){
+  if(!SYNC_URL){openConfig();return;}
+  ensureStamps();syncStatus('Sincronizando…','busy');
+  try{
+    const res=await fetch(SYNC_URL,{method:'GET'});const txt=await res.text();let remote=[];try{remote=JSON.parse(txt);}catch(e){remote=[];}if(!Array.isArray(remote))remote=[];
+    data=merge(remote);normalize();
+    await fetch(SYNC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(data)});
+    await saveData();render();
+    syncStatus('Sincronizado '+new Date().toLocaleTimeString('es-DO',{hour:'2-digit',minute:'2-digit'}),'ok');
+  }catch(err){console.error(err);syncStatus('Error de conexión','err');alert('No se pudo sincronizar. Revisa ⚙ Conexión.\n\nDetalle: '+err);}
+}
+function openConfig(){
+  const m=document.getElementById('modal');
+  m.innerHTML=`<h2>Conexión con Google Sheets</h2><div class="mid">Pega la URL de tu Web App (termina en /exec).</div>
+    <div class="field"><label>URL de la Web App</label><input id="cfgUrl" placeholder="https://script.google.com/macros/s/…/exec" value="${esc(SYNC_URL)}"></div>
+    <div class="mactions"><div><button class="btn danger" id="cfgClear">Desconectar</button></div><div style="display:flex;gap:8px"><button class="btn" id="cfgCancel">Cerrar</button><button class="btn primary" id="cfgSave">Guardar y sincronizar</button></div></div>`;
+  document.getElementById('scrim').classList.add('open');
+  document.getElementById('cfgCancel').onclick=closeModal;
+  document.getElementById('cfgClear').onclick=async()=>{await saveSyncUrl('');syncStatus('Sin conexión','ok');closeModal();};
+  document.getElementById('cfgSave').onclick=async()=>{const u=document.getElementById('cfgUrl').value.trim();await saveSyncUrl(u);closeModal();doSync();};
+}
+
+/* ---- export / import ---- */
+document.getElementById('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='seguimiento_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);};
+document.getElementById('importBtn').onclick=()=>document.getElementById('fileInput').click();
+document.getElementById('fileInput').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);if(!Array.isArray(d))throw 0;if(!confirm('Reemplazar el tablero con '+d.length+' procesos del archivo?'))return;data=d;normalize();saveData();render();}catch(err){alert('Archivo no válido.');}};rd.readAsText(f);e.target.value='';});
+
+/* ---- controls ---- */
+document.getElementById('showDone').addEventListener('click',function(){showDone=!showDone;this.classList.toggle('on',showDone);this.textContent=showDone?'👁 Ocultar lo realizado':'👁 Mostrar lo realizado';render();});
+document.getElementById('search').addEventListener('input',e=>{searchТ=e.target.value.toLowerCase().trim();render();});
+document.getElementById('expandAll').addEventListener('click',()=>{data.forEach(p=>{openProc[p.id]=true;p.actividades.forEach(a=>openAct[a.id]=true);});catsInUse().forEach(c=>openCat[c]=true);render();});
+document.getElementById('collapseAll').addEventListener('click',()=>{openProc={};openAct={};render();});
+document.getElementById('addProc').addEventListener('click',()=>openModal(null));
+document.getElementById('addCat').addEventListener('click',addCategory);
+document.getElementById('syncBtn').addEventListener('click',doSync);
+document.getElementById('cfgBtn').addEventListener('click',openConfig);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+(async function(){await loadSyncUrl();await loadCats();await loadData();ensureStamps();render();if(SYNC_URL){doSync();}else{syncStatus('Sin conexión — pulsa ⚙ Conexión','ok');}})();
+</script>
+</body>
+</html>
