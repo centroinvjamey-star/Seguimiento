@@ -241,12 +241,12 @@
     <div class="metrics" id="metrics"></div>
 
     <div class="controls">
-      <input type="search" id="search" placeholder="Buscar proceso, actividad, persona…">
+      <input type="search" id="search" placeholder="Buscar actividad, tarea, persona…">
       <span class="chip" id="showDone" data-on="0">👁 Mostrar lo realizado</span>
       <span class="chip" id="expandAll">⤢ Expandir todo</span>
       <span class="chip" id="collapseAll">⤡ Colapsar todo</span>
-      <span class="chip addbtn" id="addCat" style="background:var(--card);color:var(--accent);border-color:var(--accent)">+ Nueva categoría</span>
-      <span class="chip addbtn" id="addProc">+ Nuevo proceso</span>
+      <span class="chip addbtn" id="addCat" style="background:var(--card);color:var(--accent);border-color:var(--accent)">+ Nuevo proyecto</span>
+      <span class="chip addbtn" id="addProc">+ Nueva actividad</span>
     </div>
 
     <div id="app"><div class="loading">Cargando…</div></div>
@@ -354,7 +354,7 @@ function buildTabs(){
   if(!tabs.some(t=>t.key===view))view=tabs[0].key;
   tabs.forEach(t=>{const el=document.createElement('div');el.className='tab'+(t.key===view?' on':'');el.textContent=t.label;el.addEventListener('click',()=>{view=t.key;render();});bar.appendChild(el);});
   const ne=emptyCatsCount();
-  if(ne>0||showEmptyCats){const tog=document.createElement('div');tog.className='tab';tog.style.color='var(--muted)';tog.style.fontWeight='400';tog.textContent=showEmptyCats?'ocultar vacías':`+ ${ne} vacía${ne===1?'':'s'}`;tog.title='Mostrar u ocultar categorías sin procesos';tog.addEventListener('click',()=>{showEmptyCats=!showEmptyCats;render();});bar.appendChild(tog);}
+  if(ne>0||showEmptyCats){const tog=document.createElement('div');tog.className='tab';tog.style.color='var(--muted)';tog.style.fontWeight='400';tog.textContent=showEmptyCats?'ocultar vacías':`+ ${ne} vacía${ne===1?'':'s'}`;tog.title='Mostrar u ocultar proyectos sin actividades';tog.addEventListener('click',()=>{showEmptyCats=!showEmptyCats;render();});bar.appendChild(tog);}
 }
 
 function renderMetrics(){
@@ -375,7 +375,7 @@ function renderMetrics(){
     {n:proyectos,l:'Proyectos activos',c:'accent'},
     {n:enProc,l:'En proceso'},
     {n:venc,l:'Vencen en 7 días',c:venc>0?'warn':''},
-    {n:hechos+'/'+total,l:'Procesos hechos'}
+    {n:hechos+'/'+total,l:'Actividades hechas'}
   ];
   el.innerHTML=cards.map(c=>`<div class="metric ${c.c||''}"><div class="mnum">${c.n}</div><div class="mlbl">${c.l}</div></div>`).join('');
 }
@@ -385,8 +385,8 @@ function render(){
   renderMetrics();
   const app=document.getElementById('app');app.innerHTML='';
   const isCat=view.startsWith('cat:');
-  document.getElementById('expandAll').style.display='none';
-  document.getElementById('collapseAll').style.display='none';
+  document.getElementById('expandAll').style.display=isCat?'':'none';
+  document.getElementById('collapseAll').style.display=isCat?'':'none';
   document.getElementById('showDone').style.display=isCat?'':'none';
   if(isCat){renderCategory(view.slice(4));}
   else if(view==='estado'){renderEstado();}
@@ -404,30 +404,17 @@ function renderCategory(cat){
 
   // encabezado del proyecto
   const head=document.createElement('div');head.className='proj-head';
-  head.innerHTML=`<div class="proj-head-l"><h2>${esc(cat)}</h2><div class="proj-meta">${totalInCat} proceso${totalInCat===1?'':'s'} · ${done} realizados · ${pct}%</div><div class="proj-prog"><span style="width:${pct}%"></span></div></div>
+  head.innerHTML=`<div class="proj-head-l"><h2>${esc(cat)}</h2><div class="proj-meta">${totalInCat} actividad${totalInCat===1?'':'es'} · ${done} realizadas · ${pct}%</div><div class="proj-prog"><span style="width:${pct}%"></span></div></div>
     <div class="proj-head-r"><button class="miniedit" data-act="ren">✎ renombrar</button><button class="miniedit danger" data-act="del">✕ borrar proyecto</button></div>`;
   head.querySelector('[data-act="ren"]').addEventListener('click',()=>renameCategory(cat));
   head.querySelector('[data-act="del"]').addEventListener('click',()=>deleteCategory(cat));
   app.appendChild(head);
 
-  if(!totalInCat){const e=document.createElement('div');e.className='empty';e.style.padding='40px';e.textContent='No hay procesos en este proyecto. Usa "+ Nuevo proceso" para empezar.';app.appendChild(e);return;}
-  if(!procs.length){const e=document.createElement('div');e.className='empty';e.style.padding='40px';e.textContent='Todos los procesos de este proyecto están realizados. Pulsa "Mostrar lo realizado".';app.appendChild(e);return;}
+  if(!totalInCat){const e=document.createElement('div');e.className='empty';e.style.padding='40px';e.textContent='No hay actividades en este proyecto. Usa "+ Nueva actividad" para empezar.';app.appendChild(e);return;}
+  if(!procs.length){const e=document.createElement('div');e.className='empty';e.style.padding='40px';e.textContent='Todas las actividades de este proyecto están realizadas. Pulsa "Mostrar lo realizado".';app.appendChild(e);return;}
 
-  // tablero kanban del proyecto: columnas por estado
-  const board=document.createElement('div');board.className='estboard';
-  STATES.forEach(st=>{
-    const inSt=procs.filter(p=>procEstado(p)===st);
-    const col=document.createElement('div');col.className='estcol '+stCls(st);
-    col.innerHTML=`<div class="ecolhead"><span class="ename"><span class="ebadge"></span>${st}</span><span class="enum">${inSt.length}</span></div>`;
-    const body=document.createElement('div');body.className='ebody';body.dataset.st=st;
-    body.addEventListener('dragover',e=>{e.preventDefault();body.classList.add('drag-over');});
-    body.addEventListener('dragleave',()=>body.classList.remove('drag-over'));
-    body.addEventListener('drop',e=>{e.preventDefault();body.classList.remove('drag-over');const id=e.dataTransfer.getData('text/plain');const p=data.find(x=>x.id===id);if(p&&procEstado(p)!==st){p.estadoManual=st;touch(p);queueSave();render();}});
-    if(!inSt.length){const em=document.createElement('div');em.className='empty';em.textContent='—';body.appendChild(em);}
-    inSt.forEach(p=>body.appendChild(procCard(p)));
-    col.appendChild(body);board.appendChild(col);
-  });
-  app.appendChild(board);
+  // lista de procesos (filas desplegables)
+  procs.forEach(p=>app.appendChild(procRow(p)));
 }
 
 // tarjeta compacta de proceso para el kanban
@@ -462,11 +449,11 @@ function openProcDetail(id){
     <div id="pdKids"></div>
     <div class="mactions"><div></div><div><button class="btn" id="pdClose">Cerrar</button></div></div>`;
   const kids=m.querySelector('#pdKids');
-  if(!p.actividades.length){kids.innerHTML='<div class="empty">Sin actividades. Edita el proceso o agrégalas desde la vista de proyecto.</div>';}
+  if(!p.actividades.length){kids.innerHTML='<div class="empty">Sin tareas. Edita la actividad o agrégalas desde la vista de proyecto.</div>';}
   else{p.actividades.forEach((a,ai)=>kids.appendChild(actRow(p,a,ai)));}
   // add actividad
   const addA=document.createElement('div');addA.className='addrow';addA.style.marginTop='10px';
-  addA.innerHTML=`<input placeholder="Nueva actividad…"><button>+ Actividad</button>`;
+  addA.innerHTML=`<input placeholder="Nuevo paso…"><button>+ Paso</button>`;
   const doAdd=()=>{const v=addA.querySelector('input').value.trim();if(!v)return;a_push(p,v);openProcDetail(id);};
   addA.querySelector('button').addEventListener('click',doAdd);
   addA.querySelector('input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();doAdd();}});
@@ -482,7 +469,7 @@ function renderEstado(){
   // selector de nivel
   const bar=document.createElement('div');bar.style.cssText='display:flex;gap:8px;align-items:center;margin:16px 0 6px;flex-wrap:wrap';
   bar.innerHTML=`<span style="font-size:12px;color:var(--muted);font-family:ui-monospace">Mover por estado:</span>`;
-  [['proceso','Procesos'],['actividad','Actividades'],['tarea','Tareas']].forEach(([k,l])=>{
+  [['proceso','Actividades'],['actividad','Tareas'],['tarea','Pasos']].forEach(([k,l])=>{
     const c=document.createElement('span');c.className='chip'+(estadoNivel===k?' on':'');c.textContent=l;c.style.cursor='pointer';
     c.addEventListener('click',()=>{estadoNivel=k;render();});bar.appendChild(c);
   });
@@ -557,7 +544,7 @@ function renderPerson(){
   vis.forEach(p=>{const b=[];const rc=personClass(p.resp);if(rc==='p-jenny')b.push('Jenny');else if(rc==='p-camila')b.push('Camila');const extra=p.invol||p.coresp;if(extra){const cc=personClass(extra);if(cc==='p-jenny'&&!b.includes('Jenny'))b.push('Jenny');if(cc==='p-camila'&&!b.includes('Camila'))b.push('Camila');}if(!b.length)b.push('Otros');b.forEach(x=>cols[x]?cols[x].push(p):cols['Otros'].push(p));});
   const order=[['Jenny','p-jenny'],['Camila','p-camila'],['Otros','p-otro']];
   const wrap=document.createElement('div');wrap.className='person-cols';
-  order.forEach(([name,cls])=>{const list=cols[name];const done=list.filter(p=>procEstado(p)==='Realizada').length;const col=document.createElement('div');col.className='person-col';col.innerHTML=`<h2><span class="tag-person ${cls}">${name}</span></h2><div class="psub">${list.length} procesos · ${done} hechos · ${list.filter(p=>procEstado(p)!=='Realizada'&&daysTo(p.obj)!==null&&daysTo(p.obj)<0).length} vencidos</div>`;const sorted=[...list].sort((a,b)=>{const da=parseD(a.obj),db=parseD(b.obj);if(!da)return 1;if(!db)return -1;return da-db;});sorted.forEach(p=>{const est=procEstado(p);const row=document.createElement('div');row.className='prow';const n=daysTo(p.obj);let dl=fmtD(p.obj);if(est==='Realizada')dl='hecho';else if(n!==null){if(n<0)dl='venció';else if(n===0)dl='hoy';else if(n<=14)dl='en '+n+'d';}row.innerHTML=`<div class="pt">${esc(p.nombre)}</div><div class="pm"><span class="stbadge ${stCls(est)}"></span>${est} · ${dl} · <span style="color:var(--accent)">${esc(p.cat)}</span></div>`;row.addEventListener('click',()=>openModal(p.id));col.appendChild(row);});if(!list.length){const e=document.createElement('div');e.className='empty';e.textContent='Sin procesos';col.appendChild(e);}wrap.appendChild(col);});
+  order.forEach(([name,cls])=>{const list=cols[name];const done=list.filter(p=>procEstado(p)==='Realizada').length;const col=document.createElement('div');col.className='person-col';col.innerHTML=`<h2><span class="tag-person ${cls}">${name}</span></h2><div class="psub">${list.length} actividades · ${done} hechas · ${list.filter(p=>procEstado(p)!=='Realizada'&&daysTo(p.obj)!==null&&daysTo(p.obj)<0).length} vencidos</div>`;const sorted=[...list].sort((a,b)=>{const da=parseD(a.obj),db=parseD(b.obj);if(!da)return 1;if(!db)return -1;return da-db;});sorted.forEach(p=>{const est=procEstado(p);const row=document.createElement('div');row.className='prow';const n=daysTo(p.obj);let dl=fmtD(p.obj);if(est==='Realizada')dl='hecho';else if(n!==null){if(n<0)dl='venció';else if(n===0)dl='hoy';else if(n<=14)dl='en '+n+'d';}row.innerHTML=`<div class="pt">${esc(p.nombre)}</div><div class="pm"><span class="stbadge ${stCls(est)}"></span>${est} · ${dl} · <span style="color:var(--accent)">${esc(p.cat)}</span></div>`;row.addEventListener('click',()=>openModal(p.id));col.appendChild(row);});if(!list.length){const e=document.createElement('div');e.className='empty';e.textContent='Sin actividades';col.appendChild(e);}wrap.appendChild(col);});
   app.appendChild(wrap);
 }
 
@@ -626,15 +613,15 @@ function procRow(p){
   const kids=document.createElement('div');kids.className='proc-kids'+(isOpen?' show':'');
   // header actions
   const bar=document.createElement('div');bar.style.cssText='display:flex;gap:10px;align-items:center;margin:2px 0 6px';
-  bar.innerHTML=`<button class="miniedit" data-editproc="${p.id}">✎ editar proceso / comentarios</button>`;
+  bar.innerHTML=`<button class="miniedit" data-editproc="${p.id}">✎ editar actividad / comentarios</button>`;
   kids.appendChild(bar);
   bar.querySelector('[data-editproc]').addEventListener('click',ev=>{ev.stopPropagation();openModal(p.id);});
   // actividades
-  if(!p.actividades.length){const e=document.createElement('div');e.className='empty';e.style.textAlign='left';e.textContent='Sin actividades. Agrega una abajo.';kids.appendChild(e);}
+  if(!p.actividades.length){const e=document.createElement('div');e.className='empty';e.style.textAlign='left';e.textContent='Sin tareas. Agrega una abajo.';kids.appendChild(e);}
   p.actividades.forEach((a,ai)=>kids.appendChild(actRow(p,a,ai)));
   // add actividad
   const addA=document.createElement('div');addA.className='addrow addact';
-  addA.innerHTML=`<input placeholder="Nueva actividad…"><button>+ Actividad</button>`;
+  addA.innerHTML=`<input placeholder="Nuevo paso…"><button>+ Paso</button>`;
   const addAdo=()=>{const inp=addA.querySelector('input');const v=inp.value.trim();if(!v)return;a_push(p,v);};
   addA.querySelector('button').addEventListener('click',ev=>{ev.stopPropagation();addAdo();});
   addA.querySelector('input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addAdo();}});
@@ -687,14 +674,14 @@ function actRow(p,a,ai){
   // estado manual + mover de proceso, si la actividad no tiene tareas (está vacía)
   if(!a.tareas.length){
     const sel=document.createElement('div');sel.style.cssText='margin:4px 0';
-    sel.innerHTML=`<select style="font-family:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper)">${STATES.map(s=>`<option ${s===a.estado?'selected':''}>${s}</option>`).join('')}</select> <span style="font-size:11px;color:var(--muted)">estado de la actividad</span>`;
+    sel.innerHTML=`<select style="font-family:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper)">${STATES.map(s=>`<option ${s===a.estado?'selected':''}>${s}</option>`).join('')}</select> <span style="font-size:11px;color:var(--muted)">estado de la tarea</span>`;
     sel.querySelector('select').addEventListener('change',ev=>{a.estado=ev.target.value;touch(p);queueSave();render();});
     sel.querySelector('select').addEventListener('click',e=>e.stopPropagation());
     kids.appendChild(sel);
     // mover actividad vacía a otro proceso
     const mv=document.createElement('div');mv.style.cssText='margin:6px 0';
     const otros=data.filter(x=>x.id!==p.id);
-    mv.innerHTML=`<span style="font-size:11px;color:var(--muted)">Mover a proceso: </span><select style="font-family:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper);max-width:220px"><option value="">— elegir —</option>${otros.map(x=>`<option value="${x.id}">${esc(x.nombre)} (${esc(x.cat)})</option>`).join('')}</select>`;
+    mv.innerHTML=`<span style="font-size:11px;color:var(--muted)">Mover a actividad: </span><select style="font-family:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper);max-width:220px"><option value="">— elegir —</option>${otros.map(x=>`<option value="${x.id}">${esc(x.nombre)} (${esc(x.cat)})</option>`).join('')}</select>`;
     const msel=mv.querySelector('select');
     msel.addEventListener('click',e=>e.stopPropagation());
     msel.addEventListener('change',ev=>{const tid=ev.target.value;if(!tid)return;const target=data.find(x=>x.id===tid);if(!target)return;p.actividades.splice(ai,1);target.actividades.push(a);touch(p);touch(target);queueSave();render();});
@@ -702,14 +689,14 @@ function actRow(p,a,ai){
   }
   // add tarea
   const addT=document.createElement('div');addT.className='addrow';
-  addT.innerHTML=`<input placeholder="Nueva tarea…"><button>+ Tarea</button>`;
+  addT.innerHTML=`<input placeholder="Nuevo paso…"><button>+ Paso</button>`;
   const addTdo=()=>{const inp=addT.querySelector('input');const v=inp.value.trim();if(!v)return;a.tareas.push({txt:v,done:false,resp:'',invol:'',ini:null,obj:null});touch(p);queueSave();render();};
   addT.querySelector('button').addEventListener('click',ev=>{ev.stopPropagation();addTdo();});
   addT.querySelector('input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addTdo();}});
   addT.querySelector('input').addEventListener('click',e=>e.stopPropagation());
   kids.appendChild(addT);
   // delete actividad
-  const del=document.createElement('button');del.className='miniedit';del.style.color='var(--bloq)';del.textContent='✕ eliminar actividad';
+  const del=document.createElement('button');del.className='miniedit';del.style.color='var(--bloq)';del.textContent='✕ eliminar tarea';
   del.addEventListener('click',ev=>{ev.stopPropagation();if(confirm('¿Eliminar la actividad "'+a.nombre+'" y sus tareas?')){p.actividades.splice(ai,1);touch(p);queueSave();render();}});
   kids.appendChild(del);
   wrap.appendChild(kids);
@@ -727,18 +714,18 @@ function respInput(current,small){
 
 /* ---- modal: edit proceso ---- */
 function addCategory(){
-  const nombre=prompt('Nombre de la nueva categoría:');
+  const nombre=prompt('Nombre del nuevo proyecto:');
   if(!nombre||!nombre.trim())return;
   const n=nombre.trim();
-  if(CAT_ORDER.includes(n)){alert('Esa categoría ya existe.');return;}
+  if(CAT_ORDER.includes(n)){alert('Ese proyecto ya existe.');return;}
   CAT_ORDER.push(n);saveCats();showEmptyCats=true;view='cat:'+n;render();
 }
 function renameCategory(cat){
-  const nuevo=prompt('Nuevo nombre para la categoría "'+cat+'":',cat);
+  const nuevo=prompt('Nuevo nombre para el proyecto "'+cat+'":',cat);
   if(!nuevo||!nuevo.trim())return;
   const n=nuevo.trim();
   if(n===cat)return;
-  if(CAT_ORDER.includes(n)&&n!==cat){if(!confirm('Ya existe una categoría "'+n+'". Se fusionarán los procesos de ambas. ¿Continuar?'))return;}
+  if(CAT_ORDER.includes(n)&&n!==cat){if(!confirm('Ya existe un proyecto "'+n+'". Se fusionarán las actividades de ambos. ¿Continuar?'))return;}
   // renombrar en la lista de categorías
   const idx=CAT_ORDER.indexOf(cat);
   if(idx>=0){if(CAT_ORDER.includes(n)){CAT_ORDER.splice(idx,1);}else{CAT_ORDER[idx]=n;}}
@@ -752,14 +739,14 @@ function deleteCategory(cat){
   const uniqOtras=[...new Set(otras)];
   const m=document.getElementById('modal');
   if(procs.length===0){
-    m.innerHTML=`<h2>Borrar categoría</h2><div class="mid">${esc(cat)} está vacía</div><p style="font-size:14px;line-height:1.5">Esta categoría no tiene procesos. ¿Quieres quitarla de la lista de categorías?</p><div class="mactions"><div></div><div style="display:flex;gap:8px"><button class="btn" id="cCancel">Cancelar</button><button class="btn danger" id="cDel">Quitar categoría</button></div></div>`;
+    m.innerHTML=`<h2>Borrar proyecto</h2><div class="mid">${esc(cat)} está vacío</div><p style="font-size:14px;line-height:1.5">Este proyecto no tiene actividades. ¿Quieres quitarlo de la lista de proyectos?</p><div class="mactions"><div></div><div style="display:flex;gap:8px"><button class="btn" id="cCancel">Cancelar</button><button class="btn danger" id="cDel">Quitar proyecto</button></div></div>`;
     document.getElementById('scrim').classList.add('open');document.getElementById('cCancel').onclick=closeModal;
     document.getElementById('cDel').onclick=()=>{const i=CAT_ORDER.indexOf(cat);if(i>=0)CAT_ORDER.splice(i,1);saveCats();closeModal();view='cat:'+(catsInUse()[0]||'');render();};
     return;
   }
-  m.innerHTML=`<h2>Borrar categoría "${esc(cat)}"</h2><div class="mid">Contiene ${procs.length} proceso${procs.length===1?'':'s'}</div>
+  m.innerHTML=`<h2>Borrar proyecto "${esc(cat)}"</h2><div class="mid">Contiene ${procs.length} actividad${procs.length===1?'':'es'}</div>
     <p style="font-size:14px;line-height:1.5">¿Qué hago con los procesos de esta categoría?</p>
-    <div class="field"><label>Opción</label><select id="dcMode"><option value="move">Mover los procesos a otra categoría</option><option value="delete">Borrar los procesos junto con la categoría</option></select></div>
+    <div class="field"><label>Opción</label><select id="dcMode"><option value="move">Mover las actividades a otro proyecto</option><option value="delete">Borrar las actividades junto con el proyecto</option></select></div>
     <div class="field" id="dcTargetWrap"><label>Mover a</label><select id="dcTarget">${uniqOtras.map(c=>`<option>${esc(c)}</option>`).join('')}</select></div>
     <div class="mactions"><div></div><div style="display:flex;gap:8px"><button class="btn" id="dcCancel">Cancelar</button><button class="btn danger" id="dcOk">Aplicar</button></div></div>`;
   document.getElementById('scrim').classList.add('open');
@@ -768,7 +755,7 @@ function deleteCategory(cat){
   document.getElementById('dcCancel').onclick=closeModal;
   document.getElementById('dcOk').onclick=()=>{
     if(modeSel.value==='move'){const tgt=document.getElementById('dcTarget').value;procs.forEach(p=>{p.cat=tgt;touch(p);});}
-    else{if(!confirm('Se borrarán '+procs.length+' proceso(s) con sus actividades y tareas. ¿Seguro?'))return;const ids=new Set(procs.map(p=>p.id));data=data.filter(p=>!ids.has(p.id));const i=CAT_ORDER.indexOf(cat);if(i>=0)CAT_ORDER.splice(i,1);saveCats();}
+    else{if(!confirm('Se borrarán '+procs.length+' actividad(es) con sus tareas. ¿Seguro?'))return;const ids=new Set(procs.map(p=>p.id));data=data.filter(p=>!ids.has(p.id));const i=CAT_ORDER.indexOf(cat);if(i>=0)CAT_ORDER.splice(i,1);saveCats();}
     saveData();closeModal();view='cat:'+(catsInUse()[0]||'');render();
   };
 }
@@ -779,14 +766,14 @@ function openModal(id){
   const cats=catsInUse();const allCats=[...new Set([...CAT_ORDER,...cats])];
   const m=document.getElementById('modal');
   const cmtHTML=(p.comments||[]).map((c,i)=>`<div class="cmt"><div class="ch"><b>${esc(c.autor)}</b><span>${esc(c.fecha)} <button class="xdel" data-cmtdel="${i}">✕</button></span></div><div class="cbody">${esc(c.texto)}</div></div>`).join('');
-  m.innerHTML=`<h2>${isNew?'Nuevo proceso':(esc(p.nombre)||'(proceso sin nombre)')}</h2><div class="mid">${isNew?'Se añadirá al tablero':p.id+' · '+p.cat}</div>
-    ${isNew?'':`<div style="background:var(--accent-soft);border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:16px"><div style="font-size:12.5px;font-weight:600;margin-bottom:4px">¿Es en realidad una etapa de otro proceso?</div><div style="font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.45">Conviértelo en actividad de otro proceso. Su contenido interno se conserva como tareas.</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><select id="convTarget" style="font-family:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:var(--card);flex:1;min-width:170px"><option value="">— elegir proceso destino —</option>${data.filter(x=>x.id!==id).map(x=>`<option value="${x.id}">${esc(x.nombre||'(sin nombre)')} · ${esc(x.cat)}</option>`).join('')}</select><button class="btn" id="convBtn">Convertir</button></div></div>`}
-    <div class="field"><label>Nombre del proceso</label><input id="f_nombre" value="${esc(p.nombre)}"></div>
+  m.innerHTML=`<h2>${isNew?'Nueva actividad':(esc(p.nombre)||'(actividad sin nombre)')}</h2><div class="mid">${isNew?'Se añadirá al tablero':p.id+' · '+p.cat}</div>
+    ${isNew?'':`<div style="background:var(--accent-soft);border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:16px"><div style="font-size:12.5px;font-weight:600;margin-bottom:4px">¿Es en realidad una etapa de otra actividad?</div><div style="font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.45">Conviértela en tarea de otra actividad. Su contenido interno se conserva.</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><select id="convTarget" style="font-family:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:var(--card);flex:1;min-width:170px"><option value="">— elegir actividad destino —</option>${data.filter(x=>x.id!==id).map(x=>`<option value="${x.id}">${esc(x.nombre||'(sin nombre)')} · ${esc(x.cat)}</option>`).join('')}</select><button class="btn" id="convBtn">Convertir</button></div></div>`}
+    <div class="field"><label>Nombre de la actividad</label><input id="f_nombre" value="${esc(p.nombre)}"></div>
     <div class="field"><label>Descripción</label><textarea id="f_desc">${esc(p.desc)}</textarea></div>
-    <div class="frow"><div class="field"><label>Categoría</label><select id="f_cat">${allCats.map(c=>`<option ${c===p.cat?'selected':''}>${c}</option>`).join('')}</select></div><div class="field"><label>Prioridad</label><select id="f_prio">${['Alta','Media','Baja'].map(x=>`<option ${x===p.prio?'selected':''}>${x}</option>`).join('')}</select></div></div>
+    <div class="frow"><div class="field"><label>Proyecto</label><select id="f_cat">${allCats.map(c=>`<option ${c===p.cat?'selected':''}>${c}</option>`).join('')}</select></div><div class="field"><label>Prioridad</label><select id="f_prio">${['Alta','Media','Baja'].map(x=>`<option ${x===p.prio?'selected':''}>${x}</option>`).join('')}</select></div></div>
     <div class="frow"><div class="field"><label>Responsable</label><input id="f_resp" value="${esc(p.resp)}"></div><div class="field"><label>Involucrados</label><input id="f_invol" value="${esc(p.invol||'')}"></div></div>
     <div class="frow"><div class="field"><label>Fecha inicio</label><input type="date" id="f_ini" value="${p.ini||''}"></div><div class="field"><label>Fecha objetivo</label><input type="date" id="f_obj" value="${p.obj||''}"></div></div>
-    <div class="field"><label>Estado (vacío = automático desde actividades)</label><select id="f_estman"><option value="">Automático</option>${STATES.map(s=>`<option ${p.estadoManual===s?'selected':''}>${s}</option>`).join('')}</select></div>
+    <div class="field"><label>Estado (vacío = automático desde tareas)</label><select id="f_estman"><option value="">Automático</option>${STATES.map(s=>`<option ${p.estadoManual===s?'selected':''}>${s}</option>`).join('')}</select></div>
     <div class="field"><label>Notas</label><textarea id="f_notas">${esc(p.notas)}</textarea></div>
     ${isNew?'':`<div class="section-t">Comentarios</div><div id="cmtList">${cmtHTML||'<div class="empty" style="text-align:left">Sin comentarios.</div>'}</div>
     <div class="cmt-compose"><div class="who-pick"><span class="chip whopick on" data-who="Jenny">Jenny</span><span class="chip whopick" data-who="Camila">Camila</span></div><textarea id="newCmt" placeholder="Escribe un comentario…"></textarea><div style="margin-top:6px"><button class="btn primary" id="addCmtBtn" style="padding:7px 14px;font-size:13px">Comentar</button></div></div>`}
@@ -806,7 +793,7 @@ function openModal(id){
     const convBtn=document.getElementById('convBtn');
     if(convBtn)convBtn.onclick=()=>{
       const tid=document.getElementById('convTarget').value;
-      if(!tid){alert('Elige el proceso destino.');return;}
+      if(!tid){alert('Elige la actividad destino.');return;}
       const target=data.find(x=>x.id===tid);if(!target)return;
       const nombreAct=(p.nombre&&p.nombre.trim())?p.nombre.trim():(p.desc?p.desc.slice(0,50):'Actividad');
       // construir la nueva actividad a partir del proceso
@@ -816,7 +803,7 @@ function openModal(id){
         nuevaAct.tareas.push({txt:a.nombre,done:actEstado(a)==='Realizada',estado:actEstado(a),resp:a.resp||'',ini:a.ini||null,obj:a.obj||null});
         (a.tareas||[]).forEach(t=>nuevaAct.tareas.push({txt:'  · '+t.txt,done:t.estado==='Realizada',estado:t.estado||'Pendiente',resp:t.resp||'',ini:t.ini||null,obj:t.obj||null}));
       });
-      if(!confirm('Convertir "'+(p.nombre||'(sin nombre)')+'" en una actividad dentro de "'+target.nombre+'"?'))return;
+      if(!confirm('Convertir "'+(p.nombre||'(sin nombre)')+'" en una tarea dentro de "'+target.nombre+'"?'))return;
       target.actividades.push(nuevaAct);touch(target);
       data=data.filter(x=>x.id!==id);
       saveData();closeModal();view='cat:'+target.cat;render();
