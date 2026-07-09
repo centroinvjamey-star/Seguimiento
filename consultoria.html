@@ -220,6 +220,27 @@
     .main{padding:18px 16px 80px}
     .brand h1{font-size:21px}.frow{grid-template-columns:1fr}.proc-kids{padding-left:18px}.cat-head .cbar{display:none}.person-cols{grid-template-columns:1fr}
   }
+  /* impresión */
+  #printArea{display:none}
+  @media print{
+    body{background:#fff}
+    .layout,.scrim{display:none !important}
+    #printArea{display:block;padding:0;color:#111;font-family:"Inter",system-ui,sans-serif}
+    .pr-title{font-size:22px;font-weight:800;margin:0 0 4px;font-family:"Space Grotesk","Inter",sans-serif}
+    .pr-meta{font-size:12px;color:#555;margin-bottom:16px;border-bottom:1px solid #ccc;padding-bottom:8px}
+    .pr-act{margin:0 0 14px;break-inside:avoid;page-break-inside:avoid}
+    .pr-act-h{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid #ddd;padding-bottom:3px;margin-bottom:4px}
+    .pr-name{font-size:15px;font-weight:700}
+    .pr-badge{font-size:10px;border:1px solid #999;border-radius:10px;padding:1px 8px;color:#333}
+    .pr-line{font-size:11px;color:#555;margin-bottom:3px}
+    .pr-notes{font-size:11px;color:#444;font-style:italic;margin-bottom:4px}
+    .pr-task{font-size:12.5px;margin:3px 0 3px 6px}
+    .pr-sub{font-size:11.5px;margin:2px 0 2px 26px;color:#333}
+    .pr-mini{font-size:10px;color:#777}
+    .pr-check{font-family:monospace}
+    .pr-note{font-size:12px;color:#555;margin-bottom:10px}
+    @page{margin:1.5cm}
+  }
 </style>
 </head>
 <body>
@@ -229,6 +250,7 @@
     <nav class="tabs" id="tabs"></nav>
     <div class="side-actions">
       <button class="iobtn primary" id="syncBtn">⟳ Sincronizar</button>
+      <button class="iobtn" id="peopleBtn">👥 Personas</button>
       <button class="iobtn" id="cfgBtn">⚙ Conexión</button>
       <button class="iobtn" id="exportBtn">↓ Exportar</button>
       <button class="iobtn" id="importBtn">↑ Importar</button>
@@ -247,6 +269,7 @@
       <span class="chip" id="collapseAll">⤡ Colapsar todo</span>
       <span class="chip addbtn" id="addCat" style="background:var(--card);color:var(--accent);border-color:var(--accent)">+ Nuevo proyecto</span>
       <span class="chip addbtn" id="addProc">+ Nueva actividad</span>
+      <span class="chip" id="printBtn">🖨 Imprimir</span>
     </div>
 
     <div id="app"><div class="loading">Cargando…</div></div>
@@ -254,6 +277,7 @@
 </div>
 
 <div class="scrim" id="scrim"><div class="modal" id="modal"></div></div>
+<div id="printArea"></div>
 
 <script>
 const SEED = [{"id": "P-40476330", "cat": "Conde", "nombre": "Presentación resultados", "desc": "", "resp": "Jenny", "invol": "Camila", "ini": "2026-07-08", "obj": "2026-07-09", "prio": "Media", "notas": "", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [{"id": "A-40476330", "nombre": "Elborar el esquema", "estado": "Pendiente", "estadoManual": null, "resp": "Jenny", "invol": "Camila", "ini": "2026-07-08", "obj": "2026-07-09", "tareas": []}, {"id": "A-40476341", "nombre": "Elaborar presentación", "estado": "Pendiente", "estadoManual": null, "resp": "Jenny", "invol": "Camila", "ini": "2026-07-10", "obj": "2026-07-13", "tareas": []}, {"id": "A-40476352", "nombre": "Presentación en PIDTUCC", "estado": "Pendiente", "estadoManual": null, "resp": "Jenny", "invol": "Camila", "ini": "2026-07-14", "obj": "2026-07-14", "tareas": []}], "comments": [], "_m": 1783554047633, "sub": "Conde", "coresp": ""}, {"id": "P-40476341", "cat": "Conde", "nombre": "Ajustar informe", "desc": "", "resp": "Camila", "invol": "Jenny", "ini": "2026-07-09", "obj": "2026-07-09", "prio": "Media", "notas": "", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [{"id": "A-40476330", "nombre": "Integrar casos Perla en Base de Datos", "estado": "Pendiente", "estadoManual": null, "resp": "Camila", "invol": "Jenny", "ini": "2026-07-09", "obj": "2026-07-09", "tareas": []}, {"id": "A-40476341", "nombre": "Actualizar informe", "estado": "Pendiente", "estadoManual": null, "resp": "Camila", "invol": "Jenny", "ini": "2026-07-09", "obj": "2026-07-09", "tareas": []}], "comments": [], "_m": 1783554047633, "sub": "Conde", "coresp": ""}, {"id": "P-40476352", "cat": "Conde", "nombre": "Proceso de retroalimentación", "desc": "", "resp": "", "invol": "", "ini": null, "obj": null, "prio": "Media", "notas": "", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [{"id": "A-40476330", "nombre": "Integrar sugerencias", "estado": "Pendiente", "estadoManual": null, "resp": "", "invol": "", "ini": null, "obj": null, "tareas": []}, {"id": "A-40476341", "nombre": "Enviar invorme", "estado": "Pendiente", "estadoManual": null, "resp": "", "invol": "", "ini": null, "obj": null, "tareas": []}], "comments": [], "_m": 1783554047633, "sub": "Conde", "coresp": ""}, {"id": "P-40476363", "cat": "CIMTRA", "nombre": "Integrar observaciones al informe", "desc": "", "resp": "Jenny", "invol": "Camila", "ini": "2026-07-10", "obj": "2026-07-10", "prio": "Media", "notas": "", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [{"id": "A-40476330", "nombre": "Revisar documento", "estado": "Pendiente", "estadoManual": null, "resp": "Jenny", "invol": "Camila", "ini": "2026-07-10", "obj": "2026-07-10", "tareas": []}, {"id": "A-40476341", "nombre": "Enviar informe", "estado": "Pendiente", "estadoManual": null, "resp": "Jenny", "invol": "", "ini": "2026-07-10", "obj": "2026-07-10", "tareas": []}], "comments": [], "_m": 1783554047633, "sub": "CIMTRA", "coresp": ""}, {"id": "P-40476374", "cat": "Mapa del Acecho", "nombre": "Arreglar URL de las noticias", "desc": "", "resp": "Jenny", "invol": "Camila", "ini": null, "obj": null, "prio": "Media", "notas": "", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [{"id": "A-40476330", "nombre": "Revisar la matriz", "estado": "Pendiente", "estadoManual": null, "resp": "Jenny", "invol": "Camila", "ini": null, "obj": null, "tareas": []}, {"id": "A-40476341", "nombre": "Actualizar URL", "estado": "Pendiente", "estadoManual": null, "resp": "Jenny", "invol": "Camila", "ini": null, "obj": null, "tareas": []}], "comments": [], "_m": 1783554047633, "sub": "Mapa del Acecho", "coresp": ""}, {"id": "P-40476385", "cat": "Las Flores", "nombre": "Reunión del equipo", "desc": "", "resp": "", "invol": "", "ini": "2026-07-09", "obj": "2026-07-09", "prio": "Media", "notas": "", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783554047633, "sub": "Las Flores", "coresp": ""}, {"id": "P-40476396", "cat": "Las Flores", "nombre": "Revisión Cuanti", "desc": "", "resp": "", "invol": "", "ini": "2026-07-09", "obj": "2026-07-10", "prio": "Media", "notas": "", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783554047633, "sub": "Las Flores", "coresp": ""}, {"id": "P-40476407", "cat": "Las Flores", "nombre": "Planificación GF", "desc": "", "resp": "", "invol": "", "ini": "2026-07-09", "obj": "2026-07-09", "prio": "Media", "notas": "", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783554047633, "sub": "Las Flores", "coresp": ""}, {"id": "P-40476418", "cat": "Las Flores", "nombre": "Planificación Calendario Histórico", "desc": "", "resp": "", "invol": "", "ini": "2026-07-09", "obj": "2026-07-09", "prio": "Media", "notas": "", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783554047633, "sub": "Las Flores", "coresp": ""}, {"id": "P-40476429", "cat": "Las Flores", "nombre": "Planificación Mapeo", "desc": "", "resp": "", "invol": "", "ini": "2026-07-09", "obj": "2026-07-09", "prio": "Media", "notas": "", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783554047633, "sub": "Las Flores", "coresp": ""}, {"id": "P-404764310", "cat": "Las Flores", "nombre": "Planifición Entrevistas", "desc": "", "resp": "", "invol": "", "ini": "2026-07-09", "obj": "2026-07-09", "prio": "Media", "notas": "", "estadoManual": null, "estadoBase": "Pendiente", "actividades": [], "comments": [], "_m": 1783554047633, "sub": "Las Flores", "coresp": ""}];
@@ -263,6 +287,13 @@ let CAT_ORDER=["Conde", "CIMTRA", "Mapa del Acecho", "Las Flores", "Acaparamient
 const CATS_KEY='consultoria_cats_v1';
 const STATES=['Pendiente','En proceso','Realizada','Bloqueada'];
 let data=[], SYNC_URL='', showDone=false, searchТ='', showEmptyCats=false;
+// Personas (nombre+correo) se guardan como registros especiales en data con _kind:'person'.
+function getPeople(){return data.filter(x=>x&&x._kind==='person');}
+function procsOnly(){return data.filter(x=>!x||x._kind!=='person');}
+function addPerson(nombre,correo){data.push({_kind:'person',id:'PER-'+Date.now()+Math.floor(Math.random()*99),nombre:nombre,correo:correo||'',_m:Date.now()});saveData();}
+function removePerson(id){data=data.filter(x=>x.id!==id);saveData();}
+function updatePerson(id,nombre,correo){const p=data.find(x=>x.id===id);if(p){p.nombre=nombre;p.correo=correo;p._m=Date.now();saveData();}}
+function peopleNames(){return getPeople().map(p=>p.nombre);}
 let view='cat:Libros';
 let openCat={}, openProc={}, openAct={};
 
@@ -273,8 +304,9 @@ const STORE=(function(){
           set:async(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}return{value:v};}};
 })();
 function setSync(s){const d=document.getElementById('syncDot'),t=document.getElementById('syncTxt');if(s){d.classList.add('saving');t.textContent='Guardando…';}else{d.classList.remove('saving');t.textContent='Guardado';}}
-function normalize(){data.forEach(p=>{if(!Array.isArray(p.actividades))p.actividades=[];if(!Array.isArray(p.comments))p.comments=[];if(!('invol' in p))p.invol='';if(!('objH' in p))p.objH=null;p.actividades.forEach(a=>{if(!Array.isArray(a.tareas))a.tareas=[];if(!a.estado)a.estado='Pendiente';if(!('estadoManual' in a))a.estadoManual=null;if(!('ini' in a))a.ini=null;if(!('obj' in a))a.obj=null;if(!('resp' in a))a.resp='';if(!('invol' in a))a.invol='';if(!('objH' in a))a.objH=null;a.tareas.forEach(t=>{if(!('ini' in t))t.ini=null;if(!('obj' in t))t.obj=null;if(!('resp' in t))t.resp='';if(!('invol' in t))t.invol='';if(!('objH' in t))t.objH=null;if(!t.estado)t.estado=t.done?'Realizada':'Pendiente';t.done=t.estado==='Realizada';});});});}
-async function loadData(){try{const r=await STORE.get(STORE_KEY,true);if(r&&r.value){data=JSON.parse(r.value);normalize();return;}}catch(e){}data=SEED.map(p=>({...p}));normalize();await saveData();}
+function normalize(){procsOnly().forEach(p=>{if(!Array.isArray(p.actividades))p.actividades=[];if(!Array.isArray(p.comments))p.comments=[];if(!('invol' in p))p.invol='';if(!('objH' in p))p.objH=null;p.actividades.forEach(a=>{if(!Array.isArray(a.tareas))a.tareas=[];if(!a.estado)a.estado='Pendiente';if(!('estadoManual' in a))a.estadoManual=null;if(!('ini' in a))a.ini=null;if(!('obj' in a))a.obj=null;if(!('resp' in a))a.resp='';if(!('invol' in a))a.invol='';if(!('objH' in a))a.objH=null;a.tareas.forEach(t=>{if(!('ini' in t))t.ini=null;if(!('obj' in t))t.obj=null;if(!('resp' in t))t.resp='';if(!('invol' in t))t.invol='';if(!('objH' in t))t.objH=null;if(!t.estado)t.estado=t.done?'Realizada':'Pendiente';t.done=t.estado==='Realizada';});});});}
+async function loadData(){try{const r=await STORE.get(STORE_KEY,true);if(r&&r.value){data=JSON.parse(r.value);normalize();seedPeople();return;}}catch(e){}data=SEED.map(p=>({...p}));normalize();seedPeople();await saveData();}
+function seedPeople(){if(getPeople().length===0){data.push({_kind:'person',id:'PER-jenny',nombre:'Jenny',correo:'nathaly.torres@gmail.com',_m:Date.now()});data.push({_kind:'person',id:'PER-camila',nombre:'Camila',correo:'camilaestevez321@gmail.com',_m:Date.now()});}}
 let saveTimer=null;
 async function saveData(){setSync(true);try{await STORE.set(STORE_KEY,JSON.stringify(data),true);}catch(e){console.error(e);}setSync(false);}
 async function loadCats(){try{const r=await STORE.get(CATS_KEY,true);if(r&&r.value){const arr=JSON.parse(r.value);if(Array.isArray(arr)&&arr.length)CAT_ORDER=arr;}}catch(e){}}
@@ -342,7 +374,7 @@ function procVisible(p){
 }
 
 /* ---- render ---- */
-function allCatsPresent(){const s=new Set(data.map(p=>p.cat));const inData=[...s];return CAT_ORDER.concat(inData.filter(c=>!CAT_ORDER.includes(c)));}
+function allCatsPresent(){const s=new Set(procsOnly().map(p=>p.cat));const inData=[...s];return CAT_ORDER.concat(inData.filter(c=>!CAT_ORDER.includes(c)));}
 function catHasProcs(c){return data.some(p=>p.cat===c);}
 function catsInUse(){return allCatsPresent().filter(c=>showEmptyCats||catHasProcs(c));}
 function emptyCatsCount(){return allCatsPresent().filter(c=>!catHasProcs(c)).length;}
@@ -359,13 +391,13 @@ function buildTabs(){
 
 function renderMetrics(){
   const el=document.getElementById('metrics');if(!el)return;
-  const total=data.length;
-  const hechos=data.filter(p=>procEstado(p)==='Realizada').length;
-  const enProc=data.filter(p=>procEstado(p)==='En proceso').length;
-  const bloq=data.filter(p=>procEstado(p)==='Bloqueada').length;
+  const total=procsOnly().length;
+  const hechos=procsOnly().filter(p=>procEstado(p)==='Realizada').length;
+  const enProc=procsOnly().filter(p=>procEstado(p)==='En proceso').length;
+  const bloq=procsOnly().filter(p=>procEstado(p)==='Bloqueada').length;
   // vencen en 7 días (procesos, actividades y tareas con fecha objetivo, no realizados)
   let venc=0;const hoy=today();
-  data.forEach(p=>{
+  procsOnly().forEach(p=>{
     const check=(obj,estOk)=>{if(!obj||estOk)return;const n=daysTo(obj);if(n!==null&&n>=0&&n<=7)venc++;};
     check(p.obj,procEstado(p)==='Realizada');
     p.actividades.forEach(a=>{check(a.obj,actEstado(a)==='Realizada');a.tareas.forEach(t=>check(t.obj,taskEstado(t)==='Realizada'));});
@@ -378,6 +410,68 @@ function renderMetrics(){
     {n:hechos+'/'+total,l:'Actividades hechas'}
   ];
   el.innerHTML=cards.map(c=>`<div class="metric ${c.c||''}"><div class="mnum">${c.n}</div><div class="mlbl">${c.l}</div></div>`).join('');
+}
+
+function printProject(){
+  // arma un documento limpio del proyecto/vista actual y lo imprime
+  const cont=document.getElementById('printArea');
+  let title='Consultorías Jamey';
+  let html='';
+  const fmtEst=e=>e;
+  if(view.startsWith('cat:')){
+    const cat=view.slice(4);title='Proyecto: '+cat;
+    const procs=procsOnly().filter(p=>p.cat===cat);
+    const done=procs.filter(p=>procEstado(p)==='Realizada').length;
+    html+=`<div class="pr-meta">${procs.length} actividades · ${done} realizadas · Generado ${new Date().toLocaleDateString('es-DO')}</div>`;
+    procs.forEach(p=>{
+      const est=procEstado(p);
+      html+=`<div class="pr-act"><div class="pr-act-h"><span class="pr-name">${esc(p.nombre||'(sin nombre)')}</span><span class="pr-badge">${est}</span></div>`;
+      const meta=[];if(p.resp)meta.push('Resp: '+esc(p.resp));if(p.invol)meta.push('Involucrados: '+esc(p.invol));if(p.obj)meta.push('Objetivo: '+fmtD(p.obj)+(p.objH?' '+p.objH:''));
+      if(meta.length)html+=`<div class="pr-line">${meta.join(' · ')}</div>`;
+      if(p.notas)html+=`<div class="pr-notes">${esc(p.notas)}</div>`;
+      p.actividades.forEach(a=>{
+        const ae=actEstado(a);
+        html+=`<div class="pr-task"><span class="pr-check">${ae==='Realizada'?'☑':'☐'}</span> <b>${esc(a.nombre)}</b> <span class="pr-mini">[${ae}]</span>`;
+        const am=[];if(a.resp)am.push(esc(a.resp));if(a.obj)am.push(fmtD(a.obj)+(a.objH?' '+a.objH:''));
+        if(am.length)html+=` <span class="pr-mini">— ${am.join(' · ')}</span>`;
+        html+=`</div>`;
+        a.tareas.forEach(t=>{
+          const te=taskEstado(t);
+          html+=`<div class="pr-sub"><span class="pr-check">${te==='Realizada'?'☑':'☐'}</span> ${esc(t.txt)} <span class="pr-mini">[${te}]${t.resp?' · '+esc(t.resp):''}${t.obj?' · '+fmtD(t.obj)+(t.objH?' '+t.objH:''):''}</span></div>`;
+        });
+      });
+      html+=`</div>`;
+    });
+  } else if(view==='person'){
+    title='Consultorías Jamey — Por persona';
+    const vis=procsOnly().filter(p=>procVisible(p));
+    const names=peopleNames();
+    const buckets={};names.forEach(n=>buckets[n]=[]);buckets['Otros']=[];
+    const matchName=(txt,n)=>((txt||'').toLowerCase().includes(n.toLowerCase()));
+    vis.forEach(p=>{
+      let asignada=false;
+      names.forEach(n=>{if(matchName(p.resp,n)||matchName(p.invol,n)){buckets[n].push(p);asignada=true;}});
+      if(!asignada)buckets['Otros'].push(p);
+    });
+    html+=`<div class="pr-meta">Generado ${new Date().toLocaleDateString('es-DO')}</div>`;
+    Object.keys(buckets).forEach(n=>{
+      const list=buckets[n];if(!list.length)return;
+      const done=list.filter(p=>procEstado(p)==='Realizada').length;
+      html+=`<div class="pr-act"><div class="pr-act-h"><span class="pr-name">${esc(n)}</span><span class="pr-badge">${list.length} act · ${done} hechas</span></div>`;
+      const sorted=[...list].sort((a,b)=>{const da=parseD(a.obj),db=parseD(b.obj);if(!da)return 1;if(!db)return -1;return da-db;});
+      sorted.forEach(p=>{
+        const est=procEstado(p);
+        html+=`<div class="pr-task"><span class="pr-check">${est==='Realizada'?'☑':'☐'}</span> ${esc(p.nombre)} <span class="pr-mini">[${est}]${p.obj?' · '+fmtD(p.obj)+(p.objH?' '+p.objH:''):''} · ${esc(p.cat)}</span></div>`;
+      });
+      html+=`</div>`;
+    });
+  } else {
+    // para otras vistas, imprime lo que hay en pantalla
+    title='Consultorías Jamey';
+    html='<div class="pr-note">Abre un proyecto para imprimir su detalle. Esta vista se imprime tal cual aparece.</div>'+document.getElementById('app').innerHTML;
+  }
+  cont.innerHTML=`<h1 class="pr-title">${esc(title)}</h1>`+html;
+  window.print();
 }
 
 function render(){
@@ -396,8 +490,8 @@ function render(){
 
 function renderCategory(cat){
   const app=document.getElementById('app');
-  const procs=data.filter(p=>p.cat===cat&&procVisible(p));
-  const allInCat=data.filter(p=>p.cat===cat);
+  const procs=procsOnly().filter(p=>p.cat===cat&&procVisible(p));
+  const allInCat=procsOnly().filter(p=>p.cat===cat);
   const totalInCat=allInCat.length;
   const done=allInCat.filter(p=>procEstado(p)==='Realizada').length;
   const pct=totalInCat?Math.round(done/totalInCat*100):0;
@@ -481,16 +575,16 @@ function renderEstado(){
   const inSearch=p=>procMatchesSearch(p);
   let items=[]; // {id, estado, set:(st)=>{}, ...}
   if(estadoNivel==='proceso'){
-    data.filter(inSearch).forEach(p=>items.push({key:'P|'+p.id,estado:procEstado(p),p,manual:!!p.estadoManual,
+    procsOnly().filter(inSearch).forEach(p=>items.push({key:'P|'+p.id,estado:procEstado(p),p,manual:!!p.estadoManual,
       set:st=>{p.estadoManual=st;touch(p);},clearAuto:()=>{p.estadoManual=null;touch(p);},
       title:p.nombre,crumb:esc(p.cat),node:()=>procRow(p)}));
   } else if(estadoNivel==='actividad'){
-    data.filter(inSearch).forEach(p=>p.actividades.forEach(a=>items.push({key:'A|'+a.id,estado:actEstado(a),p,a,manual:!!a.estadoManual,
+    procsOnly().filter(inSearch).forEach(p=>p.actividades.forEach(a=>items.push({key:'A|'+a.id,estado:actEstado(a),p,a,manual:!!a.estadoManual,
       set:st=>{if(a.tareas&&a.tareas.length){a.estadoManual=st;}else{a.estado=st;}touch(p);},
       clearAuto:()=>{a.estadoManual=null;touch(p);},
       title:a.nombre,crumb:esc(p.nombre),node:null})));
   } else {
-    data.filter(inSearch).forEach(p=>p.actividades.forEach(a=>a.tareas.forEach((t,ti)=>items.push({key:'T|'+p.id+'|'+a.id+'|'+ti,estado:taskEstado(t),p,a,t,
+    procsOnly().filter(inSearch).forEach(p=>p.actividades.forEach(a=>a.tareas.forEach((t,ti)=>items.push({key:'T|'+p.id+'|'+a.id+'|'+ti,estado:taskEstado(t),p,a,t,
       set:st=>{t.estado=st;t.done=st==='Realizada';touch(p);},
       title:t.txt,crumb:esc(p.nombre)+' › '+esc(a.nombre),node:null}))));
   }
@@ -539,7 +633,7 @@ function renderEstado(){
 
 function renderPerson(){
   const app=document.getElementById('app');
-  const vis=data.filter(p=>procVisible(p));
+  const vis=procsOnly().filter(p=>procVisible(p));
   const cols={'Jenny':[],'Camila':[],'Otros':[]};
   vis.forEach(p=>{const b=[];const rc=personClass(p.resp);if(rc==='p-jenny')b.push('Jenny');else if(rc==='p-camila')b.push('Camila');const extra=p.invol||p.coresp;if(extra){const cc=personClass(extra);if(cc==='p-jenny'&&!b.includes('Jenny'))b.push('Jenny');if(cc==='p-camila'&&!b.includes('Camila'))b.push('Camila');}if(!b.length)b.push('Otros');b.forEach(x=>cols[x]?cols[x].push(p):cols['Otros'].push(p));});
   const order=[['Jenny','p-jenny'],['Camila','p-camila'],['Otros','p-otro']];
@@ -550,7 +644,7 @@ function renderPerson(){
 
 function renderGantt(){
   const app=document.getElementById('app');
-  const vis=data.filter(p=>procVisible(p)&&(parseD(p.ini)||parseD(p.obj)));
+  const vis=procsOnly().filter(p=>procVisible(p)&&(parseD(p.ini)||parseD(p.obj)));
   let min=null,max=null;
   vis.forEach(p=>{const a=parseD(p.ini)||parseD(p.obj),b=parseD(p.obj)||parseD(p.ini);if(a&&(!min||a<min))min=a;if(b&&(!max||b>max))max=b;p.actividades.forEach(act=>{const aa=parseD(act.ini),ab=parseD(act.obj);if(aa&&(!min||aa<min))min=aa;if(ab&&(!max||ab>max))max=ab;if(ab&&(!min||ab<min))min=ab;});});
   if(!min){app.innerHTML='<div class="empty" style="padding:40px">No hay procesos con fechas para mostrar.</div>';return;}
@@ -640,16 +734,27 @@ function actRow(p,a,ai){
   const main=document.createElement('div');main.className='act-main'+(isOpen?' open':'');
   const adue=dueMini(a,est);
   const aresp=a.resp?`<span class="tag-person ${personClass(a.resp)}">${esc(a.resp)}</span>`:'';
-  main.innerHTML=`<span class="caret">▸</span><span class="act-title">${esc(a.nombre)}</span>
-    <span class="proc-meta">${aresp}${adue}${a.tareas.length?`<span class="ccount" style="font-family:ui-monospace;font-size:10px;color:var(--muted)">☑ ${done}/${a.tareas.length}</span>`:''}<span class="badge ${stCls(est)}">${est}</span></span>`;
-  main.addEventListener('click',e=>{openAct[a.id]=!isOpen;render();});
+  main.innerHTML=`<span class="caret">▸</span><span class="act-title" title="Doble clic para editar">${esc(a.nombre)}</span>
+    <span class="proc-meta">${aresp}${adue}${a.tareas.length?`<span class="ccount" style="font-family:ui-monospace;font-size:10px;color:var(--muted)">☑ ${done}/${a.tareas.length}</span>`:''}<button class="aedit xdel" title="editar nombre">✎</button><span class="badge ${stCls(est)}">${est}</span></span>`;
+  main.addEventListener('click',e=>{if(e.target.closest('.aedit'))return;openAct[a.id]=!isOpen;render();});
+  const editActName=()=>{
+    const span=main.querySelector('.act-title');
+    const inp=document.createElement('input');inp.value=a.nombre;inp.style.cssText='font-family:inherit;font-size:14px;font-weight:600;padding:2px 6px;border:1px solid var(--accent);border-radius:6px;background:var(--paper);flex:1;min-width:140px';
+    span.replaceWith(inp);inp.focus();inp.select();
+    const commit=()=>{const v=inp.value.trim();if(v){a.nombre=v;touch(p);queueSave();}render();};
+    inp.addEventListener('click',e=>e.stopPropagation());
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();commit();}else if(e.key==='Escape'){render();}});
+    inp.addEventListener('blur',commit);
+  };
+  main.querySelector('.aedit').addEventListener('click',ev=>{ev.stopPropagation();editActName();});
+  main.querySelector('.act-title').addEventListener('dblclick',ev=>{ev.stopPropagation();editActName();});
   wrap.appendChild(main);
   const kids=document.createElement('div');kids.className='act-kids'+(isOpen?' show':'');
   // responsable + fechas de la actividad
   const drow=document.createElement('div');drow.style.cssText='display:flex;gap:10px;align-items:center;margin:4px 0 8px;flex-wrap:wrap';
   drow.innerHTML=`<span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Responsable</span>${respInput(a.resp)}<span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Involucrados</span><input class="involfield" value="${esc(a.invol||'')}" placeholder="Involucrados" style="font-family:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper);width:130px"><span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Inicio</span><input type="date" value="${a.ini||''}" data-af="ini" style="font-family:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper)"><span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Objetivo</span><input type="date" value="${a.obj||''}" data-af="obj" style="font-family:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper)"><input type="time" value="${a.objH||''}" data-af="objH" title="Hora (opcional)" style="font-family:inherit;font-size:12px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper)">`;
   drow.querySelectorAll('input[data-af]').forEach(inp=>{inp.addEventListener('click',e=>e.stopPropagation());inp.addEventListener('change',e=>{a[inp.dataset.af]=e.target.value||null;touch(p);queueSave();render();});});
-  const arf=drow.querySelector('.respfield');arf.addEventListener('click',e=>e.stopPropagation());arf.addEventListener('change',e=>{a.resp=e.target.value.trim()||'';touch(p);queueSave();render();});
+  wireResp(drow.querySelector('.respwrap'),v=>{a.resp=v||'';touch(p);queueSave();render();});
   const aif=drow.querySelector('.involfield');aif.addEventListener('click',e=>e.stopPropagation());aif.addEventListener('change',e=>{a.invol=e.target.value.trim()||'';touch(p);queueSave();render();});
   kids.appendChild(drow);
   // tareas
@@ -659,14 +764,26 @@ function actRow(p,a,ai){
     const tdue=t.obj?`<span class="due ${dueCls(t.obj,test==='Realizada')}" style="margin-left:6px">${test==='Realizada'?'hecho':fmtD(t.obj)}</span>`:'';
     const tresp=t.resp?`<span class="tag-person ${personClass(t.resp)}" style="margin-left:6px">${esc(t.resp)}</span>`:'';
     const tbadge=(test!=='Pendiente'&&test!=='Realizada')?`<span class="badge ${stCls(test)}" style="margin-left:6px">${test}</span>`:'';
-    it.innerHTML=`<input type="checkbox" ${test==='Realizada'?'checked':''}><span class="tt">${esc(t.txt)}</span>${tresp}${tbadge}${tdue}<button class="tdate xdel" title="responsable y fechas">📅</button><button class="xdel">✕</button>`;
+    it.innerHTML=`<input type="checkbox" ${test==='Realizada'?'checked':''}><span class="tt" title="Doble clic para editar">${esc(t.txt)}</span>${tresp}${tbadge}${tdue}<button class="tedit xdel" title="editar nombre">✎</button><button class="tdate xdel" title="responsable y fechas">📅</button><button class="xdel">✕</button>`;
     it.querySelector('input[type=checkbox]').addEventListener('click',ev=>{ev.stopPropagation();t.estado=ev.target.checked?'Realizada':'Pendiente';t.done=ev.target.checked;touch(p);queueSave();render();});
     it.querySelector('.xdel:last-child').addEventListener('click',ev=>{ev.stopPropagation();a.tareas.splice(ti,1);touch(p);queueSave();render();});
+    // editar nombre de la tarea
+    const editName=()=>{
+      const span=it.querySelector('.tt');
+      const inp=document.createElement('input');inp.value=t.txt;inp.style.cssText='font-family:inherit;font-size:13px;padding:2px 6px;border:1px solid var(--accent);border-radius:6px;background:var(--paper);flex:1;min-width:120px';
+      span.replaceWith(inp);inp.focus();inp.select();
+      const commit=()=>{const v=inp.value.trim();if(v){t.txt=v;touch(p);queueSave();}render();};
+      inp.addEventListener('click',e=>e.stopPropagation());
+      inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();commit();}else if(e.key==='Escape'){render();}});
+      inp.addEventListener('blur',commit);
+    };
+    it.querySelector('.tedit').addEventListener('click',ev=>{ev.stopPropagation();editName();});
+    it.querySelector('.tt').addEventListener('dblclick',ev=>{ev.stopPropagation();editName();});
     // toggle editor for task (responsable + fechas)
     const dedit=document.createElement('div');dedit.style.cssText='display:none;gap:8px;align-items:center;padding:2px 0 6px 23px;flex-wrap:wrap';
     dedit.innerHTML=`<span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Resp.</span>${respInput(t.resp,true)}<span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Involucr.</span><input class="involfield" value="${esc(t.invol||'')}" placeholder="Involucrados" style="font-family:inherit;font-size:11px;padding:2px 5px;border:1px solid var(--line);border-radius:6px;background:var(--paper);width:110px"><span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Inicio</span><input type="date" value="${t.ini||''}" data-tf="ini" style="font-family:inherit;font-size:11px;padding:2px 5px;border:1px solid var(--line);border-radius:6px;background:var(--paper)"><span style="font-size:10px;color:var(--muted);font-family:ui-monospace">Objetivo</span><input type="date" value="${t.obj||''}" data-tf="obj" style="font-family:inherit;font-size:11px;padding:2px 5px;border:1px solid var(--line);border-radius:6px;background:var(--paper)"><input type="time" value="${t.objH||''}" data-tf="objH" title="Hora (opcional)" style="font-family:inherit;font-size:11px;padding:2px 5px;border:1px solid var(--line);border-radius:6px;background:var(--paper)">`;
     dedit.querySelectorAll('input[data-tf]').forEach(inp=>{inp.addEventListener('click',e=>e.stopPropagation());inp.addEventListener('change',e=>{t[inp.dataset.tf]=e.target.value||null;touch(p);queueSave();render();});});
-    const trf=dedit.querySelector('.respfield');trf.addEventListener('click',e=>e.stopPropagation());trf.addEventListener('change',e=>{t.resp=e.target.value.trim()||'';touch(p);queueSave();render();});
+    wireResp(dedit.querySelector('.respwrap'),v=>{t.resp=v||'';touch(p);queueSave();render();});
     const tif=dedit.querySelector('.involfield');tif.addEventListener('click',e=>e.stopPropagation());tif.addEventListener('change',e=>{t.invol=e.target.value.trim()||'';touch(p);queueSave();render();});
     it.querySelector('.tdate').addEventListener('click',ev=>{ev.stopPropagation();dedit.style.display=dedit.style.display==='none'?'flex':'none';});
     kids.appendChild(it);kids.appendChild(dedit);
@@ -705,11 +822,31 @@ function actRow(p,a,ai){
 function dueCls(obj,done){if(done)return 'ok';const n=daysTo(obj);if(n===null)return 'ok';if(n<0)return 'over';if(n<=14)return 'soon';return 'ok';}
 function dueMini(a,est){if(!a.obj)return '';const done=est==='Realizada';const n=daysTo(a.obj);let l=fmtD(a.obj);if(done)l='hecho';else if(n!==null){if(n<0)l='venció';else if(n===0)l='hoy';else if(n<=14)l='en '+n+'d';}return `<span class="due ${dueCls(a.obj,done)}">${l}</span>`;}
 let respDLid=0;
-// input de responsable: menú con sugerencias (Jenny/Camila) pero permite escribir otro
+// selector de responsable: menú desplegable con las personas registradas + opción de escribir otro
 function respInput(current,small){
-  const id='rl'+(respDLid++);
   const fs=small?'11px':'12px';const pd=small?'2px 5px':'3px 6px';
-  return `<input list="${id}" value="${esc(current||'')}" placeholder="Responsable" class="respfield" style="font-family:inherit;font-size:${fs};padding:${pd};border:1px solid var(--line);border-radius:6px;background:var(--paper);width:120px"><datalist id="${id}"><option value="Jenny"><option value="Camila"><option value="Otros"></datalist>`;
+  const names=peopleNames();
+  const cur=current||'';
+  const isKnown=names.includes(cur)||cur==='';
+  const opts=['<option value="">— responsable —</option>']
+    .concat(names.map(n=>`<option value="${esc(n)}" ${n===cur?'selected':''}>${esc(n)}</option>`))
+    .concat([`<option value="__otro__" ${!isKnown?'selected':''}>✎ Escribir otro…</option>`]);
+  const selStyle=`font-family:inherit;font-size:${fs};padding:${pd};border:1px solid var(--line);border-radius:6px;background:var(--paper);max-width:140px`;
+  const txtStyle=`font-family:inherit;font-size:${fs};padding:${pd};border:1px solid var(--line);border-radius:6px;background:var(--paper);width:110px;${isKnown?'display:none':''}`;
+  return `<span class="respwrap" style="display:inline-flex;gap:4px;align-items:center"><select class="respsel" style="${selStyle}">${opts.join('')}</select><input class="respfield" value="${esc(!isKnown?cur:'')}" placeholder="nombre" style="${txtStyle}"></span>`;
+}
+// conecta el select con el input de texto y llama a onSet(valor)
+function wireResp(wrap,onSet){
+  if(!wrap)return;
+  const sel=wrap.querySelector('.respsel');const txt=wrap.querySelector('.respfield');
+  if(!sel)return;
+  sel.addEventListener('click',e=>e.stopPropagation());
+  txt.addEventListener('click',e=>e.stopPropagation());
+  sel.addEventListener('change',e=>{
+    if(sel.value==='__otro__'){txt.style.display='';txt.focus();}
+    else{txt.style.display='none';onSet(sel.value);}
+  });
+  txt.addEventListener('change',e=>{onSet(txt.value.trim());});
 }
 
 /* ---- modal: edit proceso ---- */
@@ -730,11 +867,11 @@ function renameCategory(cat){
   const idx=CAT_ORDER.indexOf(cat);
   if(idx>=0){if(CAT_ORDER.includes(n)){CAT_ORDER.splice(idx,1);}else{CAT_ORDER[idx]=n;}}
   // renombrar en todos los procesos
-  data.forEach(p=>{if(p.cat===cat){p.cat=n;touch(p);}});
+  procsOnly().forEach(p=>{if(p.cat===cat){p.cat=n;touch(p);}});
   saveCats();saveData();view='cat:'+n;render();
 }
 function deleteCategory(cat){
-  const procs=data.filter(p=>p.cat===cat);
+  const procs=procsOnly().filter(p=>p.cat===cat);
   const otras=allCatsPresent().filter(c=>c!==cat).concat(CAT_ORDER.filter(c=>!allCatsPresent().includes(c)));
   const uniqOtras=[...new Set(otras)];
   const m=document.getElementById('modal');
@@ -760,6 +897,35 @@ function deleteCategory(cat){
   };
 }
 
+function openPeople(){
+  const m=document.getElementById('modal');
+  const people=getPeople();
+  const rows=people.map(p=>`<div class="perrow" data-id="${p.id}" style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+    <input class="pn" value="${esc(p.nombre)}" placeholder="Nombre" style="flex:1;font-family:inherit;font-size:13px;padding:6px 9px;border:1px solid var(--line);border-radius:7px;background:var(--paper)">
+    <input class="pc" value="${esc(p.correo||'')}" placeholder="correo@ejemplo.com" style="flex:1.4;font-family:inherit;font-size:13px;padding:6px 9px;border:1px solid var(--line);border-radius:7px;background:var(--paper)">
+    <button class="btn danger perdel" style="padding:6px 10px">✕</button></div>`).join('');
+  m.innerHTML=`<h2>Personas</h2><div class="mid">Nombres y correos para responsables y avisos</div>
+    <p style="font-size:13px;color:var(--muted);line-height:1.5;margin:12px 0">Las personas que agregues aquí aparecen en el menú de responsable. El correo se usa para enviarles los avisos del calendario. Los cambios se guardan y se comparten al sincronizar.</p>
+    <div id="perList">${rows||'<div class="empty">Aún no hay personas. Agrega la primera abajo.</div>'}</div>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)">
+      <input id="npNombre" placeholder="Nombre" style="flex:1;font-family:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:var(--paper)">
+      <input id="npCorreo" placeholder="correo@ejemplo.com" style="flex:1.4;font-family:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:var(--paper)">
+      <button class="btn primary" id="npAdd" style="padding:7px 14px">Agregar</button>
+    </div>
+    <div class="mactions" style="margin-top:16px"><div></div><div><button class="btn" id="perClose">Cerrar</button></div></div>`;
+  document.getElementById('scrim').classList.add('open');
+  document.getElementById('perClose').onclick=closeModal;
+  m.querySelectorAll('.perrow').forEach(row=>{
+    const id=row.dataset.id;const nn=row.querySelector('.pn');const cc=row.querySelector('.pc');
+    const save=()=>updatePerson(id,nn.value.trim(),cc.value.trim());
+    nn.addEventListener('change',save);cc.addEventListener('change',save);
+    row.querySelector('.perdel').onclick=()=>{if(confirm('¿Quitar a '+nn.value+'?')){removePerson(id);openPeople();}};
+  });
+  const add=()=>{const n=document.getElementById('npNombre').value.trim();const c=document.getElementById('npCorreo').value.trim();if(!n){alert('Escribe al menos el nombre.');return;}addPerson(n,c);openPeople();};
+  document.getElementById('npAdd').onclick=add;
+  document.getElementById('npCorreo').addEventListener('keydown',e=>{if(e.key==='Enter')add();});
+}
+
 function openModal(id){
   const isNew=!id;
   const p=id?data.find(x=>x.id===id):{id:'',cat:(CAT_ORDER[0]||'Conde'),sub:'',nombre:'',desc:'',resp:'Jenny',coresp:'',invol:'',ini:null,obj:null,prio:'Media',notas:'',estadoManual:null,estadoBase:'Pendiente',actividades:[],comments:[]};
@@ -767,11 +933,11 @@ function openModal(id){
   const m=document.getElementById('modal');
   const cmtHTML=(p.comments||[]).map((c,i)=>`<div class="cmt"><div class="ch"><b>${esc(c.autor)}</b><span>${esc(c.fecha)} <button class="xdel" data-cmtdel="${i}">✕</button></span></div><div class="cbody">${esc(c.texto)}</div></div>`).join('');
   m.innerHTML=`<h2>${isNew?'Nueva actividad':(esc(p.nombre)||'(actividad sin nombre)')}</h2><div class="mid">${isNew?'Se añadirá al tablero':p.id+' · '+p.cat}</div>
-    ${isNew?'':`<div style="background:var(--accent-soft);border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:16px"><div style="font-size:12.5px;font-weight:600;margin-bottom:4px">¿Es en realidad una etapa de otra actividad?</div><div style="font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.45">Conviértela en tarea de otra actividad. Su contenido interno se conserva.</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><select id="convTarget" style="font-family:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:var(--card);flex:1;min-width:170px"><option value="">— elegir actividad destino —</option>${data.filter(x=>x.id!==id).map(x=>`<option value="${x.id}">${esc(x.nombre||'(sin nombre)')} · ${esc(x.cat)}</option>`).join('')}</select><button class="btn" id="convBtn">Convertir</button></div></div>`}
+    ${isNew?'':`<div style="background:var(--accent-soft);border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:16px"><div style="font-size:12.5px;font-weight:600;margin-bottom:4px">¿Es en realidad una etapa de otra actividad?</div><div style="font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.45">Conviértela en tarea de otra actividad. Su contenido interno se conserva.</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><select id="convTarget" style="font-family:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:var(--card);flex:1;min-width:170px"><option value="">— elegir actividad destino —</option>${procsOnly().filter(x=>x.id!==id).map(x=>`<option value="${x.id}">${esc(x.nombre||'(sin nombre)')} · ${esc(x.cat)}</option>`).join('')}</select><button class="btn" id="convBtn">Convertir</button></div></div>`}
     <div class="field"><label>Nombre de la actividad</label><input id="f_nombre" value="${esc(p.nombre)}"></div>
     <div class="field"><label>Descripción</label><textarea id="f_desc">${esc(p.desc)}</textarea></div>
     <div class="frow"><div class="field"><label>Proyecto</label><select id="f_cat">${allCats.map(c=>`<option ${c===p.cat?'selected':''}>${c}</option>`).join('')}</select></div><div class="field"><label>Prioridad</label><select id="f_prio">${['Alta','Media','Baja'].map(x=>`<option ${x===p.prio?'selected':''}>${x}</option>`).join('')}</select></div></div>
-    <div class="frow"><div class="field"><label>Responsable</label><input id="f_resp" value="${esc(p.resp)}"></div><div class="field"><label>Involucrados</label><input id="f_invol" value="${esc(p.invol||'')}"></div></div>
+    <div class="frow"><div class="field"><label>Responsable</label><input id="f_resp" list="f_resp_dl" value="${esc(p.resp)}"><datalist id="f_resp_dl">${peopleNames().map(n=>`<option value="${esc(n)}">`).join('')}</datalist></div><div class="field"><label>Involucrados</label><input id="f_invol" value="${esc(p.invol||'')}"></div></div>
     <div class="frow"><div class="field"><label>Fecha inicio</label><input type="date" id="f_ini" value="${p.ini||''}"></div><div class="field"><label>Fecha objetivo</label><div style="display:flex;gap:6px"><input type="date" id="f_obj" value="${p.obj||''}" style="flex:1"><input type="time" id="f_objH" value="${p.objH||''}" title="Hora (opcional)" style="width:110px"></div></div></div>
     <div class="field"><label>Estado (vacío = automático desde tareas)</label><select id="f_estman"><option value="">Automático</option>${STATES.map(s=>`<option ${p.estadoManual===s?'selected':''}>${s}</option>`).join('')}</select></div>
     <div class="field"><label>Notas</label><textarea id="f_notas">${esc(p.notas)}</textarea></div>
@@ -850,12 +1016,14 @@ document.getElementById('fileInput').addEventListener('change',e=>{const f=e.tar
 /* ---- controls ---- */
 document.getElementById('showDone').addEventListener('click',function(){showDone=!showDone;this.classList.toggle('on',showDone);this.textContent=showDone?'👁 Ocultar lo realizado':'👁 Mostrar lo realizado';render();});
 document.getElementById('search').addEventListener('input',e=>{searchТ=e.target.value.toLowerCase().trim();render();});
-document.getElementById('expandAll').addEventListener('click',()=>{data.forEach(p=>{openProc[p.id]=true;p.actividades.forEach(a=>openAct[a.id]=true);});catsInUse().forEach(c=>openCat[c]=true);render();});
+document.getElementById('expandAll').addEventListener('click',()=>{procsOnly().forEach(p=>{openProc[p.id]=true;p.actividades.forEach(a=>openAct[a.id]=true);});catsInUse().forEach(c=>openCat[c]=true);render();});
 document.getElementById('collapseAll').addEventListener('click',()=>{openProc={};openAct={};render();});
 document.getElementById('addProc').addEventListener('click',()=>openModal(null));
 document.getElementById('addCat').addEventListener('click',addCategory);
 document.getElementById('syncBtn').addEventListener('click',doSync);
 document.getElementById('cfgBtn').addEventListener('click',openConfig);
+document.getElementById('peopleBtn').addEventListener('click',openPeople);
+document.getElementById('printBtn').addEventListener('click',printProject);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
 (async function(){await loadSyncUrl();await loadCats();await loadData();ensureStamps();render();if(SYNC_URL){doSync();}else{syncStatus('Sin conexión — pulsa ⚙ Conexión','ok');}})();
