@@ -121,6 +121,7 @@
   .prow{padding:9px 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:4px;cursor:pointer}
   .prow:hover{background:var(--paper)}
   .prow .pt{font-size:13px;font-weight:600;line-height:1.25}
+  .prow .ptipo{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#fff;background:var(--accent2);border-radius:5px;padding:1px 5px;margin-right:4px;vertical-align:middle}
   .prow .pm{display:flex;gap:8px;align-items:center;font-size:10.5px;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
   .stbadge{width:8px;height:8px;border-radius:2px;display:inline-block}
   .stbadge.st-Pendiente{background:var(--pend)} .stbadge.st-Enproceso{background:var(--proc)} .stbadge.st-Realizada{background:var(--real)} .stbadge.st-Bloqueada{background:var(--bloq)}
@@ -446,23 +447,24 @@ function printProject(){
     title='Consultorías Jamey — Por persona';
     const vis=procsOnly().filter(p=>procVisible(p));
     const names=peopleNames();
-    const buckets={};names.forEach(n=>buckets[n]=[]);buckets['Otros']=[];
-    const matchName=(txt,n)=>((txt||'').toLowerCase().includes(n.toLowerCase()));
+    const has=(txt,n)=>((txt||'').toLowerCase().includes(n.toLowerCase()));
+    const items=[];
     vis.forEach(p=>{
-      let asignada=false;
-      names.forEach(n=>{if(matchName(p.resp,n)||matchName(p.invol,n)){buckets[n].push(p);asignada=true;}});
-      if(!asignada)buckets['Otros'].push(p);
+      items.push({tipo:'Actividad',nombre:p.nombre,ruta:p.cat,est:procEstado(p),obj:p.obj,objH:p.objH,resp:p.resp,invol:p.invol});
+      p.actividades.forEach(a=>{
+        items.push({tipo:'Tarea',nombre:a.nombre,ruta:p.nombre,est:actEstado(a),obj:a.obj,objH:a.objH,resp:a.resp,invol:a.invol});
+        a.tareas.forEach(t=>{items.push({tipo:'Paso',nombre:t.txt,ruta:p.nombre+' › '+a.nombre,est:taskEstado(t),obj:t.obj,objH:t.objH,resp:t.resp,invol:t.invol});});
+      });
     });
+    const buckets={};names.forEach(n=>buckets[n]=[]);buckets['Sin asignar']=[];
+    items.forEach(it=>{let asg=false;names.forEach(n=>{if(has(it.resp,n)||has(it.invol,n)){buckets[n].push(it);asg=true;}});if(!asg)buckets['Sin asignar'].push(it);});
     html+=`<div class="pr-meta">Generado ${new Date().toLocaleDateString('es-DO')}</div>`;
     Object.keys(buckets).forEach(n=>{
       const list=buckets[n];if(!list.length)return;
-      const done=list.filter(p=>procEstado(p)==='Realizada').length;
-      html+=`<div class="pr-act"><div class="pr-act-h"><span class="pr-name">${esc(n)}</span><span class="pr-badge">${list.length} act · ${done} hechas</span></div>`;
+      const nA=list.filter(x=>x.tipo==='Actividad').length,nT=list.filter(x=>x.tipo==='Tarea').length,nP=list.filter(x=>x.tipo==='Paso').length;
+      html+=`<div class="pr-act"><div class="pr-act-h"><span class="pr-name">${esc(n)}</span><span class="pr-badge">${nA} act · ${nT} tareas · ${nP} pasos</span></div>`;
       const sorted=[...list].sort((a,b)=>{const da=parseD(a.obj),db=parseD(b.obj);if(!da)return 1;if(!db)return -1;return da-db;});
-      sorted.forEach(p=>{
-        const est=procEstado(p);
-        html+=`<div class="pr-task"><span class="pr-check">${est==='Realizada'?'☑':'☐'}</span> ${esc(p.nombre)} <span class="pr-mini">[${est}]${p.obj?' · '+fmtD(p.obj)+(p.objH?' '+p.objH:''):''} · ${esc(p.cat)}</span></div>`;
-      });
+      sorted.forEach(it=>{html+=`<div class="pr-task"><span class="pr-check">${it.est==='Realizada'?'☑':'☐'}</span> <span class="pr-mini">[${it.tipo}]</span> ${esc(it.nombre)} <span class="pr-mini">— ${it.est}${it.obj?' · '+fmtD(it.obj)+(it.objH?' '+it.objH:''):''} · ${esc(it.ruta)}</span></div>`;});
       html+=`</div>`;
     });
   } else {
@@ -635,13 +637,24 @@ function renderPerson(){
   const app=document.getElementById('app');
   const vis=procsOnly().filter(p=>procVisible(p));
   const names=peopleNames();
-  // buckets: una por persona registrada + "Sin asignar"
-  const buckets={};names.forEach(n=>buckets[n]=[]);buckets['__none__']=[];
   const has=(txt,n)=>((txt||'').toLowerCase().includes(n.toLowerCase()));
+  // recolecta ítems de los 3 niveles con tipo, ruta, estado y fecha
+  const items=[]; // {tipo, nombre, ruta, est, obj, resp, invol}
   vis.forEach(p=>{
+    items.push({tipo:'Actividad',nombre:p.nombre,ruta:esc(p.cat),est:procEstado(p),obj:p.obj,resp:p.resp,invol:p.invol,pid:p.id});
+    p.actividades.forEach(a=>{
+      items.push({tipo:'Tarea',nombre:a.nombre,ruta:esc(p.nombre),est:actEstado(a),obj:a.obj,resp:a.resp,invol:a.invol,pid:p.id});
+      a.tareas.forEach(t=>{
+        items.push({tipo:'Paso',nombre:t.txt,ruta:esc(p.nombre)+' › '+esc(a.nombre),est:taskEstado(t),obj:t.obj,resp:t.resp,invol:t.invol,pid:p.id});
+      });
+    });
+  });
+  // buckets por persona + sin asignar
+  const buckets={};names.forEach(n=>buckets[n]=[]);buckets['__none__']=[];
+  items.forEach(it=>{
     let asignada=false;
-    names.forEach(n=>{if(has(p.resp,n)||has(p.invol,n)){buckets[n].push(p);asignada=true;}});
-    if(!asignada)buckets['__none__'].push(p);
+    names.forEach(n=>{if(has(it.resp,n)||has(it.invol,n)){buckets[n].push(it);asignada=true;}});
+    if(!asignada)buckets['__none__'].push(it);
   });
   const wrap=document.createElement('div');wrap.className='person-cols';
   const cols=names.concat(['__none__']);
@@ -649,13 +662,20 @@ function renderPerson(){
     const list=buckets[name];
     const label=name==='__none__'?'Sin asignar':name;
     const cls=name==='__none__'?'p-otro':personClass(name);
-    const done=list.filter(p=>procEstado(p)==='Realizada').length;
-    const venc=list.filter(p=>procEstado(p)!=='Realizada'&&daysTo(p.obj)!==null&&daysTo(p.obj)<0).length;
+    const nA=list.filter(x=>x.tipo==='Actividad').length;
+    const nT=list.filter(x=>x.tipo==='Tarea').length;
+    const nP=list.filter(x=>x.tipo==='Paso').length;
     const col=document.createElement('div');col.className='person-col';
-    col.innerHTML=`<h2><span class="tag-person ${cls}">${esc(label)}</span></h2><div class="psub">${list.length} actividades · ${done} hechas · ${venc} vencidas</div>`;
+    col.innerHTML=`<h2><span class="tag-person ${cls}">${esc(label)}</span></h2><div class="psub">${nA} activ. · ${nT} tareas · ${nP} pasos</div>`;
     const sorted=[...list].sort((a,b)=>{const da=parseD(a.obj),db=parseD(b.obj);if(!da)return 1;if(!db)return -1;return da-db;});
-    sorted.forEach(p=>{const est=procEstado(p);const row=document.createElement('div');row.className='prow';const n=daysTo(p.obj);let dl=fmtD(p.obj);if(est==='Realizada')dl='hecho';else if(n!==null){if(n<0)dl='venció';else if(n===0)dl='hoy';else if(n<=14)dl='en '+n+'d';}row.innerHTML=`<div class="pt">${esc(p.nombre)}</div><div class="pm"><span class="stbadge ${stCls(est)}"></span>${est} · ${dl} · <span style="color:var(--accent)">${esc(p.cat)}</span></div>`;row.addEventListener('click',()=>openModal(p.id));col.appendChild(row);});
-    if(!list.length){const e=document.createElement('div');e.className='empty';e.textContent='Sin actividades';col.appendChild(e);}
+    sorted.forEach(it=>{
+      const est=it.est;const n=daysTo(it.obj);let dl=it.obj?fmtD(it.obj):'—';if(est==='Realizada')dl='hecho';else if(n!==null){if(n<0)dl='venció';else if(n===0)dl='hoy';else if(n<=14)dl='en '+n+'d';}
+      const row=document.createElement('div');row.className='prow';
+      row.innerHTML=`<div class="pt"><span class="ptipo">${it.tipo}</span> ${esc(it.nombre)}</div><div class="pm"><span class="stbadge ${stCls(est)}"></span>${est} · ${dl} · <span style="color:var(--accent)">${it.ruta}</span></div>`;
+      row.addEventListener('click',()=>openModal(it.pid));
+      col.appendChild(row);
+    });
+    if(!list.length){const e=document.createElement('div');e.className='empty';e.textContent='Nada asignado';col.appendChild(e);}
     wrap.appendChild(col);
   });
   app.appendChild(wrap);
