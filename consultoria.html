@@ -447,10 +447,10 @@ function _printOneProjectHTML(cat){
   return html;
 }
 
-function _printPersonHTML(){
+function _printPersonHTML(soloPersona){
   let html='';
   const vis=procsOnly().filter(p=>procVisible(p));
-  const names=peopleNames();
+  const names=soloPersona?[soloPersona]:peopleNames();
   const has=(txt,n)=>((txt||'').toLowerCase().includes(n.toLowerCase()));
   // recolecta ítems de 3 niveles, guardando el proyecto (cat)
   const items=[];
@@ -461,8 +461,8 @@ function _printPersonHTML(){
       a.tareas.forEach(t=>{items.push({tipo:'Paso',nombre:t.txt,proyecto:p.cat,ruta:p.nombre+' › '+a.nombre,est:taskEstado(t),obj:t.obj,objH:t.objH,resp:t.resp,invol:t.invol});});
     });
   });
-  const buckets={};names.forEach(n=>buckets[n]=[]);buckets['Sin asignar']=[];
-  items.forEach(it=>{let asg=false;names.forEach(n=>{if(has(it.resp,n)||has(it.invol,n)){buckets[n].push(it);asg=true;}});if(!asg)buckets['Sin asignar'].push(it);});
+  const buckets={};names.forEach(n=>buckets[n]=[]);if(!soloPersona)buckets['Sin asignar']=[];
+  items.forEach(it=>{let asg=false;names.forEach(n=>{if(has(it.resp,n)||has(it.invol,n)){buckets[n].push(it);asg=true;}});if(!asg&&!soloPersona)buckets['Sin asignar'].push(it);});
   Object.keys(buckets).forEach(n=>{
     const list=buckets[n];if(!list.length)return;
     const nA=list.filter(x=>x.tipo==='Actividad').length,nT=list.filter(x=>x.tipo==='Tarea').length,nP=list.filter(x=>x.tipo==='Paso').length;
@@ -488,7 +488,7 @@ function doPrint(mode,arg){
   const stamp=`<div class="pr-meta" style="border:none">Generado ${new Date().toLocaleDateString('es-DO')}</div>`;
   if(mode==='cat'){title='Proyecto: '+arg;body=stamp+_printOneProjectHTML(arg);}
   else if(mode==='allcats'){title='Todos los proyectos';body=stamp+catsInUse().map(c=>_printOneProjectHTML(c)).join('<div style="height:14px"></div>');}
-  else if(mode==='person'){title='Por persona';body=stamp+_printPersonHTML();}
+  else if(mode==='person'){title=arg?('Reporte de '+arg):'Por persona (todas)';body=stamp+_printPersonHTML(arg||null);}
   cont.innerHTML=`<h1 class="pr-title">${esc(title)}</h1>`+body;
   window.print();
 }
@@ -497,6 +497,7 @@ function openPrintMenu(){
   const m=document.getElementById('modal');
   const curCat=view.startsWith('cat:')?view.slice(4):'';
   const cats=catsInUse();
+  const people=peopleNames();
   m.innerHTML=`<h2>Imprimir</h2><div class="mid">Elige qué imprimir o guardar como PDF</div>
     <div style="display:flex;flex-direction:column;gap:9px;margin-top:16px">
       ${curCat?`<button class="btn primary printopt" data-mode="cat" data-arg="${esc(curCat)}" style="text-align:left;padding:11px 14px">📄 El proyecto actual — <b>${esc(curCat)}</b></button>`:''}
@@ -508,7 +509,14 @@ function openPrintMenu(){
         <button class="btn printopt" data-mode="catsel">Imprimir</button>
       </div>
       <button class="btn printopt" data-mode="allcats" style="text-align:left;padding:11px 14px">📚 Todos los proyectos (reporte completo)</button>
-      <button class="btn printopt" data-mode="person" style="text-align:left;padding:11px 14px">👥 Por persona</button>
+      <div style="border-top:1px solid var(--line);margin:6px 0 2px"></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select id="printPerSel" style="flex:1;font-family:inherit;font-size:13px;padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--paper)">
+          <option value="__all__">👥 Por persona — todas</option>
+          ${people.map(n=>`<option value="${esc(n)}">👤 ${esc(n)}</option>`).join('')}
+        </select>
+        <button class="btn printopt" data-mode="persel">Imprimir</button>
+      </div>
     </div>
     <div class="mactions" style="margin-top:16px"><div></div><div><button class="btn" id="printCancel">Cerrar</button></div></div>`;
   document.getElementById('scrim').classList.add('open');
@@ -517,6 +525,7 @@ function openPrintMenu(){
     b.onclick=()=>{
       const mode=b.dataset.mode;
       if(mode==='catsel'){const c=document.getElementById('printCatSel').value;if(!c){alert('Elige un proyecto de la lista.');return;}closeModal();setTimeout(()=>doPrint('cat',c),150);return;}
+      if(mode==='persel'){const v=document.getElementById('printPerSel').value;closeModal();setTimeout(()=>doPrint('person',v==='__all__'?'':v),150);return;}
       const arg=b.dataset.arg||'';
       closeModal();setTimeout(()=>doPrint(mode,arg),150);
     };
