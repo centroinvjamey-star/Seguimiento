@@ -241,6 +241,11 @@
     .pr-mini{font-size:10px;color:#777}
     .pr-check{font-family:monospace}
     .pr-note{font-size:12px;color:#555;margin-bottom:10px}
+    .pr-person{margin:0 0 18px;break-inside:avoid;page-break-inside:avoid}
+    .pr-proy-h{font-size:12px;font-weight:700;color:#333;margin:8px 0 3px;background:#f0f0f0;padding:2px 6px;border-radius:4px}
+    .pr-pitem{font-size:12px;margin:2px 0 2px 8px;line-height:1.4}
+    .pr-est{font-size:9px;font-weight:700;text-transform:uppercase;border:1px solid #999;border-radius:8px;padding:0 5px;margin-right:3px}
+    .pr-tipo{font-size:9px;font-weight:700;text-transform:uppercase;color:#555;margin-right:3px}
     @page{margin:1.5cm}
   }
 </style>
@@ -428,12 +433,13 @@ function _printOneProjectHTML(cat){
     p.actividades.forEach(a=>{
       const ae=actEstado(a);
       html+=`<div class="pr-task"><span class="pr-check">${ae==='Realizada'?'☑':'☐'}</span> <b>${esc(a.nombre)}</b> <span class="pr-mini">[${ae}]</span>`;
-      const am=[];if(a.resp)am.push(esc(a.resp));if(a.obj)am.push(fmtD(a.obj)+(a.objH?' '+a.objH:''));
+      const am=[];if(a.resp)am.push('Resp: '+esc(a.resp));if(a.invol)am.push('Invol: '+esc(a.invol));if(a.obj)am.push(fmtD(a.obj)+(a.objH?' '+a.objH:''));
       if(am.length)html+=` <span class="pr-mini">— ${am.join(' · ')}</span>`;
       html+=`</div>`;
       a.tareas.forEach(t=>{
         const te=taskEstado(t);
-        html+=`<div class="pr-sub"><span class="pr-check">${te==='Realizada'?'☑':'☐'}</span> ${esc(t.txt)} <span class="pr-mini">[${te}]${t.resp?' · '+esc(t.resp):''}${t.obj?' · '+fmtD(t.obj)+(t.objH?' '+t.objH:''):''}</span></div>`;
+        const tm=[];if(t.resp)tm.push('Resp: '+esc(t.resp));if(t.invol)tm.push('Invol: '+esc(t.invol));if(t.obj)tm.push(fmtD(t.obj)+(t.objH?' '+t.objH:''));
+        html+=`<div class="pr-sub"><span class="pr-check">${te==='Realizada'?'☑':'☐'}</span> ${esc(t.txt)} <span class="pr-mini">[${te}]${tm.length?' · '+tm.join(' · '):''}</span></div>`;
       });
     });
     html+=`</div>`;
@@ -446,12 +452,13 @@ function _printPersonHTML(){
   const vis=procsOnly().filter(p=>procVisible(p));
   const names=peopleNames();
   const has=(txt,n)=>((txt||'').toLowerCase().includes(n.toLowerCase()));
+  // recolecta ítems de 3 niveles, guardando el proyecto (cat)
   const items=[];
   vis.forEach(p=>{
-    items.push({tipo:'Actividad',nombre:p.nombre,ruta:p.cat,est:procEstado(p),obj:p.obj,objH:p.objH,resp:p.resp,invol:p.invol});
+    items.push({tipo:'Actividad',nombre:p.nombre,proyecto:p.cat,ruta:'',est:procEstado(p),obj:p.obj,objH:p.objH,resp:p.resp,invol:p.invol});
     p.actividades.forEach(a=>{
-      items.push({tipo:'Tarea',nombre:a.nombre,ruta:p.nombre,est:actEstado(a),obj:a.obj,objH:a.objH,resp:a.resp,invol:a.invol});
-      a.tareas.forEach(t=>{items.push({tipo:'Paso',nombre:t.txt,ruta:p.nombre+' › '+a.nombre,est:taskEstado(t),obj:t.obj,objH:t.objH,resp:t.resp,invol:t.invol});});
+      items.push({tipo:'Tarea',nombre:a.nombre,proyecto:p.cat,ruta:p.nombre,est:actEstado(a),obj:a.obj,objH:a.objH,resp:a.resp,invol:a.invol});
+      a.tareas.forEach(t=>{items.push({tipo:'Paso',nombre:t.txt,proyecto:p.cat,ruta:p.nombre+' › '+a.nombre,est:taskEstado(t),obj:t.obj,objH:t.objH,resp:t.resp,invol:t.invol});});
     });
   });
   const buckets={};names.forEach(n=>buckets[n]=[]);buckets['Sin asignar']=[];
@@ -459,9 +466,17 @@ function _printPersonHTML(){
   Object.keys(buckets).forEach(n=>{
     const list=buckets[n];if(!list.length)return;
     const nA=list.filter(x=>x.tipo==='Actividad').length,nT=list.filter(x=>x.tipo==='Tarea').length,nP=list.filter(x=>x.tipo==='Paso').length;
-    html+=`<div class="pr-act"><div class="pr-act-h"><span class="pr-name">${esc(n)}</span><span class="pr-badge">${nA} act · ${nT} tareas · ${nP} pasos</span></div>`;
-    const sorted=[...list].sort((a,b)=>{const da=parseD(a.obj),db=parseD(b.obj);if(!da)return 1;if(!db)return -1;return da-db;});
-    sorted.forEach(it=>{html+=`<div class="pr-task"><span class="pr-check">${it.est==='Realizada'?'☑':'☐'}</span> <span class="pr-mini">[${it.tipo}]</span> ${esc(it.nombre)} <span class="pr-mini">— ${it.est}${it.obj?' · '+fmtD(it.obj)+(it.objH?' '+it.objH:''):''} · ${esc(it.ruta)}</span></div>`;});
+    html+=`<div class="pr-person"><div class="pr-act-h"><span class="pr-name">${esc(n)}</span><span class="pr-badge">${nA} act · ${nT} tareas · ${nP} pasos</span></div>`;
+    // agrupar por proyecto
+    const porProy={};list.forEach(it=>{(porProy[it.proyecto]=porProy[it.proyecto]||[]).push(it);});
+    Object.keys(porProy).sort().forEach(proy=>{
+      html+=`<div class="pr-proy-h">Proyecto: ${esc(proy)}</div>`;
+      const arr=porProy[proy].sort((a,b)=>{const da=parseD(a.obj),db=parseD(b.obj);if(!da)return 1;if(!db)return -1;return da-db;});
+      arr.forEach(it=>{
+        const fecha=it.obj?fmtD(it.obj)+(it.objH?' '+it.objH:''):'sin fecha';
+        html+=`<div class="pr-pitem"><span class="pr-est pr-est-${stCls(it.est)}">${it.est}</span> <span class="pr-tipo">${it.tipo}</span> <b>${esc(it.nombre)}</b>${it.ruta?` <span class="pr-mini">(${esc(it.ruta)})</span>`:''} <span class="pr-mini">· objetivo: ${fecha}${it.invol?' · con '+esc(it.invol):''}</span></div>`;
+      });
+    });
     html+=`</div>`;
   });
   return html;
@@ -1011,7 +1026,7 @@ function openModal(id){
     <div class="field"><label>Nombre de la actividad</label><input id="f_nombre" value="${esc(p.nombre)}"></div>
     <div class="field"><label>Descripción</label><textarea id="f_desc">${esc(p.desc)}</textarea></div>
     <div class="frow"><div class="field"><label>Proyecto</label><select id="f_cat">${allCats.map(c=>`<option ${c===p.cat?'selected':''}>${c}</option>`).join('')}</select></div><div class="field"><label>Prioridad</label><select id="f_prio">${['Alta','Media','Baja'].map(x=>`<option ${x===p.prio?'selected':''}>${x}</option>`).join('')}</select></div></div>
-    <div class="frow"><div class="field"><label>Responsable</label><input id="f_resp" list="f_resp_dl" value="${esc(p.resp)}"><datalist id="f_resp_dl">${peopleNames().map(n=>`<option value="${esc(n)}">`).join('')}</datalist></div><div class="field"><label>Involucrados</label><input id="f_invol" value="${esc(p.invol||'')}"></div></div>
+    <div class="frow"><div class="field"><label>Responsable</label><select id="f_resp_sel">${['<option value="">— responsable —</option>'].concat(peopleNames().map(n=>`<option value="${esc(n)}" ${n===p.resp?'selected':''}>${esc(n)}</option>`)).concat([`<option value="__otro__" ${(p.resp&&!peopleNames().includes(p.resp))?'selected':''}>✎ Escribir otro…</option>`]).join('')}</select><input id="f_resp" value="${esc(p.resp)}" placeholder="nombre" style="margin-top:6px;${(p.resp&&!peopleNames().includes(p.resp))||false?'':'display:none'}"></div><div class="field"><label>Involucrados</label><input id="f_invol" value="${esc(p.invol||'')}"></div></div>
     <div class="frow"><div class="field"><label>Fecha inicio</label><input type="date" id="f_ini" value="${p.ini||''}"></div><div class="field"><label>Fecha objetivo</label><div style="display:flex;gap:6px"><input type="date" id="f_obj" value="${p.obj||''}" style="flex:1"><input type="time" id="f_objH" value="${p.objH||''}" title="Hora (opcional)" style="width:110px"></div></div></div>
     <div class="field"><label>Estado (vacío = automático desde tareas)</label><select id="f_estman"><option value="">Automático</option>${STATES.map(s=>`<option ${p.estadoManual===s?'selected':''}>${s}</option>`).join('')}</select></div>
     <div class="field"><label>Notas</label><textarea id="f_notas">${esc(p.notas)}</textarea></div>
@@ -1019,6 +1034,14 @@ function openModal(id){
     <div class="cmt-compose"><div class="who-pick"><span class="chip whopick on" data-who="Jenny">Jenny</span><span class="chip whopick" data-who="Camila">Camila</span></div><textarea id="newCmt" placeholder="Escribe un comentario…"></textarea><div style="margin-top:6px"><button class="btn primary" id="addCmtBtn" style="padding:7px 14px;font-size:13px">Comentar</button></div></div>`}
     <div class="mactions"><div>${isNew?'':'<button class="btn danger" id="delBtn">Eliminar proceso</button>'}</div><div style="display:flex;gap:8px"><button class="btn" id="cancelBtn">Cerrar</button><button class="btn primary" id="saveBtn">${isNew?'Crear':'Guardar'}</button></div></div>`;
   document.getElementById('scrim').classList.add('open');
+  // conectar el desplegable de responsable con el campo de texto
+  (function(){
+    const sel=document.getElementById('f_resp_sel');const txt=document.getElementById('f_resp');
+    if(sel&&txt){sel.addEventListener('change',()=>{
+      if(sel.value==='__otro__'){txt.style.display='';txt.value='';txt.focus();}
+      else{txt.style.display='none';txt.value=sel.value;}
+    });}
+  })();
   document.getElementById('cancelBtn').onclick=closeModal;
   document.getElementById('saveBtn').onclick=()=>{
     const g=i=>document.getElementById(i).value;
