@@ -228,6 +228,7 @@
     .layout,.scrim{display:none !important}
     #printArea{display:block;padding:0;color:#111;font-family:"Inter",system-ui,sans-serif}
     .pr-title{font-size:22px;font-weight:800;margin:0 0 4px;font-family:"Space Grotesk","Inter",sans-serif}
+    .pr-proj{font-size:17px;font-weight:700;margin:18px 0 2px;padding-bottom:3px;border-bottom:2px solid #333;font-family:"Space Grotesk","Inter",sans-serif;break-after:avoid}
     .pr-meta{font-size:12px;color:#555;margin-bottom:16px;border-bottom:1px solid #ccc;padding-bottom:8px}
     .pr-act{margin:0 0 14px;break-inside:avoid;page-break-inside:avoid}
     .pr-act-h{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid #ddd;padding-bottom:3px;margin-bottom:4px}
@@ -413,68 +414,101 @@ function renderMetrics(){
   el.innerHTML=cards.map(c=>`<div class="metric ${c.c||''}"><div class="mnum">${c.n}</div><div class="mlbl">${c.l}</div></div>`).join('');
 }
 
-function printProject(){
-  // arma un documento limpio del proyecto/vista actual y lo imprime
-  const cont=document.getElementById('printArea');
-  let title='Consultorías Jamey';
+function _printOneProjectHTML(cat){
   let html='';
-  const fmtEst=e=>e;
-  if(view.startsWith('cat:')){
-    const cat=view.slice(4);title='Proyecto: '+cat;
-    const procs=procsOnly().filter(p=>p.cat===cat);
-    const done=procs.filter(p=>procEstado(p)==='Realizada').length;
-    html+=`<div class="pr-meta">${procs.length} actividades · ${done} realizadas · Generado ${new Date().toLocaleDateString('es-DO')}</div>`;
-    procs.forEach(p=>{
-      const est=procEstado(p);
-      html+=`<div class="pr-act"><div class="pr-act-h"><span class="pr-name">${esc(p.nombre||'(sin nombre)')}</span><span class="pr-badge">${est}</span></div>`;
-      const meta=[];if(p.resp)meta.push('Resp: '+esc(p.resp));if(p.invol)meta.push('Involucrados: '+esc(p.invol));if(p.obj)meta.push('Objetivo: '+fmtD(p.obj)+(p.objH?' '+p.objH:''));
-      if(meta.length)html+=`<div class="pr-line">${meta.join(' · ')}</div>`;
-      if(p.notas)html+=`<div class="pr-notes">${esc(p.notas)}</div>`;
-      p.actividades.forEach(a=>{
-        const ae=actEstado(a);
-        html+=`<div class="pr-task"><span class="pr-check">${ae==='Realizada'?'☑':'☐'}</span> <b>${esc(a.nombre)}</b> <span class="pr-mini">[${ae}]</span>`;
-        const am=[];if(a.resp)am.push(esc(a.resp));if(a.obj)am.push(fmtD(a.obj)+(a.objH?' '+a.objH:''));
-        if(am.length)html+=` <span class="pr-mini">— ${am.join(' · ')}</span>`;
-        html+=`</div>`;
-        a.tareas.forEach(t=>{
-          const te=taskEstado(t);
-          html+=`<div class="pr-sub"><span class="pr-check">${te==='Realizada'?'☑':'☐'}</span> ${esc(t.txt)} <span class="pr-mini">[${te}]${t.resp?' · '+esc(t.resp):''}${t.obj?' · '+fmtD(t.obj)+(t.objH?' '+t.objH:''):''}</span></div>`;
-        });
-      });
+  const procs=procsOnly().filter(p=>p.cat===cat);
+  const done=procs.filter(p=>procEstado(p)==='Realizada').length;
+  html+=`<h2 class="pr-proj">${esc(cat)}</h2><div class="pr-meta">${procs.length} actividades · ${done} realizadas</div>`;
+  procs.forEach(p=>{
+    const est=procEstado(p);
+    html+=`<div class="pr-act"><div class="pr-act-h"><span class="pr-name">${esc(p.nombre||'(sin nombre)')}</span><span class="pr-badge">${est}</span></div>`;
+    const meta=[];if(p.resp)meta.push('Resp: '+esc(p.resp));if(p.invol)meta.push('Involucrados: '+esc(p.invol));if(p.obj)meta.push('Objetivo: '+fmtD(p.obj)+(p.objH?' '+p.objH:''));
+    if(meta.length)html+=`<div class="pr-line">${meta.join(' · ')}</div>`;
+    if(p.notas)html+=`<div class="pr-notes">${esc(p.notas)}</div>`;
+    p.actividades.forEach(a=>{
+      const ae=actEstado(a);
+      html+=`<div class="pr-task"><span class="pr-check">${ae==='Realizada'?'☑':'☐'}</span> <b>${esc(a.nombre)}</b> <span class="pr-mini">[${ae}]</span>`;
+      const am=[];if(a.resp)am.push(esc(a.resp));if(a.obj)am.push(fmtD(a.obj)+(a.objH?' '+a.objH:''));
+      if(am.length)html+=` <span class="pr-mini">— ${am.join(' · ')}</span>`;
       html+=`</div>`;
-    });
-  } else if(view==='person'){
-    title='Consultorías Jamey — Por persona';
-    const vis=procsOnly().filter(p=>procVisible(p));
-    const names=peopleNames();
-    const has=(txt,n)=>((txt||'').toLowerCase().includes(n.toLowerCase()));
-    const items=[];
-    vis.forEach(p=>{
-      items.push({tipo:'Actividad',nombre:p.nombre,ruta:p.cat,est:procEstado(p),obj:p.obj,objH:p.objH,resp:p.resp,invol:p.invol});
-      p.actividades.forEach(a=>{
-        items.push({tipo:'Tarea',nombre:a.nombre,ruta:p.nombre,est:actEstado(a),obj:a.obj,objH:a.objH,resp:a.resp,invol:a.invol});
-        a.tareas.forEach(t=>{items.push({tipo:'Paso',nombre:t.txt,ruta:p.nombre+' › '+a.nombre,est:taskEstado(t),obj:t.obj,objH:t.objH,resp:t.resp,invol:t.invol});});
+      a.tareas.forEach(t=>{
+        const te=taskEstado(t);
+        html+=`<div class="pr-sub"><span class="pr-check">${te==='Realizada'?'☑':'☐'}</span> ${esc(t.txt)} <span class="pr-mini">[${te}]${t.resp?' · '+esc(t.resp):''}${t.obj?' · '+fmtD(t.obj)+(t.objH?' '+t.objH:''):''}</span></div>`;
       });
     });
-    const buckets={};names.forEach(n=>buckets[n]=[]);buckets['Sin asignar']=[];
-    items.forEach(it=>{let asg=false;names.forEach(n=>{if(has(it.resp,n)||has(it.invol,n)){buckets[n].push(it);asg=true;}});if(!asg)buckets['Sin asignar'].push(it);});
-    html+=`<div class="pr-meta">Generado ${new Date().toLocaleDateString('es-DO')}</div>`;
-    Object.keys(buckets).forEach(n=>{
-      const list=buckets[n];if(!list.length)return;
-      const nA=list.filter(x=>x.tipo==='Actividad').length,nT=list.filter(x=>x.tipo==='Tarea').length,nP=list.filter(x=>x.tipo==='Paso').length;
-      html+=`<div class="pr-act"><div class="pr-act-h"><span class="pr-name">${esc(n)}</span><span class="pr-badge">${nA} act · ${nT} tareas · ${nP} pasos</span></div>`;
-      const sorted=[...list].sort((a,b)=>{const da=parseD(a.obj),db=parseD(b.obj);if(!da)return 1;if(!db)return -1;return da-db;});
-      sorted.forEach(it=>{html+=`<div class="pr-task"><span class="pr-check">${it.est==='Realizada'?'☑':'☐'}</span> <span class="pr-mini">[${it.tipo}]</span> ${esc(it.nombre)} <span class="pr-mini">— ${it.est}${it.obj?' · '+fmtD(it.obj)+(it.objH?' '+it.objH:''):''} · ${esc(it.ruta)}</span></div>`;});
-      html+=`</div>`;
+    html+=`</div>`;
+  });
+  return html;
+}
+
+function _printPersonHTML(){
+  let html='';
+  const vis=procsOnly().filter(p=>procVisible(p));
+  const names=peopleNames();
+  const has=(txt,n)=>((txt||'').toLowerCase().includes(n.toLowerCase()));
+  const items=[];
+  vis.forEach(p=>{
+    items.push({tipo:'Actividad',nombre:p.nombre,ruta:p.cat,est:procEstado(p),obj:p.obj,objH:p.objH,resp:p.resp,invol:p.invol});
+    p.actividades.forEach(a=>{
+      items.push({tipo:'Tarea',nombre:a.nombre,ruta:p.nombre,est:actEstado(a),obj:a.obj,objH:a.objH,resp:a.resp,invol:a.invol});
+      a.tareas.forEach(t=>{items.push({tipo:'Paso',nombre:t.txt,ruta:p.nombre+' › '+a.nombre,est:taskEstado(t),obj:t.obj,objH:t.objH,resp:t.resp,invol:t.invol});});
     });
-  } else {
-    // para otras vistas, imprime lo que hay en pantalla
-    title='Consultorías Jamey';
-    html='<div class="pr-note">Abre un proyecto para imprimir su detalle. Esta vista se imprime tal cual aparece.</div>'+document.getElementById('app').innerHTML;
-  }
-  cont.innerHTML=`<h1 class="pr-title">${esc(title)}</h1>`+html;
+  });
+  const buckets={};names.forEach(n=>buckets[n]=[]);buckets['Sin asignar']=[];
+  items.forEach(it=>{let asg=false;names.forEach(n=>{if(has(it.resp,n)||has(it.invol,n)){buckets[n].push(it);asg=true;}});if(!asg)buckets['Sin asignar'].push(it);});
+  Object.keys(buckets).forEach(n=>{
+    const list=buckets[n];if(!list.length)return;
+    const nA=list.filter(x=>x.tipo==='Actividad').length,nT=list.filter(x=>x.tipo==='Tarea').length,nP=list.filter(x=>x.tipo==='Paso').length;
+    html+=`<div class="pr-act"><div class="pr-act-h"><span class="pr-name">${esc(n)}</span><span class="pr-badge">${nA} act · ${nT} tareas · ${nP} pasos</span></div>`;
+    const sorted=[...list].sort((a,b)=>{const da=parseD(a.obj),db=parseD(b.obj);if(!da)return 1;if(!db)return -1;return da-db;});
+    sorted.forEach(it=>{html+=`<div class="pr-task"><span class="pr-check">${it.est==='Realizada'?'☑':'☐'}</span> <span class="pr-mini">[${it.tipo}]</span> ${esc(it.nombre)} <span class="pr-mini">— ${it.est}${it.obj?' · '+fmtD(it.obj)+(it.objH?' '+it.objH:''):''} · ${esc(it.ruta)}</span></div>`;});
+    html+=`</div>`;
+  });
+  return html;
+}
+
+function doPrint(mode,arg){
+  const cont=document.getElementById('printArea');
+  let title='Consultorías Jamey', body='';
+  const stamp=`<div class="pr-meta" style="border:none">Generado ${new Date().toLocaleDateString('es-DO')}</div>`;
+  if(mode==='cat'){title='Proyecto: '+arg;body=stamp+_printOneProjectHTML(arg);}
+  else if(mode==='allcats'){title='Todos los proyectos';body=stamp+catsInUse().map(c=>_printOneProjectHTML(c)).join('<div style="height:14px"></div>');}
+  else if(mode==='person'){title='Por persona';body=stamp+_printPersonHTML();}
+  cont.innerHTML=`<h1 class="pr-title">${esc(title)}</h1>`+body;
   window.print();
 }
+
+function openPrintMenu(){
+  const m=document.getElementById('modal');
+  const curCat=view.startsWith('cat:')?view.slice(4):'';
+  const cats=catsInUse();
+  m.innerHTML=`<h2>Imprimir</h2><div class="mid">Elige qué imprimir o guardar como PDF</div>
+    <div style="display:flex;flex-direction:column;gap:9px;margin-top:16px">
+      ${curCat?`<button class="btn primary printopt" data-mode="cat" data-arg="${esc(curCat)}" style="text-align:left;padding:11px 14px">📄 El proyecto actual — <b>${esc(curCat)}</b></button>`:''}
+      <div style="display:flex;gap:8px;align-items:center">
+        <select id="printCatSel" style="flex:1;font-family:inherit;font-size:13px;padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--paper)">
+          <option value="">— elegir un proyecto —</option>
+          ${cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('')}
+        </select>
+        <button class="btn printopt" data-mode="catsel">Imprimir</button>
+      </div>
+      <button class="btn printopt" data-mode="allcats" style="text-align:left;padding:11px 14px">📚 Todos los proyectos (reporte completo)</button>
+      <button class="btn printopt" data-mode="person" style="text-align:left;padding:11px 14px">👥 Por persona</button>
+    </div>
+    <div class="mactions" style="margin-top:16px"><div></div><div><button class="btn" id="printCancel">Cerrar</button></div></div>`;
+  document.getElementById('scrim').classList.add('open');
+  document.getElementById('printCancel').onclick=closeModal;
+  m.querySelectorAll('.printopt').forEach(b=>{
+    b.onclick=()=>{
+      const mode=b.dataset.mode;
+      if(mode==='catsel'){const c=document.getElementById('printCatSel').value;if(!c){alert('Elige un proyecto de la lista.');return;}closeModal();setTimeout(()=>doPrint('cat',c),150);return;}
+      const arg=b.dataset.arg||'';
+      closeModal();setTimeout(()=>doPrint(mode,arg),150);
+    };
+  });
+}
+
+function printProject(){ openPrintMenu(); }
 
 function render(){
   buildTabs();
@@ -967,7 +1001,8 @@ function openPeople(){
 
 function openModal(id){
   const isNew=!id;
-  const p=id?data.find(x=>x.id===id):{id:'',cat:(CAT_ORDER[0]||'Conde'),sub:'',nombre:'',desc:'',resp:'Jenny',coresp:'',invol:'',ini:null,obj:null,prio:'Media',notas:'',estadoManual:null,estadoBase:'Pendiente',actividades:[],comments:[]};
+  const defCat=view.startsWith('cat:')?view.slice(4):(CAT_ORDER[0]||'Conde');
+  const p=id?data.find(x=>x.id===id):{id:'',cat:defCat,sub:'',nombre:'',desc:'',resp:'Jenny',coresp:'',invol:'',ini:null,obj:null,prio:'Media',notas:'',estadoManual:null,estadoBase:'Pendiente',actividades:[],comments:[]};
   const cats=catsInUse();const allCats=[...new Set([...CAT_ORDER,...cats])];
   const m=document.getElementById('modal');
   const cmtHTML=(p.comments||[]).map((c,i)=>`<div class="cmt"><div class="ch"><b>${esc(c.autor)}</b><span>${esc(c.fecha)} <button class="xdel" data-cmtdel="${i}">✕</button></span></div><div class="cbody">${esc(c.texto)}</div></div>`).join('');
