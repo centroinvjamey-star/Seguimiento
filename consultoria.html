@@ -447,10 +447,13 @@ function _printOneProjectHTML(cat){
   return html;
 }
 
-function _printPersonHTML(soloPersona){
+function _printPersonHTML(soloPersonas,soloProyecto){
+  // soloPersonas: null = todas; o array de nombres. soloProyecto: null = todos; o nombre de cat
   let html='';
-  const vis=procsOnly().filter(p=>procVisible(p));
-  const names=soloPersona?[soloPersona]:peopleNames();
+  let vis=procsOnly().filter(p=>procVisible(p));
+  if(soloProyecto)vis=vis.filter(p=>p.cat===soloProyecto);
+  const filtro=(soloPersonas&&soloPersonas.length)?soloPersonas:null;
+  const names=filtro?filtro:peopleNames();
   const has=(txt,n)=>((txt||'').toLowerCase().includes(n.toLowerCase()));
   // recolecta ítems de 3 niveles, guardando el proyecto (cat)
   const items=[];
@@ -461,8 +464,8 @@ function _printPersonHTML(soloPersona){
       a.tareas.forEach(t=>{items.push({tipo:'Paso',nombre:t.txt,proyecto:p.cat,ruta:p.nombre+' › '+a.nombre,est:taskEstado(t),obj:t.obj,objH:t.objH,resp:t.resp,invol:t.invol});});
     });
   });
-  const buckets={};names.forEach(n=>buckets[n]=[]);if(!soloPersona)buckets['Sin asignar']=[];
-  items.forEach(it=>{let asg=false;names.forEach(n=>{if(has(it.resp,n)||has(it.invol,n)){buckets[n].push(it);asg=true;}});if(!asg&&!soloPersona)buckets['Sin asignar'].push(it);});
+  const buckets={};names.forEach(n=>buckets[n]=[]);if(!filtro)buckets['Sin asignar']=[];
+  items.forEach(it=>{let asg=false;names.forEach(n=>{if(has(it.resp,n)||has(it.invol,n)){buckets[n].push(it);asg=true;}});if(!asg&&!filtro)buckets['Sin asignar'].push(it);});
   Object.keys(buckets).forEach(n=>{
     const list=buckets[n];if(!list.length)return;
     const nA=list.filter(x=>x.tipo==='Actividad').length,nT=list.filter(x=>x.tipo==='Tarea').length,nP=list.filter(x=>x.tipo==='Paso').length;
@@ -488,7 +491,15 @@ function doPrint(mode,arg){
   const stamp=`<div class="pr-meta" style="border:none">Generado ${new Date().toLocaleDateString('es-DO')}</div>`;
   if(mode==='cat'){title='Proyecto: '+arg;body=stamp+_printOneProjectHTML(arg);}
   else if(mode==='allcats'){title='Todos los proyectos';body=stamp+catsInUse().map(c=>_printOneProjectHTML(c)).join('<div style="height:14px"></div>');}
-  else if(mode==='person'){title=arg?('Reporte de '+arg):'Por persona (todas)';body=stamp+_printPersonHTML(arg||null);}
+  else if(mode==='person'){
+    const arr=(arg&&arg.personas&&arg.personas.length)?arg.personas:null;
+    const proy=arg&&arg.proyecto?arg.proyecto:null;
+    if(arr&&arr.length===1)title='Reporte de '+arr[0];
+    else if(arr&&arr.length>1)title='Reporte de: '+arr.join(', ');
+    else title='Por persona (todas)';
+    if(proy)title+=' — '+proy;
+    body=stamp+_printPersonHTML(arr,proy);
+  }
   cont.innerHTML=`<h1 class="pr-title">${esc(title)}</h1>`+body;
   window.print();
 }
@@ -510,22 +521,40 @@ function openPrintMenu(){
       </div>
       <button class="btn printopt" data-mode="allcats" style="text-align:left;padding:11px 14px">📚 Todos los proyectos (reporte completo)</button>
       <div style="border-top:1px solid var(--line);margin:6px 0 2px"></div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <select id="printPerSel" style="flex:1;font-family:inherit;font-size:13px;padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--paper)">
-          <option value="__all__">👥 Por persona — todas</option>
-          ${people.map(n=>`<option value="${esc(n)}">👤 ${esc(n)}</option>`).join('')}
+      <div style="font-size:12px;font-weight:600;color:var(--muted)">Por persona — marca a quién incluir:</div>
+      <div style="display:flex;gap:7px;align-items:center;font-size:12px">
+        <span style="color:var(--muted)">Proyecto:</span>
+        <select id="printPerProy" style="flex:1;font-family:inherit;font-size:12.5px;padding:7px;border:1px solid var(--line);border-radius:8px;background:var(--paper)">
+          <option value="">Todos los proyectos</option>
+          ${cats.map(c=>`<option value="${esc(c)}" ${c===curCat?'selected':''}>${esc(c)}</option>`).join('')}
         </select>
-        <button class="btn printopt" data-mode="persel">Imprimir</button>
       </div>
+      <div id="printPerBox" style="display:flex;flex-direction:column;gap:5px;max-height:150px;overflow-y:auto;border:1px solid var(--line);border-radius:8px;padding:9px;background:var(--paper)">
+        <label style="display:flex;gap:7px;align-items:center;font-size:13px;font-weight:600;cursor:pointer"><input type="checkbox" id="perAll"> Todas</label>
+        <div style="border-top:1px solid var(--line);margin:2px 0"></div>
+        ${people.map(n=>`<label style="display:flex;gap:7px;align-items:center;font-size:13px;cursor:pointer"><input type="checkbox" class="perChk" value="${esc(n)}"> ${esc(n)}</label>`).join('')}
+      </div>
+      <button class="btn printopt" data-mode="persel" style="text-align:left;padding:10px 14px">👥 Imprimir personas marcadas</button>
     </div>
     <div class="mactions" style="margin-top:16px"><div></div><div><button class="btn" id="printCancel">Cerrar</button></div></div>`;
   document.getElementById('scrim').classList.add('open');
   document.getElementById('printCancel').onclick=closeModal;
+  // "Todas" marca/desmarca todo
+  const perAll=document.getElementById('perAll');
+  const chks=[...m.querySelectorAll('.perChk')];
+  perAll.addEventListener('change',()=>{chks.forEach(c=>c.checked=false);});
+  chks.forEach(c=>c.addEventListener('change',()=>{if(c.checked)perAll.checked=false;}));
   m.querySelectorAll('.printopt').forEach(b=>{
     b.onclick=()=>{
       const mode=b.dataset.mode;
       if(mode==='catsel'){const c=document.getElementById('printCatSel').value;if(!c){alert('Elige un proyecto de la lista.');return;}closeModal();setTimeout(()=>doPrint('cat',c),150);return;}
-      if(mode==='persel'){const v=document.getElementById('printPerSel').value;closeModal();setTimeout(()=>doPrint('person',v==='__all__'?'':v),150);return;}
+      if(mode==='persel'){
+        const marcadas=chks.filter(c=>c.checked).map(c=>c.value);
+        if(!perAll.checked&&marcadas.length===0){alert('Marca al menos una persona, o "Todas".');return;}
+        const personas=(perAll.checked||marcadas.length===0)?null:marcadas;
+        const proyecto=document.getElementById('printPerProy').value||null;
+        closeModal();setTimeout(()=>doPrint('person',{personas,proyecto}),150);return;
+      }
       const arg=b.dataset.arg||'';
       closeModal();setTimeout(()=>doPrint(mode,arg),150);
     };
